@@ -1,0 +1,36 @@
+<svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+  <!-- Sleep icon with moon and stars -->
+  <defs>
+    <linearGradient id="moonGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="rgba(149,117,205,1)" />
+      <stop offset="100%" stop-color="rgba(103,58,183,0.9)" />
+    </linearGradient>
+    <radialGradient id="starGradient" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
+      <stop offset="0%" stop-color="rgba(255,255,255,1)" />
+      <stop offset="100%" stop-color="rgba(255,255,255,0.6)" />
+    </radialGradient>
+  </defs>
+  
+  <!-- Moon -->
+  <path d="M65,30
+           A35,35 0 1,1 35,70
+           A25,25 0 1,0 65,30 Z" 
+        fill="url(#moonGradient)" />
+  
+  <!-- Stars -->
+  <path d="M25,25 L28,32 L35,35 L28,38 L25,45 L22,38 L15,35 L22,32 Z" 
+        fill="url(#starGradient)" />
+  
+  <path d="M80,45 L82,50 L87,52 L82,54 L80,59 L78,54 L73,52 L78,50 Z" 
+        fill="url(#starGradient)" />
+  
+  <path d="M70,20 L71,23 L74,24 L71,25 L70,28 L69,25 L66,24 L69,23 Z" 
+        fill="url(#starGradient)" />
+  
+  <!-- Highlight for 3D effect -->
+  <path d="M45,40 A15,15 0 0,1 60,55" 
+        fill="none" 
+        stroke="rgba(255,255,255,0.3)" 
+        stroke-width="2" 
+        stroke-linecap="round" />
+</svg>

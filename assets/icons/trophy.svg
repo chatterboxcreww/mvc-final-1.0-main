@@ -1,0 +1,63 @@
+<svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+  <!-- Trophy icon -->
+  <defs>
+    <linearGradient id="trophyGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="rgba(255,215,0,1)" />
+      <stop offset="100%" stop-color="rgba(255,193,7,1)" />
+    </linearGradient>
+    <linearGradient id="baseGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="rgba(121,85,72,0.9)" />
+      <stop offset="100%" stop-color="rgba(93,64,55,1)" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Trophy cup -->
+  <path d="M35,20 
+           L65,20 
+           L65,50 
+           C65,60 55,65 50,65 
+           C45,65 35,60 35,50 Z" 
+        fill="url(#trophyGradient)" 
+        stroke="rgba(255,193,7,1)" 
+        stroke-width="2" />
+  
+  <!-- Trophy handles -->
+  <path d="M65,30 
+           C75,30 80,35 80,45 
+           C80,55 75,55 65,55" 
+        fill="none" 
+        stroke="url(#trophyGradient)" 
+        stroke-width="8" 
+        stroke-linecap="round" />
+  
+  <path d="M35,30 
+           C25,30 20,35 20,45 
+           C20,55 25,55 35,55" 
+        fill="none" 
+        stroke="url(#trophyGradient)" 
+        stroke-width="8" 
+        stroke-linecap="round" />
+  
+  <!-- Trophy base -->
+  <path d="M40,65 L60,65 L60,75 L40,75 Z" 
+        fill="url(#baseGradient)" />
+  
+  <path d="M35,75 L65,75 L65,80 L35,80 Z" 
+        fill="url(#baseGradient)" />
+  
+  <!-- Highlight for 3D effect -->
+  <path d="M45,25 L45,45" 
+        fill="none" 
+        stroke="rgba(255,255,255,0.5)" 
+        stroke-width="2" 
+        stroke-linecap="round" />
+  
+  <!-- Star on trophy -->
+  <path d="M50,35 
+           L52,40 L58,40 
+           L53,43 L55,48 
+           L50,45 L45,48 
+           L47,43 L42,40 
+           L48,40 Z" 
+        fill="white" />
+</svg>

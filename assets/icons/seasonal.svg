@@ -1,0 +1,83 @@
+<svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+  <!-- Seasonal icon with four seasons -->
+  <defs>
+    <linearGradient id="springGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="rgba(139,195,74,0.9)" />
+      <stop offset="100%" stop-color="rgba(104,159,56,1)" />
+    </linearGradient>
+    <linearGradient id="summerGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="rgba(255,193,7,0.9)" />
+      <stop offset="100%" stop-color="rgba(255,160,0,1)" />
+    </linearGradient>
+    <linearGradient id="fallGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="rgba(255,87,34,0.9)" />
+      <stop offset="100%" stop-color="rgba(230,74,25,1)" />
+    </linearGradient>
+    <linearGradient id="winterGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="rgba(3,169,244,0.9)" />
+      <stop offset="100%" stop-color="rgba(2,136,209,1)" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Circular background -->
+  <circle cx="50" cy="50" r="40" 
+          fill="none" 
+          stroke="rgba(189,189,189,0.5)" 
+          stroke-width="2" />
+  
+  <!-- Spring (top-left) -->
+  <path d="M50,50 L50,10 A40,40 0 0,1 90,50 Z" 
+        fill="url(#springGradient)" />
+  
+  <!-- Flower for spring -->
+  <circle cx="65" cy="35" r="5" fill="rgba(233,30,99,0.9)" />
+  <circle cx="60" cy="30" r="5" fill="rgba(233,30,99,0.9)" />
+  <circle cx="70" cy="30" r="5" fill="rgba(233,30,99,0.9)" />
+  <circle cx="60" cy="40" r="5" fill="rgba(233,30,99,0.9)" />
+  <circle cx="70" cy="40" r="5" fill="rgba(233,30,99,0.9)" />
+  <circle cx="65" cy="35" r="3" fill="rgba(255,235,59,1)" />
+  
+  <!-- Summer (top-right) -->
+  <path d="M50,50 L90,50 A40,40 0 0,1 50,90 Z" 
+        fill="url(#summerGradient)" />
+  
+  <!-- Sun for summer -->
+  <circle cx="70" cy="70" r="8" fill="rgba(255,235,59,1)" />
+  <path d="M70,58 L70,62 M70,78 L70,82 M58,70 L62,70 M78,70 L82,70
+           M62,62 L65,65 M75,65 L78,62 M62,78 L65,75 M75,75 L78,78" 
+        stroke="rgba(255,235,59,1)" 
+        stroke-width="2" 
+        stroke-linecap="round" />
+  
+  <!-- Fall (bottom-right) -->
+  <path d="M50,50 L50,90 A40,40 0 0,1 10,50 Z" 
+        fill="url(#fallGradient)" />
+  
+  <!-- Leaf for fall -->
+  <path d="M30,65 
+           C25,60 25,55 30,50 
+           C35,55 35,60 30,65 Z" 
+        fill="rgba(121,85,72,0.9)" 
+        stroke="rgba(93,64,55,1)" 
+        stroke-width="1" />
+  <path d="M30,57.5 L35,62.5" 
+        fill="none" 
+        stroke="rgba(93,64,55,1)" 
+        stroke-width="1" />
+  
+  <!-- Winter (bottom-left) -->
+  <path d="M50,50 L10,50 A40,40 0 0,1 50,10 Z" 
+        fill="url(#winterGradient)" />
+  
+  <!-- Snowflake for winter -->
+  <path d="M30,30 L30,30 M25,25 L35,35 M25,35 L35,25 M30,22 L30,38" 
+        stroke="white" 
+        stroke-width="2" 
+        stroke-linecap="round" />
+  
+  <!-- Center circle -->
+  <circle cx="50" cy="50" r="5" 
+          fill="white" 
+          stroke="rgba(189,189,189,1)" 
+          stroke-width="1" />
+</svg>

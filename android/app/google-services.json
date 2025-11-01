@@ -1,0 +1,71 @@
+{
+  "project_info": {
+    "project_number": "437403925289",
+    "firebase_url": "https://trkd-12728-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "trkd-12728",
+    "storage_bucket": "trkd-12728.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:437403925289:android:fc951c792a4f546d375538",
+        "android_client_info": {
+          "package_name": "com.healthapp.mvc"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "437403925289-40uc9cas9its6m8mstuoqt9dt98dl9h2.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.healthapp.mvc",
+            "certificate_hash": "adbd19fde9938e9b3dd1988e13be579d928e7cda"
+          }
+        },
+        {
+          "client_id": "437403925289-mbnutsn4dr7dfonv6ololpi13jvea8il.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.healthapp.mvc",
+            "certificate_hash": "1c3305e7d7b74173f19dd554d5351c47018e373b"
+          }
+        },
+        {
+          "client_id": "437403925289-vggornuate398jpft1qtg331ua6hjb0e.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.healthapp.mvc",
+            "certificate_hash": "42ce22eac742a25c1fdefb908421a374e176aa10"
+          }
+        },
+        {
+          "client_id": "437403925289-afutuq0272qtk56mgcu0evotnjsildvc.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAN2LmBbgTm6omCLKB6vGpgEtRwGhnS4RA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "437403925289-afutuq0272qtk56mgcu0evotnjsildvc.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "437403925289-b1o561iqsfki75bjddnv6hnugtd28mtb.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.healthapp.mvc"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

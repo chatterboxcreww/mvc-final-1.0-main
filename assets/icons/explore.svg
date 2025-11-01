@@ -1,0 +1,62 @@
+<svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+  <!-- Explore icon with compass -->
+  <defs>
+    <linearGradient id="compassGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="rgba(0,150,136,0.9)" />
+      <stop offset="100%" stop-color="rgba(0,121,107,1)" />
+    </linearGradient>
+    <linearGradient id="needleGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="rgba(244,67,54,0.9)" />
+      <stop offset="100%" stop-color="rgba(211,47,47,1)" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Compass outer ring -->
+  <circle cx="50" cy="50" r="40" 
+          fill="url(#compassGradient)" 
+          stroke="rgba(0,105,92,1)" 
+          stroke-width="2" />
+  
+  <!-- Compass inner circle -->
+  <circle cx="50" cy="50" r="35" 
+          fill="rgba(0,150,136,0.7)" 
+          stroke="rgba(255,255,255,0.5)" 
+          stroke-width="1" />
+  
+  <!-- Compass cardinal directions -->
+  <text x="50" y="20" text-anchor="middle" font-size="12" font-weight="bold" fill="white">N</text>
+  <text x="50" y="85" text-anchor="middle" font-size="12" font-weight="bold" fill="white">S</text>
+  <text x="85" y="53" text-anchor="middle" font-size="12" font-weight="bold" fill="white">E</text>
+  <text x="15" y="53" text-anchor="middle" font-size="12" font-weight="bold" fill="white">W</text>
+  
+  <!-- Compass needle -->
+  <path d="M50,50 L65,35 L50,20 L35,35 Z" 
+        fill="url(#needleGradient)" />
+  <path d="M50,50 L35,65 L50,80 L65,65 Z" 
+        fill="white" 
+        stroke="rgba(189,189,189,1)" 
+        stroke-width="1" />
+  
+  <!-- Center pin -->
+  <circle cx="50" cy="50" r="5" 
+          fill="white" 
+          stroke="rgba(189,189,189,1)" 
+          stroke-width="1" />
+  
+  <!-- Compass tick marks -->
+  <path d="M50,15 L50,20 M50,80 L50,85 M15,50 L20,50 M80,50 L85,50" 
+        stroke="white" 
+        stroke-width="2" 
+        stroke-linecap="round" />
+  
+  <path d="M29,29 L32,32 M71,29 L68,32 M29,71 L32,68 M71,71 L68,68" 
+        stroke="white" 
+        stroke-width="1" 
+        stroke-linecap="round" />
+  
+  <!-- Highlight for 3D effect -->
+  <path d="M30,30 A25,25 0 0,1 70,30" 
+        fill="none" 
+        stroke="rgba(255,255,255,0.3)" 
+        stroke-width="2" />
+</svg>

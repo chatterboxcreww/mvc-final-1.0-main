@@ -1,0 +1,69 @@
+<svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+  <!-- Social icon with chat bubbles -->
+  <defs>
+    <linearGradient id="bubble1Gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="rgba(233,30,99,0.9)" />
+      <stop offset="100%" stop-color="rgba(194,24,91,1)" />
+    </linearGradient>
+    <linearGradient id="bubble2Gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="rgba(156,39,176,0.9)" />
+      <stop offset="100%" stop-color="rgba(123,31,162,1)" />
+    </linearGradient>
+    <linearGradient id="bubble3Gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="rgba(103,58,183,0.9)" />
+      <stop offset="100%" stop-color="rgba(81,45,168,1)" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Chat bubble 1 -->
+  <path d="M25,20 
+           C15,20 15,30 15,35 
+           C15,50 25,50 35,50 
+           L30,60 
+           L40,50 
+           C50,50 55,45 55,35 
+           C55,25 50,20 40,20 Z" 
+        fill="url(#bubble1Gradient)" />
+  
+  <!-- Chat bubble 2 -->
+  <path d="M75,35 
+           C85,35 85,45 85,50 
+           C85,65 75,65 65,65 
+           L70,75 
+           L60,65 
+           C50,65 45,60 45,50 
+           C45,40 50,35 60,35 Z" 
+        fill="url(#bubble2Gradient)" />
+  
+  <!-- Chat bubble 3 (smaller) -->
+  <path d="M60,15 
+           C65,15 65,20 65,22 
+           C65,30 60,30 55,30 
+           L57,35 
+           L52,30 
+           C47,30 45,27 45,22 
+           C45,17 47,15 52,15 Z" 
+        fill="url(#bubble3Gradient)" />
+  
+  <!-- Message dots -->
+  <circle cx="30" cy="35" r="3" fill="white" />
+  <circle cx="40" cy="35" r="3" fill="white" />
+  <circle cx="50" cy="35" r="3" fill="white" />
+  
+  <circle cx="60" cy="50" r="3" fill="white" />
+  <circle cx="70" cy="50" r="3" fill="white" />
+  <circle cx="80" cy="50" r="3" fill="white" />
+  
+  <!-- Highlight for 3D effect -->
+  <path d="M25,25 C30,25 35,25 40,25" 
+        fill="none" 
+        stroke="rgba(255,255,255,0.5)" 
+        stroke-width="1.5" 
+        stroke-linecap="round" />
+  
+  <path d="M65,40 C70,40 75,40 80,40" 
+        fill="none" 
+        stroke="rgba(255,255,255,0.5)" 
+        stroke-width="1.5" 
+        stroke-linecap="round" />
+</svg>

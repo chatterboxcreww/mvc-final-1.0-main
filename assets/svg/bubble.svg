@@ -1,0 +1,7 @@
+<svg width="10" height="10" viewBox="0 0 10 10" xmlns="http://www.w3.org/2000/svg">
+  <!-- Main bubble -->
+  <circle cx="5" cy="5" r="5" fill="rgba(255,255,255,0.7)" />
+  
+  <!-- Highlight to give 3D effect -->
+  <circle cx="3.5" cy="3.5" r="2" fill="rgba(255,255,255,0.9)" />
+</svg>

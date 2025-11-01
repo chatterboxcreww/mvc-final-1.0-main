@@ -1,0 +1,26 @@
+<svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+  <!-- Water drop shape -->
+  <defs>
+    <linearGradient id="waterGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="rgba(100,181,246,0.9)" />
+      <stop offset="100%" stop-color="rgba(30,136,229,1)" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Water drop body -->
+  <path d="M50,10 
+           C50,10 20,40 20,70 
+           C20,85 35,95 50,95 
+           C65,95 80,85 80,70 
+           C80,40 50,10 50,10 Z" 
+        fill="url(#waterGradient)" />
+  
+  <!-- Highlight for 3D effect -->
+  <path d="M35,40 
+           C35,40 30,50 30,65 
+           C30,75 35,80 45,80" 
+        fill="none" 
+        stroke="rgba(255,255,255,0.5)" 
+        stroke-width="3" 
+        stroke-linecap="round" />
+</svg>

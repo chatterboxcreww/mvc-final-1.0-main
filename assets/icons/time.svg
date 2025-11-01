@@ -1,0 +1,62 @@
+<svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+  <!-- Time icon with clock -->
+  <defs>
+    <linearGradient id="clockFaceGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="rgba(63,81,181,0.9)" />
+      <stop offset="100%" stop-color="rgba(48,63,159,1)" />
+    </linearGradient>
+    <linearGradient id="clockRimGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="rgba(83,109,254,0.9)" />
+      <stop offset="100%" stop-color="rgba(48,79,254,1)" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Clock outer rim -->
+  <circle cx="50" cy="50" r="40" 
+          fill="url(#clockRimGradient)" 
+          stroke="rgba(40,53,147,1)" 
+          stroke-width="2" />
+  
+  <!-- Clock face -->
+  <circle cx="50" cy="50" r="35" 
+          fill="url(#clockFaceGradient)" />
+  
+  <!-- Clock hour marks -->
+  <line x1="50" y1="20" x2="50" y2="25" stroke="white" stroke-width="2" stroke-linecap="round" />
+  <line x1="50" y1="75" x2="50" y2="80" stroke="white" stroke-width="2" stroke-linecap="round" />
+  <line x1="20" y1="50" x2="25" y2="50" stroke="white" stroke-width="2" stroke-linecap="round" />
+  <line x1="75" y1="50" x2="80" y2="50" stroke="white" stroke-width="2" stroke-linecap="round" />
+  
+  <line x1="29" y1="29" x2="33" y2="33" stroke="white" stroke-width="1" stroke-linecap="round" />
+  <line x1="29" y1="71" x2="33" y2="67" stroke="white" stroke-width="1" stroke-linecap="round" />
+  <line x1="71" y1="29" x2="67" y2="33" stroke="white" stroke-width="1" stroke-linecap="round" />
+  <line x1="71" y1="71" x2="67" y2="67" stroke="white" stroke-width="1" stroke-linecap="round" />
+  
+  <!-- Clock hands -->
+  <line x1="50" y1="50" x2="50" y2="30" 
+        stroke="white" 
+        stroke-width="3" 
+        stroke-linecap="round" /> <!-- Hour hand -->
+  
+  <line x1="50" y1="50" x2="65" y2="50" 
+        stroke="white" 
+        stroke-width="2" 
+        stroke-linecap="round" /> <!-- Minute hand -->
+  
+  <line x1="50" y1="50" x2="70" y2="40" 
+        stroke="rgba(255,82,82,1)" 
+        stroke-width="1" 
+        stroke-linecap="round" /> <!-- Second hand -->
+  
+  <!-- Clock center -->
+  <circle cx="50" cy="50" r="3" 
+          fill="white" 
+          stroke="rgba(40,53,147,1)" 
+          stroke-width="1" />
+  
+  <!-- Highlight for 3D effect -->
+  <path d="M30,30 A25,25 0 0,1 70,30" 
+        fill="none" 
+        stroke="rgba(255,255,255,0.3)" 
+        stroke-width="2" />
+</svg>

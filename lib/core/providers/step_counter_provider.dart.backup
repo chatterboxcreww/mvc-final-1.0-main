@@ -1,0 +1,701 @@
+import 'package:flutter/material.dart';
+import 'package:pedometer/pedometer.dart';
+import 'dart:async';
+
+import '../models/daily_step_data.dart';
+import '../models/user_data.dart';
+import '../services/storage_service.dart';
+import '../services/step_tracking_service.dart';
+import '../services/daily_sync_service.dart';
+import 'experience_provider.dart';
+
+class StepCounterProvider with ChangeNotifier {
+  // Debug logging flag - set to false for production
+  static const bool _enableDebugLogging = false;
+  
+  void _debugLog(String message) {
+    if (_enableDebugLogging) {
+      debugPrint('StepCounterProvider: $message');
+    }
+  }
+  
+  void _errorLog(String message) {
+    // Always log errors, even in production
+    debugPrint('StepCounterProvider: $message');
+  }
+
+  // Constructor - removed singleton pattern for proper Provider integration
+  StepCounterProvider();
+
+  // Step tracking data
+  int _todaySteps = 0;
+  int _streak = 0;
+  double _caloriesBurned = 0.0;
+  double _distanceMeters = 0.0;
+  String _pedestrianStatus = 'stopped';
+  List<DailyStepData> _weeklyStepData = [];
+  bool _isStepDetectionAvailable = true;
+
+  // Provider references for cross-provider communication
+  ExperienceProvider? _experienceProvider;
+  final DailySyncService _dailySyncService = DailySyncService();
+  
+  // Stream subscriptions
+  StreamSubscription<StepCount>? _stepCountSubscription;
+  StreamSubscription<PedestrianStatus>? _pedestrianStatusSubscription;
+  
+  // Timer for periodic new day checks
+  Timer? _newDayCheckTimer;
+  
+  // Initialization state tracking
+  bool _isInitialized = false;
+  bool _isInitializing = false;
+  
+  // Getters
+  int get todaySteps => _todaySteps;
+  int get streak => _streak;
+  double get caloriesBurned => _caloriesBurned;
+  double get distanceMeters => _distanceMeters;
+  String get pedestrianStatus => _pedestrianStatus;
+  List<DailyStepData> get weeklyStepData => List.unmodifiable(_weeklyStepData);
+  bool get isStepDetectionAvailable => _isStepDetectionAvailable;
+
+  // Constants for calculations
+  static const double _caloriesPerStep = 0.04;
+  static const double _metersPerStep = 0.762;
+
+  // Set provider references for cross-provider communication
+  void setExperienceProvider(ExperienceProvider provider) {
+    _experienceProvider = provider;
+  }
+
+  // Initialize the provider with daily sync approach
+  void initialize(UserData userData) {
+    // Prevent multiple initialization attempts
+    if (_isInitialized || _isInitializing) {
+      _debugLog('Already initialized or initializing, skipping');
+      return;
+    }
+    
+    _debugLog('Initializing step counter provider');
+    _isInitializing = true;
+    
+    // Schedule all initialization to happen after the current build completes
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _performAsyncInitialization();
+    });
+    
+    _debugLog('Initialization scheduled');
+  }
+  
+  // Perform async initialization to avoid build conflicts
+  Future<void> _performAsyncInitialization() async {
+    if (_isInitialized) {
+      _debugLog('Already initialized, skipping async initialization');
+      return;
+    }
+    
+    _debugLog('Starting async initialization');
+    
+    try {
+      // Initialize daily sync service
+      await _dailySyncService.initialize();
+      
+      // Load step data from local storage first (daily sync approach)
+      await _loadStepDataFromLocal();
+      
+      // Check for new day after loading data (this resets steps if it's a new day)
+      await _checkForNewDayAsync();
+      
+      // Initialize pedometer to start tracking steps (with better error handling)
+      _initializePedometer();
+      
+      // Update derived values based on current step count
+      _updateDerivedValues();
+      
+      // Start the step tracking service (only if pedometer is available)
+      if (_isStepDetectionAvailable) {
+        StepTrackingService().start();
+      }
+      
+      // Start periodic new day check timer
+      _startNewDayCheckTimer();
+      
+      // Mark as initialized
+      _isInitialized = true;
+      _isInitializing = false;
+      
+      _debugLog('Async initialization complete with $_todaySteps steps for today');
+      
+      // Now it's safe to notify listeners
+      notifyListeners();
+    } catch (e) {
+      _errorLog('Error during async initialization: $e');
+      _isInitializing = false;
+      // Still notify listeners even if there was an error
+      notifyListeners();
+    }
+  }
+
+  /// Load step data from local storage (daily sync approach)
+  Future<void> _loadStepDataFromLocal() async {
+    try {
+      // Load weekly step data from local storage
+      final localStepData = await _dailySyncService.getLocalStepData();
+      if (localStepData.isNotEmpty) {
+        _weeklyStepData = localStepData;
+        
+        // Find today's steps
+        final today = DateTime.now();
+        final todayData = _weeklyStepData.firstWhere(
+          (data) => _isSameDay(data.date, today),
+          orElse: () => DailyStepData(date: today, steps: 0, goal: 10000),
+        );
+        
+        // Always start with the device's current step count for today
+        // This ensures we show actual daily steps, not accumulated
+        _todaySteps = todayData.steps;
+        _debugLog('Loaded step data from local storage - Today: $_todaySteps steps');
+        
+        // Reset today's steps to 0 if this is a new day and we haven't got device reading yet
+        if (!_weeklyStepData.any((data) => _isSameDay(data.date, today))) {
+          _todaySteps = 0;
+          _debugLog('New day detected, starting fresh with 0 steps');
+        }
+      } else {
+        // Initialize with empty data if no local data exists
+        _weeklyStepData = [];
+        _todaySteps = 0;
+        _debugLog('No local step data found, starting fresh');
+      }
+      
+      // Calculate streak
+      _calculateStreak();
+    } catch (e) {
+      _errorLog('Error loading local step data: $e');
+      _weeklyStepData = [];
+      _todaySteps = 0;
+    }
+  }
+
+  /// Save step data to local storage immediately
+  Future<void> _saveStepDataToLocal() async {
+    try {
+      await _dailySyncService.saveLocalStepData(_weeklyStepData);
+      _debugLog('Step data saved to local storage');
+    } catch (e) {
+      _errorLog('Error saving step data to local storage: $e');
+    }
+  }
+
+  // Initialize pedometer streams
+  void _initializePedometer() {
+    // Don't initialize if step detection is already known to be unavailable
+    if (!_isStepDetectionAvailable) {
+      _debugLog('Step detection not available, skipping pedometer initialization');
+      return;
+    }
+    
+    // Cancel any existing subscriptions first
+    _stepCountSubscription?.cancel();
+    _pedestrianStatusSubscription?.cancel();
+
+    try {
+      // Listen to step count changes
+      _stepCountSubscription = Pedometer.stepCountStream.listen(
+        _onStepCountChanged,
+        onError: _onStepCountError,
+        cancelOnError: false,
+      );
+
+      // Listen to pedestrian status changes
+      _pedestrianStatusSubscription = Pedometer.pedestrianStatusStream.listen(
+        _onPedestrianStatusChanged,
+        onError: _onPedestrianStatusError,
+        cancelOnError: false,
+      );
+      
+      _debugLog('Pedometer streams initialized successfully');
+    } catch (e) {
+      _errorLog('Pedometer not available on this device: $e');
+      // Set a fallback mode for devices without step detection
+      _isStepDetectionAvailable = false;
+    }
+  }
+
+  // Handle step count changes with better data persistence
+  void _onStepCountChanged(StepCount event) {
+    // Get the actual device step count
+    int deviceSteps = event.steps;
+    
+    // Update today's steps in our tracking system
+    _updateTodayStepData(deviceSteps);
+    
+    // Update derived values
+    _updateDerivedValues();
+    
+    // Schedule notification for next frame to avoid build conflicts
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      notifyListeners();
+    });
+  }
+  
+  // Calculate daily steps from cumulative device step count
+  int _calculateDailySteps(int currentDeviceSteps, int previousDeviceSteps) {
+    // If this is the first reading of the day or device was reset
+    if (previousDeviceSteps == 0) {
+      // For the first reading, we need to establish a baseline
+      // Look for yesterday's final device step count to calculate today's steps
+      final yesterday = DateTime.now().subtract(const Duration(days: 1));
+      final yesterdayData = _weeklyStepData.firstWhere(
+        (data) => _isSameDay(data.date, yesterday),
+        orElse: () => DailyStepData(date: yesterday, steps: 0, goal: 10000, deviceStepsAtSave: 0),
+      );
+      
+      if (yesterdayData.deviceStepsAtSave > 0) {
+        // Calculate daily steps as difference from yesterday's final count
+        int dailySteps = currentDeviceSteps - yesterdayData.deviceStepsAtSave;
+        return dailySteps > 0 ? dailySteps : currentDeviceSteps;
+      } else {
+        // No yesterday data, assume current device steps are today's steps
+        // This might happen on first app use or after device restart
+        return currentDeviceSteps;
+      }
+    } else {
+      // Normal case: use the difference from the last saved device step count
+      int dailySteps = currentDeviceSteps - previousDeviceSteps;
+      return dailySteps > 0 ? dailySteps : currentDeviceSteps;
+    }
+  }
+
+  // Update today's step data in the weekly array
+  void _updateTodayStepData(int deviceSteps) async {
+    try {
+      final today = DateTime.now();
+      final todayString = '${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}';
+      
+      final existingTodayIndex = _weeklyStepData.indexWhere((data) {
+        final dataString = '${data.date.year}-${data.date.month.toString().padLeft(2, '0')}-${data.date.day.toString().padLeft(2, '0')}';
+        return dataString == todayString;
+      });
+      
+      if (existingTodayIndex == -1) {
+        // This shouldn't normally happen as we create today's entry in _loadWeeklyStepData
+        // But just in case, add new entry for today
+        
+        // Calculate daily steps from device cumulative count
+        int dailySteps = _calculateDailySteps(deviceSteps, 0);
+        
+        _weeklyStepData.insert(0, DailyStepData(
+          date: today,
+          steps: dailySteps,
+          goal: 10000,
+          deviceStepsAtSave: deviceSteps,
+        ));
+        _todaySteps = dailySteps;
+      } else {
+        // Get the existing data for today
+        final todayData = _weeklyStepData[existingTodayIndex];
+        
+        // Calculate daily steps by comparing current device steps with yesterday's baseline
+        int dailySteps = _calculateDailySteps(deviceSteps, todayData.deviceStepsAtSave);
+        
+        // Update today's data with calculated daily steps
+        _weeklyStepData[existingTodayIndex] = todayData.copyWith(
+          steps: dailySteps,
+          deviceStepsAtSave: deviceSteps,
+        );
+        _todaySteps = dailySteps;
+        
+        // Check if goal is reached
+        bool wasGoalReached = todayData.goalReached;
+        bool isGoalReached = dailySteps >= todayData.goal;
+        
+        // Check if we just reached the goal for the first time today
+        if (!wasGoalReached && isGoalReached) {
+          _onStepGoalReached(dailySteps, todayData.goal);
+        }
+      }
+      
+      // Sort by date (newest first)
+      _weeklyStepData.sort((a, b) => b.date.compareTo(a.date));
+      
+      // Keep only last 30 days
+      if (_weeklyStepData.length > 30) {
+        _weeklyStepData = _weeklyStepData.take(30).toList();
+      }
+      
+      _calculateStreak();
+      
+      // Save to local storage (daily sync approach)
+      await _saveStepDataToLocal();
+    } catch (e) {
+      _errorLog('Error updating today\'s step data: $e');
+    }
+  }
+
+  // Handle step count errors
+  void _onStepCountError(error) {
+    _errorLog('Step count error: $error');
+    
+    // Check if this is a "not available" error
+    if (error.toString().contains('not available') || 
+        error.toString().contains('StepCount not available') ||
+        error.toString().contains('StepDetection not available')) {
+      _isStepDetectionAvailable = false;
+      _debugLog('Step detection confirmed as unavailable on this device');
+    }
+    
+    _pedestrianStatus = 'unavailable';
+    
+    // Schedule notification for next frame to avoid build conflicts
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      notifyListeners();
+    });
+  }
+
+  // Handle pedestrian status changes
+  void _onPedestrianStatusChanged(PedestrianStatus event) {
+    _pedestrianStatus = event.status;
+    
+    // Schedule notification for next frame to avoid build conflicts
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      notifyListeners();
+    });
+  }
+
+  // Handle pedestrian status errors
+  void _onPedestrianStatusError(error) {
+    _errorLog('Pedestrian status error: $error');
+    
+    // Check if this is a "not available" error
+    if (error.toString().contains('not available') || 
+        error.toString().contains('StepDetection not available')) {
+      _isStepDetectionAvailable = false;
+      _debugLog('Pedestrian status detection confirmed as unavailable on this device');
+    }
+  }
+
+  // Update derived values (calories, distance)
+  void _updateDerivedValues() {
+    _caloriesBurned = _todaySteps * _caloriesPerStep;
+    _distanceMeters = _todaySteps * _metersPerStep;
+  }
+
+  // Record foreground steps (called from service)
+  // Get today's step count
+  Future<int> getTodayStepCount() async {
+    return _todaySteps;
+  }
+
+  // Load weekly step data with enhanced offline support (async version)
+  Future<void> _loadWeeklyStepDataAsync() async {
+    try {
+      // Load from storage service first
+      final storageService = StorageService();
+      final savedStepData = await storageService.getWeeklyStepData();
+      
+      if (savedStepData.isNotEmpty) {
+        _weeklyStepData = savedStepData;
+        print('StepCounterProvider: Loaded ${savedStepData.length} days of step data from storage');
+        
+        // Check if we need to reset daily steps (it's a new day)
+        final today = DateTime.now();
+        final todayString = '${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}';
+        
+        // Find today's entry
+        final existingTodayIndex = _weeklyStepData.indexWhere((data) {
+          final dataString = '${data.date.year}-${data.date.month.toString().padLeft(2, '0')}-${data.date.day.toString().padLeft(2, '0')}';
+          return dataString == todayString;
+        });
+        
+        if (existingTodayIndex == -1) {
+          // It's a new day - create entry with steps at 0 initially
+          print('StepCounterProvider: New day detected during load, resetting daily steps to 0');
+          
+          // Reset today's steps
+          _todaySteps = 0;
+          
+          _weeklyStepData.add(DailyStepData(
+            date: today,
+            steps: 0, // Start with 0 steps for the new day
+            goal: 10000,
+            deviceStepsAtSave: 0,
+          ));
+          
+          // For first time login, add some history data to avoid empty screens
+          if (_weeklyStepData.length <= 1) {
+            print('StepCounterProvider: First login detected, adding sample history');
+            // Add 6 days of sample data for better user experience
+            for (int i = 1; i <= 6; i++) {
+              final pastDate = today.subtract(Duration(days: i));
+              final steps = 5000 + (500 * i); // Sample increasing data
+              _weeklyStepData.add(DailyStepData(
+                date: pastDate,
+                steps: steps,
+                goal: 10000,
+              ));
+            }
+          }
+        } else {
+          // Today already exists in data, get the current step count
+          final todayData = _weeklyStepData[existingTodayIndex];
+          _todaySteps = todayData.steps;
+          print('StepCounterProvider: Found existing today data with ${_todaySteps} steps');
+        }
+      } else {
+        // No saved data - initialize with today at 0 steps and sample history
+        _weeklyStepData = [];
+        print('StepCounterProvider: No saved step data, starting fresh');
+        
+        final today = DateTime.now();
+        // Today's entry with 0 initial steps
+        _weeklyStepData.add(DailyStepData(
+          date: today,
+          steps: 0,
+          goal: 10000,
+          deviceStepsAtSave: 0,
+        ));
+        
+        // Add sample history data for better first-time experience
+        for (int i = 1; i <= 6; i++) {
+          final pastDate = today.subtract(Duration(days: i));
+          final steps = 5000 + (500 * i); // Sample increasing data
+          _weeklyStepData.add(DailyStepData(
+            date: pastDate,
+            steps: steps,
+            goal: 10000,
+          ));
+        }
+      }
+      
+      // Sort by date (newest first)
+      _weeklyStepData.sort((a, b) => b.date.compareTo(a.date));
+      
+      // Keep only last 30 days
+      if (_weeklyStepData.length > 30) {
+        _weeklyStepData = _weeklyStepData.take(30).toList();
+      }
+      
+      _calculateStreak();
+      
+      // Save updated data to local storage
+      await _saveStepDataToLocal();
+      
+      // Note: Don't call notifyListeners here - will be called after full initialization
+    } catch (e) {
+      print('StepCounterProvider: Error loading step data: $e');
+      _weeklyStepData = [];
+      // Create today's entry as fallback
+      final today = DateTime.now();
+      _weeklyStepData.add(DailyStepData(
+        date: today,
+        steps: 0,
+        goal: 10000,
+      ));
+    }
+  }
+
+  // Calculate streak
+  void _calculateStreak() {
+    _streak = 0;
+    final sortedData = List<DailyStepData>.from(_weeklyStepData);
+    sortedData.sort((a, b) => b.date.compareTo(a.date));
+
+    for (final data in sortedData) {
+      if (data.goalReached) {
+        _streak++;
+      } else {
+        break;
+      }
+    }
+  }
+  
+  // Check for new day and reset if needed (async version)
+  Future<void> _checkForNewDayAsync() async {
+    try {
+      final today = DateTime.now();
+      final todayString = '${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}';
+      
+      // Check if today's entry exists
+      final existingTodayIndex = _weeklyStepData.indexWhere((data) {
+        final dataString = '${data.date.year}-${data.date.month.toString().padLeft(2, '0')}-${data.date.day.toString().padLeft(2, '0')}';
+        return dataString == todayString;
+      });
+      
+      if (existingTodayIndex == -1) {
+        // It's a new day, create a new entry and reset daily step count
+        print('StepCounterProvider: New day detected, resetting daily step counter to 0');
+        
+        // Reset today's steps to 0 (daily count, not device cumulative)
+        _todaySteps = 0;
+        
+        // Get the current device step count to use as baseline for the new day
+        // This will be updated when the pedometer stream provides the first reading
+        int currentDeviceSteps = 0;
+        
+        // If we have yesterday's data, we can use its final device count as today's baseline
+        final yesterday = today.subtract(const Duration(days: 1));
+        final yesterdayData = _weeklyStepData.firstWhere(
+          (data) => _isSameDay(data.date, yesterday),
+          orElse: () => DailyStepData(date: yesterday, steps: 0, goal: 10000, deviceStepsAtSave: 0),
+        );
+        
+        // Use yesterday's final device step count as today's starting baseline
+        currentDeviceSteps = yesterdayData.deviceStepsAtSave;
+        
+        // Create a new entry for today starting at 0 daily steps
+        _weeklyStepData.insert(0, DailyStepData(
+          date: today,
+          steps: 0,
+          goal: 10000,
+          deviceStepsAtSave: currentDeviceSteps, // Start with yesterday's final device count
+        ));
+        
+        // Ensure we don't have duplicate dates for the same day 
+        // (sometimes happens with timezone issues)
+        final uniqueDates = <String>{};
+        _weeklyStepData = _weeklyStepData.where((data) {
+          final dateString = '${data.date.year}-${data.date.month.toString().padLeft(2, '0')}-${data.date.day.toString().padLeft(2, '0')}';
+          final isUnique = !uniqueDates.contains(dateString);
+          uniqueDates.add(dateString);
+          return isUnique;
+        }).toList();
+        
+        // Sort by date (newest first)
+        _weeklyStepData.sort((a, b) => b.date.compareTo(a.date));
+        
+        // Keep only last 30 days
+        if (_weeklyStepData.length > 30) {
+          _weeklyStepData = _weeklyStepData.take(30).toList();
+        }
+        
+        // Save the updated data to local storage
+        await _saveStepDataToLocal();
+        
+        // Reinitialize the pedometer to get fresh step counts
+        _initializePedometer();
+        
+        // Update derived values for the new day (should be 0)
+        _updateDerivedValues();
+        
+        print('StepCounterProvider: Daily reset complete - today steps: $_todaySteps');
+        
+        // Note: Don't call notifyListeners here - will be called after full initialization
+      } else {
+        // Today exists, ensure current step count is correct
+        final todayData = _weeklyStepData[existingTodayIndex];
+        _todaySteps = todayData.steps;
+        _updateDerivedValues();
+      }
+    } catch (e) {
+      print('StepCounterProvider: Error checking for new day: $e');
+    }
+  }
+  
+  // Public method for checking new day (used by lifecycle handler)
+  void checkForNewDay() {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await _checkForNewDayAsync();
+      notifyListeners();
+    });
+  }
+  
+  // Method for manual testing - forces a new day reset
+  void forceNewDayReset() {
+    print('StepCounterProvider: FORCING new day reset for testing...');
+    _todaySteps = 0;
+    
+    final today = DateTime.now();
+    // Remove any existing entry for today to force a fresh start
+    _weeklyStepData.removeWhere((data) => _isSameDay(data.date, today));
+    
+    // Add a fresh entry for today
+    _weeklyStepData.insert(0, DailyStepData(
+      date: today,
+      steps: 0,
+      goal: 10000,
+      deviceStepsAtSave: 0,
+    ));
+    
+    _updateDerivedValues();
+    _saveStepDataToLocal();
+    notifyListeners();
+    
+    print('StepCounterProvider: Forced new day reset complete - today\'s steps reset to 0');
+  }
+  
+  // Handle step goal achievement
+  void _onStepGoalReached(int steps, int goal) {
+    print('StepCounterProvider: Step goal reached! $steps steps (goal: $goal)');
+    
+    // Award XP for reaching step goal
+    if (_experienceProvider != null) {
+      // We need UserData to award XP, but we can't access it directly from here
+      // This will be handled by the UI layer that has access to all providers
+      print('StepCounterProvider: Step goal reached - XP should be awarded by UI layer');
+    }
+  }
+
+  // Clean up streams
+  @override
+  void dispose() {
+    _stepCountSubscription?.cancel();
+    _pedestrianStatusSubscription?.cancel();
+    _stopNewDayCheckTimer();
+    super.dispose();
+  }
+  
+  // Handle app lifecycle state changes
+  void handleAppLifecycleChange(AppLifecycleState state) {
+    print('StepCounterProvider: App lifecycle changed to $state');
+    
+    if (state == AppLifecycleState.resumed) {
+      print('StepCounterProvider: App resumed, checking for new day and reinitializing');
+      // Check if it's a new day when app is resumed
+      checkForNewDay();
+      // Reinitialize pedometer to ensure we're getting new step counts
+      _initializePedometer();
+      // Restart the periodic new day check timer
+      _startNewDayCheckTimer();
+    } else if (state == AppLifecycleState.paused || 
+               state == AppLifecycleState.inactive || 
+               state == AppLifecycleState.detached) {
+      print('StepCounterProvider: App paused/inactive/detached, ensuring steps are saved');
+      // Stop the periodic timer to save battery when app is in background
+      _stopNewDayCheckTimer();
+      
+      // Make sure our step tracking service is running in background
+      StepTrackingService().start();
+      
+      // Save current step data to local storage before app goes to background
+      _saveStepDataToLocal();
+    }
+  }
+
+  /// Start periodic timer to check for new day (checks every hour)
+  void _startNewDayCheckTimer() {
+    _newDayCheckTimer?.cancel(); // Cancel any existing timer
+    
+    _newDayCheckTimer = Timer.periodic(const Duration(hours: 1), (timer) {
+      print('StepCounterProvider: Periodic new day check triggered');
+      checkForNewDay();
+    });
+    
+    print('StepCounterProvider: Started periodic new day check timer (every hour)');
+  }
+
+  /// Stop the periodic new day check timer
+  void _stopNewDayCheckTimer() {
+    _newDayCheckTimer?.cancel();
+    _newDayCheckTimer = null;
+    print('StepCounterProvider: Stopped periodic new day check timer');
+  }
+
+  /// Helper method to check if two dates are the same day
+  bool _isSameDay(DateTime date1, DateTime date2) {
+    return date1.year == date2.year && 
+           date1.month == date2.month && 
+           date1.day == date2.day;
+  }
+}

@@ -1,0 +1,44 @@
+<svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+  <!-- Food icon with plate and utensils -->
+  <defs>
+    <linearGradient id="plateGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="rgba(255,255,255,0.9)" />
+      <stop offset="100%" stop-color="rgba(224,224,224,1)" />
+    </linearGradient>
+    <linearGradient id="foodGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="rgba(76,175,80,0.9)" />
+      <stop offset="100%" stop-color="rgba(46,125,50,1)" />
+    </linearGradient>
+    <linearGradient id="utensilGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="rgba(158,158,158,0.9)" />
+      <stop offset="100%" stop-color="rgba(97,97,97,1)" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Plate -->
+  <circle cx="50" cy="55" r="35" fill="url(#plateGradient)" stroke="rgba(189,189,189,1)" stroke-width="2" />
+  
+  <!-- Food on plate -->
+  <circle cx="50" cy="55" r="25" fill="url(#foodGradient)" />
+  
+  <!-- Fork -->
+  <path d="M25,20 L20,55 L25,55 L30,20 M27.5,20 L27.5,40" 
+        fill="none" 
+        stroke="url(#utensilGradient)" 
+        stroke-width="3" 
+        stroke-linecap="round" />
+  
+  <!-- Knife -->
+  <path d="M75,20 L70,55 L75,55 L80,20" 
+        fill="none" 
+        stroke="url(#utensilGradient)" 
+        stroke-width="3" 
+        stroke-linecap="round" />
+  
+  <!-- Highlight for 3D effect -->
+  <path d="M35,45 A15,15 0 0,1 50,30" 
+        fill="none" 
+        stroke="rgba(255,255,255,0.5)" 
+        stroke-width="2" 
+        stroke-linecap="round" />
+</svg>
