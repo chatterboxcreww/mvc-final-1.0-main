@@ -2,10 +2,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.healthapp.mvc">
 
-    <!-- SDK Version Targeting -->
+    <!-- SDK Version Targeting - Updated for Android 15 -->
     <uses-sdk
-        android:minSdkVersion="21"
-        android:targetSdkVersion="34" />
+        android:minSdkVersion="23"
+        android:targetSdkVersion="35" />
 
     <!-- Basic Permissions (All Android versions) -->
     <uses-permission android:name="android.permission.INTERNET" />
@@ -36,10 +36,6 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_HEALTH" />
     <uses-permission android:name="android.permission.ACCESS_NOTIFICATION_POLICY" />
     
-    <!-- High Accuracy Step Detection -->
-    <uses-permission android:name="android.permission.BODY_SENSORS" />
-    
-
     <application
         android:label="TRKD"
         android:name=".MainApplication"
@@ -50,7 +46,7 @@
         android:largeHeap="true"
         android:requestLegacyExternalStorage="true">
 
-        <!-- Main Activity -->
+        <!-- Main Activity - Updated for Android 15+ and large screen support -->
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -60,7 +56,8 @@
             android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
             android:hardwareAccelerated="true"
             android:windowSoftInputMode="adjustResize"
-            android:screenOrientation="portrait">
+            android:resizeableActivity="true"
+            android:supportsPictureInPicture="false">
 
             <!-- Theme Metadata -->
             <meta-data

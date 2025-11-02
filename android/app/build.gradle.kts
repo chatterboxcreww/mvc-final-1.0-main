@@ -17,7 +17,7 @@ if (keystorePropertiesFile.exists()) {
 
 android {
     namespace = "com.healthapp.mvc"
-    compileSdk = flutter.compileSdkVersion
+    compileSdk = 35  // Updated to SDK 35 for Android 15 compatibility
     ndkVersion = "29.0.13113456"
 
     compileOptions {
@@ -32,14 +32,14 @@ android {
     }
 
     defaultConfig {
-        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
         applicationId = "com.healthapp.mvc"
-        // You can update the following values to match your application needs.
-        // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = 23
-        targetSdk = flutter.targetSdkVersion
+        targetSdk = 35  // Updated to target SDK 35 for Android 15
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+        
+        // Enable edge-to-edge display for Android 15+
+        manifestPlaceholders["enableEdgeToEdge"] = "true"
     }
 
     signingConfigs {
@@ -71,4 +71,11 @@ dependencies {
     
     // WorkManager dependency
     implementation("androidx.work:work-runtime-ktx:2.9.0")
+    
+    // Edge-to-edge support for Android 15+
+    implementation("androidx.core:core-ktx:1.12.0")
+    implementation("androidx.activity:activity-ktx:1.8.2")
+    
+    // Window insets handling
+    implementation("androidx.core:core-splashscreen:1.0.1")
 }

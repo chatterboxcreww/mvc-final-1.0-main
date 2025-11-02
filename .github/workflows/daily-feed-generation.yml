@@ -1,0 +1,46 @@
+name: Daily Feed Generation
+
+on:
+  schedule:
+    # Runs every day at 12:00 AM UTC (adjust timezone as needed)
+    - cron: '0 0 * * *'
+  workflow_dispatch: # Allows manual triggering
+
+jobs:
+  generate-feed:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        
+    - name: Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+        
+    - name: Install dependencies
+      run: |
+        cd feed
+        npm install
+        pip install google-generativeai firebase-admin
+        
+    - name: Generate daily feed
+      env:
+        GOOGLE_AI_API_KEY: ${{ secrets.GOOGLE_AI_API_KEY }}
+        FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
+        FIREBASE_PRIVATE_KEY: ${{ secrets.FIREBASE_PRIVATE_KEY }}
+        FIREBASE_CLIENT_EMAIL: ${{ secrets.FIREBASE_CLIENT_EMAIL }}
+        FIREBASE_DATABASE_URL: ${{ secrets.FIREBASE_DATABASE_URL }}
+      run: |
+        cd feed
+        python daily_ai_generator.py
+        node deploy.js
+        
+    - name: Notify completion
+      run: echo "✅ Daily feed generated successfully at $(date)"

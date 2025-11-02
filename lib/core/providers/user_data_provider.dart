@@ -13,6 +13,7 @@ import '../services/storage_service.dart';
 import '../services/data_sync_manager.dart';
 import '../services/daily_sync_service.dart';
 import '../utils/image_utils.dart';
+import '../utils/app_logger.dart';
 
 class UserDataProvider with ChangeNotifier {
   UserData _userData = UserData(userId: '');

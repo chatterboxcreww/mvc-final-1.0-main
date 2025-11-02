@@ -12,4 +12,4 @@ enum Gender {
   /// Other gender
   other
 }
-enum NotificationRecurrence { once, daily }
+enum NotificationRecurrence { once, daily, custom }

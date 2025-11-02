@@ -12,6 +12,7 @@ import '../../../core/utils/performance_optimizer.dart';
 import '../../../core/providers/step_counter_provider.dart';
 import '../../../core/services/daily_sync_service.dart';
 import '../../../core/services/admin_analytics_service.dart';
+import '../../../core/services/atomic_water_service.dart';
 import 'custom_water_glass.dart';
 
 class WaterTrackerCard extends StatefulWidget {
@@ -23,39 +24,32 @@ class WaterTrackerCard extends StatefulWidget {
 
 class _WaterTrackerCardState extends State<WaterTrackerCard> {
   final GlobalKey<CustomWaterGlassState> _waterGlassKey = GlobalKey<CustomWaterGlassState>();
-  final DailySyncService _dailySyncService = DailySyncService();
+  final AtomicWaterService _atomicWaterService = AtomicWaterService();
   int _currentWaterCount = 0;
-  bool _isUpdating = false; // Mutex lock to prevent race conditions
 
   @override
   void initState() {
     super.initState();
-    _loadWaterCount();
+    _initializeWaterService();
   }
 
-  /// Load current water count from persistent storage
-  Future<void> _loadWaterCount() async {
+  /// Initialize atomic water service and load current count
+  Future<void> _initializeWaterService() async {
     try {
-      final count = await _dailySyncService.getWaterGlassCount();
+      await _atomicWaterService.initialize();
+      final count = await _atomicWaterService.getCurrentCount();
       if (mounted) {
         setState(() {
           _currentWaterCount = count;
         });
       }
     } catch (e) {
-      debugPrint('Error loading water count: $e');
+      debugPrint('Error initializing water service: $e');
     }
   }
 
-  /// Update water intake using persistent storage with mutex lock
+  /// Update water intake using atomic water service
   Future<void> _updateWaterIntake(int change) async {
-    // Prevent concurrent updates (race condition fix)
-    if (_isUpdating) {
-      debugPrint('Water update already in progress, skipping');
-      return;
-    }
-    
-    _isUpdating = true;
     try {
       final userDataProvider = context.read<UserDataProvider>();
       final experienceProvider = context.read<ExperienceProvider>();
@@ -64,11 +58,17 @@ class _WaterTrackerCardState extends State<WaterTrackerCard> {
       final trendsProvider = context.read<TrendsProvider>();
       final adminAnalyticsService = Provider.of<AdminAnalyticsService>(context, listen: false);
       
-      int newCount;
+      // Use atomic water service for thread-safe updates
+      final newCount = await _atomicWaterService.updateWaterCount(change);
+      
+      // Update local state immediately for UI responsiveness
+      if (mounted) {
+        setState(() {
+          _currentWaterCount = newCount;
+        });
+      }
+      
       if (change > 0) {
-        // Increment water count
-        newCount = await _dailySyncService.incrementWaterGlassCount();
-        
         // Add bubble effect when water is added
         _waterGlassKey.currentState?.addBubbleBurst();
         
@@ -78,20 +78,8 @@ class _WaterTrackerCardState extends State<WaterTrackerCard> {
         // Track water glass added for admin analytics
         adminAnalyticsService.trackFeatureUsage('water_glass_added');
       } else if (change < 0) {
-        // Decrement water count
-        newCount = await _dailySyncService.decrementWaterGlassCount();
-        
         // Track water glass removed for admin analytics
         adminAnalyticsService.trackFeatureUsage('water_glass_removed');
-      } else {
-        return; // No change
-      }
-      
-      // Update local state immediately for UI responsiveness
-      if (mounted) {
-        setState(() {
-          _currentWaterCount = newCount;
-        });
       }
       
       // Update trends provider to keep analytics in sync
@@ -108,10 +96,7 @@ class _WaterTrackerCardState extends State<WaterTrackerCard> {
     } catch (e) {
       debugPrint('Error updating water intake: $e');
       // Reload count from storage in case of error
-      await _loadWaterCount();
-    } finally {
-      // Always release the lock
-      _isUpdating = false;
+      await _initializeWaterService();
     }
   }
 

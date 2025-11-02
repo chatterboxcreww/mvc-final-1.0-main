@@ -113,35 +113,74 @@ class CuratedContentProvider with ChangeNotifier {
     
     if (combinedList.isEmpty) return [];
 
+    return _applyHealthAndDietaryFilters(combinedList, userData);
+  }
+
+  List<CuratedContentItem> _applyHealthAndDietaryFilters(List<CuratedContentItem> items, UserData userData) {
     final Set<String> userAllergiesLower = (userData.allergies ?? []).map((a) => a.trim().toLowerCase()).toSet();
     if (userAllergiesLower.contains("none")) userAllergiesLower.clear();
 
     final String? userDietLower = userData.dietPreference?.name.toLowerCase();
 
-    final Set<String> userHealthNeedsTags = {};
-    if (userData.hasDiabetes == true) userHealthNeedsTags.add("diabetes_friendly");
-    if (userData.isSkinnyFat == true) userHealthNeedsTags.add("skinny_fat_friendly");
-    if (userData.hasProteinDeficiency == true) userHealthNeedsTags.add("high_protein");
+    // Health condition filtering
+    final Set<String> userHealthConditions = {};
+    if (userData.hasDiabetes == true) userHealthConditions.add("diabetes");
+    if (userData.isSkinnyFat == true) userHealthConditions.add("skinny_fat");
+    if (userData.hasProteinDeficiency == true) userHealthConditions.add("protein_deficiency");
 
-    return combinedList.where((item) {
+    return items.where((item) {
       final itemKeywordsLower = item.keywords.map((kw) => kw.toLowerCase()).toSet();
-      final itemAllergensLower = (item.allergens).map((a) => a.toLowerCase()).toSet();
+      final itemAllergensLower = item.allergens.map((a) => a.toLowerCase()).toSet();
+      final itemBadForDiseasesLower = item.badForDiseases.map((d) => d.toLowerCase()).toSet();
 
+      // 1. Allergen filtering - CRITICAL: Remove items with user's allergens
       if (userAllergiesLower.isNotEmpty && userAllergiesLower.intersection(itemAllergensLower).isNotEmpty) {
+        print('Filtering out ${item.title} due to allergens: ${userAllergiesLower.intersection(itemAllergensLower)}');
         return false;
       }
 
-      if (userDietLower == 'vegetarian' && (itemKeywordsLower.contains('non_veg') || itemKeywordsLower.contains('egg'))) {
-        return false;
-      }
-      if (userDietLower == 'vegan' && (itemKeywordsLower.contains('non_veg') || itemKeywordsLower.contains('egg') || itemKeywordsLower.contains('dairy'))) {
-        return false;
-      }
-
-      if (userHealthNeedsTags.isNotEmpty) {
-        if (userHealthNeedsTags.intersection(itemKeywordsLower).isEmpty) {
+      // 2. Dietary preference filtering
+      if (userDietLower == 'vegetarian') {
+        if (itemKeywordsLower.contains('non_veg')) {
+          print('Filtering out ${item.title} - non-veg item for vegetarian user');
           return false;
         }
+      }
+      
+      if (userDietLower == 'vegan') {
+        if (itemKeywordsLower.contains('non_veg') || 
+            itemKeywordsLower.contains('dairy') || 
+            itemAllergensLower.contains('milk') ||
+            itemAllergensLower.contains('eggs')) {
+          print('Filtering out ${item.title} - contains animal products for vegan user');
+          return false;
+        }
+      }
+
+      // 3. Health condition filtering - Remove items bad for user's conditions
+      if (userHealthConditions.isNotEmpty) {
+        final badConditionsMatch = userHealthConditions.intersection(itemBadForDiseasesLower);
+        if (badConditionsMatch.isNotEmpty) {
+          print('Filtering out ${item.title} - bad for user conditions: $badConditionsMatch');
+          return false;
+        }
+      }
+
+      // 4. Prioritize items good for user's health conditions
+      if (userHealthConditions.isNotEmpty) {
+        final itemGoodForDiseasesLower = item.goodForDiseases.map((d) => d.toLowerCase()).toSet();
+        final goodConditionsMatch = userHealthConditions.intersection(itemGoodForDiseasesLower);
+        
+        // If user has health conditions, prefer items that are specifically good for those conditions
+        if (goodConditionsMatch.isNotEmpty) {
+          print('Prioritizing ${item.title} - good for user conditions: $goodConditionsMatch');
+          return true;
+        }
+        
+        // Also include items with relevant health keywords
+        if (userData.hasDiabetes == true && itemKeywordsLower.contains('diabetes_friendly')) return true;
+        if (userData.isSkinnyFat == true && itemKeywordsLower.contains('skinny_fat_friendly')) return true;
+        if (userData.hasProteinDeficiency == true && itemKeywordsLower.contains('high_protein')) return true;
       }
 
       return true;
@@ -163,6 +202,9 @@ class CuratedContentProvider with ChangeNotifier {
         goodForDiseases: ['fatigue', 'low_energy'],
         badForDiseases: ['anxiety', 'insomnia'],
         allergens: [],
+        ingredients: ['1 shot espresso (30ml)', 'Freshly ground coffee beans'],
+        instructions: ['Grind coffee beans to fine consistency', 'Tamp grounds evenly in portafilter', 'Extract for 25-30 seconds', 'Serve immediately'],
+        nutrition: {'Calories': '3 kcal', 'Protein': '0.1g', 'Carbs': '0g', 'Fat': '0g', 'Caffeine': '64mg'},
       ),
       CuratedContentItem(
         id: 'coffee_americano_${DateTime.now().millisecondsSinceEpoch}',

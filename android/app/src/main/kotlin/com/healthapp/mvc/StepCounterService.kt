@@ -271,6 +271,13 @@ class StepCounterService : Service(), SensorEventListener {
     
     private fun notifyFlutter() {
         try {
+            // Note: Direct Flutter notification from service is not implemented
+            // Flutter app will poll for step updates instead
+            Log.d(TAG, "Step count updated: $dailySteps")
+            
+            // TODO: Implement proper Flutter notification mechanism if needed
+            // For now, the app polls for updates through SharedPreferences
+            /*
             val activity = MainActivity.getInstance()
             if (activity != null) {
                 activity.runOnUiThread {
@@ -291,6 +298,7 @@ class StepCounterService : Service(), SensorEventListener {
             } else {
                 Log.w(TAG, "MainActivity instance is null, cannot notify Flutter")
             }
+            */
         } catch (e: Exception) {
             Log.e(TAG, "Error notifying Flutter", e)
         }

@@ -7,6 +7,7 @@ import '../models/daily_step_data.dart';
 import '../models/user_data.dart';
 import '../services/step_tracking_service.dart';
 import '../services/daily_sync_service.dart';
+import '../services/persistent_step_service.dart';
 import 'experience_provider.dart';
 
 class StepCounterProvider with ChangeNotifier {
@@ -39,6 +40,7 @@ class StepCounterProvider with ChangeNotifier {
   // Provider references for cross-provider communication
   ExperienceProvider? _experienceProvider;
   final DailySyncService _dailySyncService = DailySyncService();
+  final PersistentStepService _persistentStepService = PersistentStepService();
   
   // Stream subscriptions
   StreamSubscription<StepCount>? _stepCountSubscription;
@@ -104,13 +106,14 @@ class StepCounterProvider with ChangeNotifier {
     _debugLog('Starting async initialization');
     
     try {
-      // Initialize daily sync service
+      // Initialize services
       await _dailySyncService.initialize();
+      await _persistentStepService.initialize();
       
-      // Load step data from local storage first (daily sync approach)
-      await _loadStepDataFromLocal();
+      // Load step data from persistent storage first
+      await _loadStepDataFromPersistentStorage();
       
-      // Check for new day after loading data (this resets steps if it's a new day)
+      // Check for new day after loading data
       await _checkForNewDayAsync();
       
       // Initialize pedometer to start tracking steps (with better error handling)
@@ -131,6 +134,7 @@ class StepCounterProvider with ChangeNotifier {
         // Get initial step count from Kotlin service
         final initialSteps = await StepTrackingService().getCurrentStepCount();
         if (initialSteps > 0) {
+          await _persistentStepService.updateTodaySteps(initialSteps, deviceSteps: initialSteps);
           _todaySteps = initialSteps;
           _updateDerivedValues();
           _debugLog('Loaded initial step count from Kotlin service: $initialSteps');
@@ -156,7 +160,33 @@ class StepCounterProvider with ChangeNotifier {
     }
   }
 
-  /// Load step data from local storage (daily sync approach)
+  /// Load step data from persistent storage
+  Future<void> _loadStepDataFromPersistentStorage() async {
+    try {
+      // Load current step data from persistent service
+      final currentStepData = await _persistentStepService.getCurrentStepData();
+      if (currentStepData != null) {
+        _todaySteps = currentStepData.steps;
+        _debugLog('Loaded current step data from persistent storage - Today: $_todaySteps steps');
+      } else {
+        _todaySteps = 0;
+        _debugLog('No current step data found, starting fresh');
+      }
+      
+      // Load weekly step history
+      final stepHistory = await _persistentStepService.getStepHistory(days: 7);
+      _weeklyStepData = stepHistory;
+      
+      // Calculate streak
+      _calculateStreak();
+    } catch (e) {
+      _errorLog('Error loading step data from persistent storage: $e');
+      // Fallback to daily sync service
+      await _loadStepDataFromLocal();
+    }
+  }
+
+  /// Fallback method to load from daily sync service
   Future<void> _loadStepDataFromLocal() async {
     try {
       // Load weekly step data from local storage
@@ -171,42 +201,20 @@ class StepCounterProvider with ChangeNotifier {
           orElse: () => DailyStepData(date: today, steps: 0, goal: 10000),
         );
         
-        // CRITICAL FIX: Always preserve existing step count from storage
         _todaySteps = todayData.steps;
-        _debugLog('Loaded step data from local storage - Today: $_todaySteps steps');
-        
-        // If no data exists for today, create fresh entry but don't reset existing progress
-        if (!_weeklyStepData.any((data) => _isSameDay(data.date, today))) {
-          // Only reset if there's genuinely no existing data
-          if (_todaySteps == 0) {
-            _debugLog('No existing progress found, starting fresh');
-          } else {
-            _debugLog('Preserving existing progress: $_todaySteps steps');
-          }
-        }
+        _debugLog('Loaded step data from daily sync service - Today: $_todaySteps steps');
       } else {
-        // Initialize with empty data if no local data exists
         _weeklyStepData = [];
-        // CRITICAL FIX: Don't reset _todaySteps to 0 if it already has a value
-        if (_todaySteps == 0) {
-          _debugLog('No local step data found, starting fresh');
-        } else {
-          _debugLog('No local data but preserving current progress: $_todaySteps steps');
-        }
+        _todaySteps = 0;
+        _debugLog('No local step data found, starting fresh');
       }
       
       // Calculate streak
       _calculateStreak();
     } catch (e) {
       _errorLog('Error loading local step data: $e');
-      // Don't reset data on error - preserve what we have
-      if (_weeklyStepData.isEmpty) {
-        _weeklyStepData = [];
-      }
-      // Only reset steps if there's genuinely no data
-      if (_todaySteps == 0) {
-        _debugLog('Error loading data, but no existing progress to preserve');
-      }
+      _weeklyStepData = [];
+      _todaySteps = 0;
     }
   }
 

@@ -630,7 +630,7 @@ class _SettingsScreenState extends State<SettingsScreen>
                 }
                 
               } catch (e) {
-                print('Sign-out error: $e');
+                debugPrint('Sign-out error: $e');
                 
                 // Close loading dialog if still mounted
                 if (mounted && loadingDialogCompleter.isCompleted) {

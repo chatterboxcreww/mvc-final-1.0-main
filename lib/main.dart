@@ -38,6 +38,12 @@ import 'features/auth/screens/age_gate_screen.dart';
 import 'features/auth/widgets/animated_splash_screen.dart';
 import 'core/services/adaptive_notification_service.dart';
 import 'shared/widgets/error_boundary.dart';
+import 'core/config/secure_config.dart';
+import 'core/services/intelligent_cache_service.dart';
+import 'core/services/batch_operations_service.dart';
+import 'core/services/offline_manager.dart';
+import 'core/services/atomic_water_service.dart';
+import 'core/services/persistent_step_service.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
@@ -102,8 +108,35 @@ void main() async {
   // Initialize performance optimizations for 60fps
   PerformanceOptimizer.initialize();
   
+  // Initialize secure configuration
+  await SecureConfig.initialize();
+  
+  // Initialize core services
+  await _initializeCoreServices();
+  
   await _initializeFirebase();
   runApp(const MyApp());
+}
+
+/// Initialize core services
+Future<void> _initializeCoreServices() async {
+  try {
+    // Initialize intelligent cache service
+    await IntelligentCacheService().initialize();
+    
+    // Initialize offline manager
+    await OfflineManager().initialize();
+    
+    // Initialize atomic water service
+    await AtomicWaterService().initialize();
+    
+    // Initialize persistent step service
+    await PersistentStepService().initialize();
+    
+    debugPrint('Core services initialized successfully');
+  } catch (e) {
+    debugPrint('Error initializing core services: $e');
+  }
 }
 
 /// Initialize Firebase with offline persistence
@@ -436,13 +469,13 @@ class _AppInitializerState extends State<AppInitializer> {
       if (ageVerified) {
         final birthdate = prefs.getString('user_birthdate');
         if (birthdate == null || birthdate.isEmpty) {
-          print('Age verified flag set but no birthdate found, requiring re-verification');
+          debugPrint('Age verified flag set but no birthdate found, requiring re-verification');
           ageVerified = false;
           await prefs.setBool('age_verified', false);
         }
       }
     } catch (e) {
-      print('Error checking age verification: $e');
+      debugPrint('Error checking age verification: $e');
       ageVerified = false; // Default to false on error
     }
     

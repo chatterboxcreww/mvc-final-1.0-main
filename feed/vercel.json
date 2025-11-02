@@ -1,0 +1,19 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "app.py",
+      "use": "@vercel/python"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "app.py"
+    }
+  ],
+  "env": {
+    "FIREBASE_DATABASE_URL": "https://trkd-12728-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "GEMINI_API_KEY": "AIzaSyBs39z1L2l4qfX7ofYzkWUn4ZCwTcKcGsI"
+  }
+}

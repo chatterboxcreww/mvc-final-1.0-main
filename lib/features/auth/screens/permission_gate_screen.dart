@@ -28,10 +28,6 @@ class _PermissionGateScreenState extends State<PermissionGateScreen> {
         Permission.notification: await Permission.notification.status,
         Permission.activityRecognition: await Permission.activityRecognition.status,
         Permission.scheduleExactAlarm: await Permission.scheduleExactAlarm.status,
-        Permission.sensors: await Permission.sensors.status,
-        Permission.location: await Permission.location.status,
-        Permission.locationWhenInUse: await Permission.locationWhenInUse.status,
-        Permission.ignoreBatteryOptimizations: await Permission.ignoreBatteryOptimizations.status,
       };
 
       print('PermissionGate: Current Permission Status:');
@@ -57,10 +53,6 @@ class _PermissionGateScreenState extends State<PermissionGateScreen> {
           Permission.notification,
           Permission.activityRecognition,
           Permission.scheduleExactAlarm,
-          Permission.sensors,
-          Permission.location,
-          Permission.locationWhenInUse,
-          Permission.ignoreBatteryOptimizations,
         ].request();
 
         print('PermissionGate: Permission Request Results:');
@@ -116,9 +108,7 @@ class _PermissionGateScreenState extends State<PermissionGateScreen> {
             'Health-TRKD needs the following permissions to provide you with the best health tracking experience:\n\n'
             '🔔 Notifications - Health reminders and alerts\n'
             '🚶 Activity Recognition - Step counting and activity tracking\n'
-            '📱 Sensors - Accurate health monitoring\n'
-            '📍 Location - Activity context (optional)\n'
-            '🔋 Battery Optimization - Background tracking\n\n'
+            '⏰ Exact Alarms - Precise reminder timing\n\n'
             'These permissions help us track your health data accurately and send you helpful reminders.'),
         actions: [
           ElevatedButton(

@@ -1,0 +1,21 @@
+{
+  "name": "trkd-feed-dashboard",
+  "version": "1.0.0",
+  "description": "Health App Feed Generator Dashboard with API",
+  "main": "api/index.js",
+  "type": "module",
+  "scripts": {
+    "build": "echo 'Static files ready'",
+    "start": "node api/hello.js",
+    "dev": "vercel dev"
+  },
+  "dependencies": {
+    "firebase-admin": "^12.0.0"
+  },
+  "engines": {
+    "node": "18.x"
+  },
+  "keywords": ["health", "nutrition", "api", "dashboard", "firebase"],
+  "author": "Health App Team",
+  "license": "MIT"
+}

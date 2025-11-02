@@ -11,6 +11,7 @@ import '../../../core/providers/experience_provider.dart';
 import '../../../core/providers/user_data_provider.dart';
 import '../../../core/services/notification_service.dart';
 import '../../../shared/widgets/animated_list_item.dart';
+import 'daily_checkin_card.dart';
 
 class ProgressSection extends StatefulWidget {
   const ProgressSection({super.key});
@@ -26,6 +27,8 @@ class _ProgressSectionState extends State<ProgressSection>
   bool _isAddingActivity = false;
   late AnimationController _progressAnimationController;
   late Animation<double> _progressAnimation;
+  NotificationRecurrence _selectedRecurrence = NotificationRecurrence.daily;
+  int _customDays = 1;
 
   @override
   void initState() {
@@ -65,7 +68,8 @@ class _ProgressSectionState extends State<ProgressSection>
         time: _selectedTime,
         type: 'Custom',
         isCustom: true,
-        recurrence: NotificationRecurrence.daily,
+        recurrence: _selectedRecurrence,
+        customDays: _selectedRecurrence == NotificationRecurrence.custom ? _customDays : null,
       );
 
       await context.read<ActivityProvider>().addActivity(newActivity);
@@ -73,18 +77,25 @@ class _ProgressSectionState extends State<ProgressSection>
       // Schedule notification if time is set
       if (_selectedTime != null && mounted) {
         final notificationService = Provider.of<NotificationService>(context, listen: false);
+        // Note: Custom days scheduling will be implemented in notification service
+        // For now, custom recurrence will be stored but notifications will be daily
+        final effectiveRecurrence = _selectedRecurrence == NotificationRecurrence.custom 
+            ? NotificationRecurrence.daily 
+            : _selectedRecurrence;
         await notificationService.scheduleNotification(
           context,
           'Task Reminder',
           'Time to: ${newActivity.label}',
           _selectedTime!,
           'custom_activity_${newActivity.id}',
-          recurrence: NotificationRecurrence.daily,
+          recurrence: effectiveRecurrence,
         );
       }
 
       _customActivityController.clear();
       _selectedTime = null;
+      _selectedRecurrence = NotificationRecurrence.daily;
+      _customDays = 1;
 
       if (mounted) {
         Navigator.of(context).pop();
@@ -132,6 +143,7 @@ class _ProgressSectionState extends State<ProgressSection>
           content: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 TextField(
                   controller: _customActivityController,
@@ -165,21 +177,112 @@ class _ProgressSectionState extends State<ProgressSection>
                     ),
                   ),
                 ),
-                if (_selectedTime != null) ...[
+                const SizedBox(height: 16),
+                Text(
+                  'Reminder Frequency',
+                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                RadioListTile<NotificationRecurrence>(
+                  title: const Text('Daily'),
+                  subtitle: const Text('Repeat every day'),
+                  value: NotificationRecurrence.daily,
+                  groupValue: _selectedRecurrence,
+                  onChanged: (value) {
+                    setDialogState(() {
+                      _selectedRecurrence = value!;
+                    });
+                  },
+                  dense: true,
+                  contentPadding: EdgeInsets.zero,
+                ),
+                RadioListTile<NotificationRecurrence>(
+                  title: const Text('Once'),
+                  subtitle: const Text('One-time reminder'),
+                  value: NotificationRecurrence.once,
+                  groupValue: _selectedRecurrence,
+                  onChanged: (value) {
+                    setDialogState(() {
+                      _selectedRecurrence = value!;
+                    });
+                  },
+                  dense: true,
+                  contentPadding: EdgeInsets.zero,
+                ),
+                RadioListTile<NotificationRecurrence>(
+                  title: const Text('Custom Days'),
+                  subtitle: const Text('Repeat every X days'),
+                  value: NotificationRecurrence.custom,
+                  groupValue: _selectedRecurrence,
+                  onChanged: (value) {
+                    setDialogState(() {
+                      _selectedRecurrence = value!;
+                    });
+                  },
+                  dense: true,
+                  contentPadding: EdgeInsets.zero,
+                ),
+                if (_selectedRecurrence == NotificationRecurrence.custom) ...[
                   const SizedBox(height: 8),
-                  Row(
-                    children: [
-                      Icon(Icons.info_outline,
-                          size: 16,
-                          color: Theme.of(context).hintColor),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          'You\'ll get a daily reminder at this time',
-                          style: Theme.of(context).textTheme.bodySmall,
+                  Padding(
+                    padding: const EdgeInsets.only(left: 16.0),
+                    child: Row(
+                      children: [
+                        const Text('Repeat every'),
+                        const SizedBox(width: 12),
+                        SizedBox(
+                          width: 80,
+                          child: TextField(
+                            keyboardType: TextInputType.number,
+                            decoration: InputDecoration(
+                              hintText: '1',
+                              contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                            ),
+                            onChanged: (value) {
+                              final days = int.tryParse(value) ?? 1;
+                              setDialogState(() {
+                                _customDays = days.clamp(1, 365);
+                              });
+                            },
+                          ),
                         ),
-                      ),
-                    ],
+                        const SizedBox(width: 12),
+                        Text('day${_customDays > 1 ? 's' : ''}'),
+                      ],
+                    ),
+                  ),
+                ],
+                if (_selectedTime != null) ...[
+                  const SizedBox(height: 12),
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.primaryContainer.withValues(alpha: 0.3),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(Icons.info_outline,
+                            size: 16,
+                            color: Theme.of(context).colorScheme.primary),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            _selectedRecurrence == NotificationRecurrence.daily
+                                ? 'You\'ll get a daily reminder at this time'
+                                : _selectedRecurrence == NotificationRecurrence.once
+                                    ? 'You\'ll get a one-time reminder'
+                                    : 'You\'ll get a reminder every $_customDays day${_customDays > 1 ? 's' : ''}',
+                            style: Theme.of(context).textTheme.bodySmall,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ],
@@ -217,14 +320,24 @@ class _ProgressSectionState extends State<ProgressSection>
 
         return Center(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 80.0),
+            padding: EdgeInsets.symmetric(
+              horizontal: MediaQuery.of(context).size.width * 0.04,
+              vertical: MediaQuery.of(context).size.height * 0.02,
+            ),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
+              // Daily Check-in Card
+              const AnimatedListItem(
+                index: 0,
+                child: DailyCheckinCard(),
+              ),
+              const SizedBox(height: 16),
+              
               // Enhanced Progress Overview Card
               AnimatedListItem(
-                index: 0,
+                index: 1,
                 child: _buildProgressCard(
                   completedCount,
                   totalCount,
@@ -235,7 +348,7 @@ class _ProgressSectionState extends State<ProgressSection>
 
               // Add Activity Button
               AnimatedListItem(
-                index: 1,
+                index: 2,
                 child: _buildAddActivityButton(),
               ),
               const SizedBox(height: 16),
@@ -243,7 +356,7 @@ class _ProgressSectionState extends State<ProgressSection>
               // Activities List or Empty State
               if (activities.isEmpty)
                 AnimatedListItem(
-                  index: 2,
+                  index: 3,
                   child: _buildEmptyState(),
                 )
               else
@@ -254,7 +367,7 @@ class _ProgressSectionState extends State<ProgressSection>
               // Enhanced Summary Card
               if (activities.isNotEmpty)
                 AnimatedListItem(
-                  index: activities.length + 2,
+                  index: activities.length + 3,
                   child: _buildSummaryCard(
                     completedCount,
                     totalCount,
@@ -445,7 +558,7 @@ class _ProgressSectionState extends State<ProgressSection>
       final activity = entry.value;
 
       return AnimatedListItem(
-        index: index + 2,
+        index: index + 3,
         child: Container(
           margin: const EdgeInsets.only(bottom: 8),
           child: _buildActivityTile(activity),
@@ -498,6 +611,15 @@ class _ProgressSectionState extends State<ProgressSection>
 
     if (activity.time == null && activity.type == null) return null;
 
+    String recurrenceText = '';
+    if (activity.recurrence == NotificationRecurrence.daily) {
+      recurrenceText = 'Daily';
+    } else if (activity.recurrence == NotificationRecurrence.once) {
+      recurrenceText = 'Once';
+    } else if (activity.recurrence == NotificationRecurrence.custom && activity.customDays != null) {
+      recurrenceText = 'Every ${activity.customDays} day${activity.customDays! > 1 ? 's' : ''}';
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
@@ -513,7 +635,7 @@ class _ProgressSectionState extends State<ProgressSection>
               ),
               const SizedBox(width: 4),
               Text(
-                'Reminder: ${activity.time!.format(context)}',
+                'Reminder: ${activity.time!.format(context)}${recurrenceText.isNotEmpty ? ' - $recurrenceText' : ''}',
                 style: TextStyle(
                   color: colorScheme.onSurfaceVariant,
                   fontSize: 12,

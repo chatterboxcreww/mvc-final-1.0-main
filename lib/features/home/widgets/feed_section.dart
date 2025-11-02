@@ -21,6 +21,7 @@ import '../../../shared/widgets/animated_list_item.dart';
 import 'coach_insight_card.dart';
 import 'daily_checkin_card.dart';
 import 'leaderboard_card.dart';
+import 'recipe_detail_screen.dart';
 // import 'comment_section.dart'; // Removed import
 
 class FeedSection extends StatefulWidget {
@@ -57,6 +58,9 @@ class _FeedSectionState extends State<FeedSection> {
     final List<Widget> healthAdviceWidgets =
     _buildStaticHealthAdvice(context, userData);
 
+    final screenWidth = MediaQuery.of(context).size.width;
+    final horizontalPadding = screenWidth * 0.04;
+    
     return RefreshIndicator(
       onRefresh: () async {
         await context.read<CuratedContentProvider>().refreshFeed();
@@ -67,24 +71,8 @@ class _FeedSectionState extends State<FeedSection> {
       },
       child: ListView(
         physics: const AlwaysScrollableScrollPhysics(),
-        padding: const EdgeInsets.all(16.0),
+        padding: EdgeInsets.symmetric(horizontal: horizontalPadding, vertical: 16.0),
         children: [
-          // Dynamic Header Logic
-          if (!trendsProvider.hasCheckedInToday)
-            const AnimatedListItem(index: 0, child: DailyCheckinCard())
-          else if (trendsProvider.coachInsight != null)
-            AnimatedListItem(
-                index: 0,
-                child: CoachInsightCard(insight: trendsProvider.coachInsight!)),
-
-          const SizedBox(height: 16),
-
-          const AnimatedListItem(
-            index: 1,
-            child: LeaderboardCard(),
-          ),
-          const SizedBox(height: 24),
-          
           // Health Advice Section Header
           if (healthAdviceWidgets.isNotEmpty) ...[
             Row(
@@ -313,7 +301,34 @@ class _FeedSectionState extends State<FeedSection> {
                           color: colorScheme.error,
                           fontStyle: FontStyle.italic)),
                 ),
-                
+              const SizedBox(height: 16),
+              // More Details Button
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  onPressed: () {
+                    // Use post-frame callback to avoid setState during build
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => RecipeDetailScreen(recipe: item),
+                        ),
+                      );
+                    });
+                  },
+                  icon: Icon(Icons.restaurant_menu, size: 18),
+                  label: Text('More Details'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: colorScheme.primaryContainer,
+                    foregroundColor: colorScheme.onPrimaryContainer,
+                    elevation: 0,
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                ),
+              ),
             ],
           ),
         );

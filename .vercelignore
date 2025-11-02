@@ -1,0 +1,22 @@
+# Ignore Flutter-specific files for Vercel deployment
+android/
+ios/
+linux/
+macos/
+windows/
+lib/
+test/
+build/
+.dart_tool/
+pubspec.yaml
+pubspec.lock
+analysis_options.yaml
+.metadata
+*.iml
+
+# Keep only what Vercel needs
+!api/
+!feed/
+!vercel.json
+!package.json
+!serviceAccountKey.json

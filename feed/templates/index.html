@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Health App Feed Generator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            color: #666;
+        }
+        
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 20px;
+        }
+        
+        .card h2 {
+            color: #333;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .icon {
+            font-size: 24px;
+        }
+        
+        .button-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 25px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        .status {
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+            display: none;
+        }
+        
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+            display: block;
+        }
+        
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+            display: block;
+        }
+        
+        .status.loading {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+            display: block;
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        
+        .stat-card h3 {
+            font-size: 32px;
+            margin-bottom: 5px;
+        }
+        
+        .stat-card p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        
+        .info-box {
+            background: #e7f3ff;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 15px;
+        }
+        
+        .info-box h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+        
+        .info-box ul {
+            margin-left: 20px;
+            color: #555;
+        }
+        
+        .info-box li {
+            margin-bottom: 5px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🍽️ Health App Feed Generator</h1>
+            <p>Generate personalized Indian food feeds with comprehensive health filtering</p>
+        </div>
+        
+        <div class="card">
+            <h2><span class="icon">🎯</span>Quick Actions</h2>
+            <div class="button-group">
+                <button onclick="generateFeed('breakfast')">Generate Breakfast</button>
+                <button onclick="generateFeed('lunch')">Generate Lunch</button>
+                <button onclick="generateFeed('dinner')">Generate Dinner</button>
+                <button onclick="generateAllFeeds()">Generate All Feeds</button>
+            </div>
+            <button onclick="uploadStaticFeed()" style="width: 100%; background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                Upload Comprehensive Feed
+            </button>
+            <div id="status" class="status"></div>
+        </div>
+        
+        <div class="card">
+            <h2><span class="icon">📊</span>Feed Statistics</h2>
+            <div class="stats">
+                <div class="stat-card">
+                    <h3 id="breakfast-count">-</h3>
+                    <p>Breakfast Items</p>
+                </div>
+                <div class="stat-card">
+                    <h3 id="lunch-count">-</h3>
+                    <p>Lunch Items</p>
+                </div>
+                <div class="stat-card">
+                    <h3 id="dinner-count">-</h3>
+                    <p>Dinner Items</p>
+                </div>
+            </div>
+            <button onclick="loadStats()" style="width: 100%; margin-top: 15px;">Refresh Statistics</button>
+        </div>
+        
+        <div class="card">
+            <h2><span class="icon">ℹ️</span>System Information</h2>
+            <div class="info-box">
+                <h3>Filtering Features</h3>
+                <ul>
+                    <li><strong>Allergen Filtering:</strong> Automatically excludes foods with user's allergens</li>
+                    <li><strong>Diet Preferences:</strong> Filters by vegetarian, vegan, or non-vegetarian</li>
+                    <li><strong>Disease Management:</strong> Excludes foods bad for user's conditions</li>
+                    <li><strong>Health Goals:</strong> Prioritizes foods good for specific conditions</li>
+                    <li><strong>Nutritional Needs:</strong> Filters by protein, carbs, fiber, etc.</li>
+                </ul>
+            </div>
+            
+            <div class="info-box" style="margin-top: 15px;">
+                <h3>Keyword Categories</h3>
+                <ul>
+                    <li><strong>Diet:</strong> veg, vegan, non_veg</li>
+                    <li><strong>Nutrition:</strong> high_protein, low_carb, high_fiber, low_fat</li>
+                    <li><strong>Health:</strong> diabetes_friendly, heart_healthy, weight_loss</li>
+                    <li><strong>Meal Type:</strong> breakfast, lunch, dinner, snack</li>
+                    <li><strong>Special:</strong> gluten_free, dairy_free, skinny_fat_friendly</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        function showStatus(message, type) {
+            const statusDiv = document.getElementById('status');
+            statusDiv.className = `status ${type}`;
+            statusDiv.innerHTML = type === 'loading' ? 
+                `<span class="spinner"></span>${message}` : message;
+        }
+        
+        async function generateFeed(mealType) {
+            showStatus(`Generating ${mealType} feed...`, 'loading');
+            
+            try {
+                const response = await fetch('/api/generate-feed', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        meal_type: mealType,
+                        count: 25
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showStatus(`✓ Successfully generated ${data.items_generated} ${mealType} items!`, 'success');
+                    loadStats();
+                } else {
+                    showStatus(`✗ Error: ${data.error}`, 'error');
+                }
+            } catch (error) {
+                showStatus(`✗ Error: ${error.message}`, 'error');
+            }
+        }
+        
+        async function generateAllFeeds() {
+            showStatus('Generating all feeds (this may take a minute)...', 'loading');
+            
+            try {
+                const response = await fetch('/api/generate-all-feeds', {
+                    method: 'POST'
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    const summary = Object.entries(data.results)
+                        .map(([meal, count]) => `${meal}: ${count} items`)
+                        .join(', ');
+                    showStatus(`✓ Successfully generated all feeds! ${summary}`, 'success');
+                    loadStats();
+                } else {
+                    showStatus(`✗ Error: ${data.error}`, 'error');
+                }
+            } catch (error) {
+                showStatus(`✗ Error: ${error.message}`, 'error');
+            }
+        }
+        
+        async function uploadStaticFeed() {
+            showStatus('Uploading comprehensive feed...', 'loading');
+            
+            try {
+                const response = await fetch('/api/upload-static-feed', {
+                    method: 'POST'
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showStatus('✓ Comprehensive feed uploaded successfully!', 'success');
+                    loadStats();
+                } else {
+                    showStatus(`✗ Error: ${data.error}`, 'error');
+                }
+            } catch (error) {
+                showStatus(`✗ Error: ${error.message}`, 'error');
+            }
+        }
+        
+        async function loadStats() {
+            const mealTypes = ['breakfast', 'lunch', 'dinner'];
+            
+            for (const mealType of mealTypes) {
+                try {
+                    const response = await fetch(`/api/get-feed/${mealType}`);
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        document.getElementById(`${mealType}-count`).textContent = data.count;
+                    }
+                } catch (error) {
+                    console.error(`Error loading ${mealType} stats:`, error);
+                }
+            }
+        }
+        
+        // Load stats on page load
+        window.addEventListener('load', loadStats);
+    </script>
+</body>
+</html>

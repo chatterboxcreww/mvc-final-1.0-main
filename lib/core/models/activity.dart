@@ -1,5 +1,3 @@
-// F:\latestmvc\latestmvc\mvc-final-1.0-main\lib\core\models\activity.dart
-
 // lib/core/models/activity.dart
 import 'package:flutter/material.dart';
 import 'app_enums.dart';
@@ -12,6 +10,7 @@ class Activity {
   final bool isCustom;
   final String? type;
   final NotificationRecurrence recurrence;
+  final int? customDays;
 
   Activity({
     required this.id,
@@ -21,6 +20,7 @@ class Activity {
     this.isCustom = false,
     this.type,
     this.recurrence = NotificationRecurrence.once,
+    this.customDays,
   });
 
   factory Activity.fromJson(Map<String, dynamic> json) {
@@ -38,6 +38,7 @@ class Activity {
             (e) => e.name == json['recurrence'],
         orElse: () => NotificationRecurrence.once,
       ) : NotificationRecurrence.once,
+      customDays: json['customDays'],
     );
   }
 
@@ -51,6 +52,7 @@ class Activity {
       'isCustom': isCustom,
       'type': type,
       'recurrence': recurrence.name,
+      'customDays': customDays,
     };
   }
 }

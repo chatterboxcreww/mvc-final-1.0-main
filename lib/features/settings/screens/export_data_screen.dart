@@ -469,13 +469,13 @@ class _ExportDataScreenState extends State<ExportDataScreen> {
         throw Exception('No user data available. Please ensure you are logged in.');
       }
 
-      print('Export Debug - User Data:');
-      print('Name: ${userData.name}');
-      print('Age: ${userData.age}');
-      print('Height: ${userData.height}');
-      print('Weight: ${userData.weight}');
-      print('Step Data Count: ${stepData.length}');
-      print('Achievements Count: ${achievements.length}');
+      debugPrint('Export Debug - User Data:');
+      debugPrint('Name: ${userData.name}');
+      debugPrint('Age: ${userData.age}');
+      debugPrint('Height: ${userData.height}');
+      debugPrint('Weight: ${userData.weight}');
+      debugPrint('Step Data Count: ${stepData.length}');
+      debugPrint('Achievements Count: ${achievements.length}');
 
       // Generate PDF with validated data
       final pdf = await _generatePDF(userData, stepData, achievements);
@@ -512,7 +512,7 @@ class _ExportDataScreenState extends State<ExportDataScreen> {
     } catch (e) {
       setState(() => _isExporting = false);
       
-      print('Export Error: $e');
+      debugPrint('Export Error: $e');
       
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

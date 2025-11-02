@@ -34,6 +34,12 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   int _currentIndex = 0;
   final StepTrackingService _stepTrackingService = StepTrackingService();
   final AuthService _authService = AuthService();
+  final List<Map<String, dynamic>> _notifications = [];
+  
+  bool _hasNewNotifications() {
+    // Check if there are any unread notifications
+    return _notifications.any((notification) => notification['isRead'] == false);
+  }
 
   @override
   void initState() {
@@ -159,14 +165,16 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   PreferredSizeWidget _buildHomeAppBar(BuildContext context, UserDataProvider userProvider) {
     final userData = userProvider.userData;
     final colorScheme = Theme.of(context).colorScheme;
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isSmallScreen = screenWidth < 360;
 
     return AppBar(
       elevation: 0,
       backgroundColor: colorScheme.surface,
       surfaceTintColor: Colors.transparent,
-      toolbarHeight: 80, // Increased height for better proportions
+      toolbarHeight: isSmallScreen ? 70 : 80,
       title: Padding(
-        padding: const EdgeInsets.only(top: 8.0),
+        padding: EdgeInsets.only(top: isSmallScreen ? 4.0 : 8.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -176,21 +184,24 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                 fontWeight: FontWeight.w800,
                 color: colorScheme.onSurface,
                 letterSpacing: -0.5,
+                fontSize: isSmallScreen ? 18 : null,
               ),
+              overflow: TextOverflow.ellipsis,
             ),
-            const SizedBox(height: 4),
+            SizedBox(height: isSmallScreen ? 2 : 4),
             Text(
               'Let\'s track your health today',
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                 color: colorScheme.onSurfaceVariant,
                 fontWeight: FontWeight.w500,
+                fontSize: isSmallScreen ? 12 : null,
               ),
             ),
           ],
         ),
       ),
       actions: [
-        // Notification bell with indicator
+        // Notification bell with conditional indicator
         Stack(
           children: [
             IconButton(
@@ -200,22 +211,24 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
               ),
               onPressed: () => _showNotificationsDialog(context),
             ),
-            Positioned(
-              right: 8,
-              top: 8,
-              child: Container(
-                width: 12,
-                height: 12,
-                decoration: BoxDecoration(
-                  color: colorScheme.error,
-                  shape: BoxShape.circle,
-                  border: Border.all(
-                    color: colorScheme.surface,
-                    width: 2,
+            // Only show red dot if there are actual new notifications
+            if (_hasNewNotifications()) 
+              Positioned(
+                right: 8,
+                top: 8,
+                child: Container(
+                  width: 12,
+                  height: 12,
+                  decoration: BoxDecoration(
+                    color: colorScheme.error,
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: colorScheme.surface,
+                      width: 2,
+                    ),
                   ),
                 ),
               ),
-            ),
           ],
         ),
         // Enhanced profile avatar
@@ -317,12 +330,71 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Notifications'),
-        content: const Text('No new notifications'),
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Text('Notifications'),
+            if (_notifications.isNotEmpty)
+              TextButton(
+                onPressed: () {
+                  setState(() {
+                    for (var notification in _notifications) {
+                      notification['isRead'] = true;
+                    }
+                  });
+                },
+                child: const Text('Mark all as read'),
+              ),
+          ],
+        ),
+        content: SizedBox(
+          width: double.maxFinite,
+          child: _notifications.isEmpty
+              ? const Padding(
+                  padding: EdgeInsets.all(20.0),
+                  child: Text(
+                    'No notifications yet',
+                    textAlign: TextAlign.center,
+                  ),
+                )
+              : ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: _notifications.length,
+                  itemBuilder: (context, index) {
+                    final notification = _notifications[index];
+                    final isRead = notification['isRead'] ?? false;
+                    return Card(
+                      color: isRead ? null : Theme.of(context).colorScheme.primaryContainer.withValues(alpha: 0.3),
+                      child: ListTile(
+                        leading: Icon(
+                          notification['icon'] ?? Icons.notifications,
+                          color: isRead ? Theme.of(context).colorScheme.onSurfaceVariant : Theme.of(context).colorScheme.primary,
+                        ),
+                        title: Text(
+                          notification['title'] ?? 'Notification',
+                          style: TextStyle(
+                            fontWeight: isRead ? FontWeight.normal : FontWeight.bold,
+                          ),
+                        ),
+                        subtitle: Text(notification['message'] ?? ''),
+                        trailing: Text(
+                          notification['time'] ?? '',
+                          style: Theme.of(context).textTheme.bodySmall,
+                        ),
+                        onTap: () {
+                          setState(() {
+                            notification['isRead'] = true;
+                          });
+                        },
+                      ),
+                    );
+                  },
+                ),
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: const Text('OK'),
+            child: const Text('Close'),
           ),
         ],
       ),
@@ -472,9 +544,12 @@ class _HomeTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final horizontalPadding = screenWidth * 0.04;
+    
     return SingleChildScrollView(
       physics: const AlwaysScrollableScrollPhysics(),
-      padding: const EdgeInsets.all(16.0),
+      padding: EdgeInsets.symmetric(horizontal: horizontalPadding, vertical: 16.0),
       child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -492,19 +567,21 @@ class _HomeTab extends StatelessWidget {
                     style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                       fontWeight: FontWeight.w800,
                       color: Theme.of(context).colorScheme.onPrimaryContainer,
+                      fontSize: screenWidth < 360 ? 18 : null,
                     ),
                   ),
-                  const SizedBox(height: 8),
+                  SizedBox(height: screenWidth < 360 ? 6 : 8),
                   Text(
                     "Keep up the great work! Every step counts towards your health goals.",
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       color: Theme.of(context).colorScheme.onPrimaryContainer.withValues(alpha: 0.8),
+                      fontSize: screenWidth < 360 ? 13 : null,
                     ),
                   ),
                 ],
               ),
             ),
-            const SizedBox(height: 20),
+            SizedBox(height: screenWidth < 360 ? 16 : 20),
 
             // Main tracking cards
             const StepTrackerCard(),
@@ -512,11 +589,7 @@ class _HomeTab extends StatelessWidget {
             const WaterTrackerCard(),
             const SizedBox(height: 24),
 
-            // Quick actions - moved up
-            _buildQuickActions(context),
-            const SizedBox(height: 20),
-
-            // Progress and achievements section - moved down
+            // Progress and achievements section
             Text(
               'Your Progress',
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
@@ -532,76 +605,6 @@ class _HomeTab extends StatelessWidget {
             const SizedBox(height: 100), // Space for bottom nav
           ],
         ),
-    );
-  }
-
-  Widget _buildQuickActions(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Quick Actions',
-          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        const SizedBox(height: 12),
-        Column(
-          children: [
-            HealthGradientCard(
-              onTap: () => Navigator.of(context).pushFluid(const TrendsPage()),
-              gradientColors: [
-                Colors.blue.withValues(alpha: 0.1),
-                Colors.blue.withValues(alpha: 0.05),
-              ],
-              child: Row(
-                children: [
-                  Icon(
-                    Icons.analytics_rounded,
-                    color: Colors.blue,
-                    size: 32,
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Text(
-                      'View Trends',
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 12),
-            HealthGradientCard(
-              onTap: () => Navigator.of(context).pushFluid(const LeaderboardScreen()),
-              gradientColors: [
-                Colors.orange.withValues(alpha: 0.1),
-                Colors.orange.withValues(alpha: 0.05),
-              ],
-              child: Row(
-                children: [
-                  Icon(
-                    Icons.leaderboard_rounded,
-                    color: Colors.orange,
-                    size: 32,
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Text(
-                      'Leaderboard',
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ],
     );
   }
 

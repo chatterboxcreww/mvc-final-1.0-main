@@ -1,0 +1,33 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "feed/app.py",
+      "use": "@vercel/python"
+    }
+  ],
+  "functions": {
+    "api/*.js": {
+      "maxDuration": 60
+    },
+    "feed/app.py": {
+      "maxDuration": 60
+    }
+  },
+  "routes": [
+    {
+      "src": "/feed/(.*)",
+      "dest": "feed/app.py"
+    },
+    {
+      "src": "/api/(.*)",
+      "dest": "api/$1.js"
+    }
+  ],
+  "crons": [
+    {
+      "path": "/api/generate-daily-feed",
+      "schedule": "0 0 * * *"
+    }
+  ]
+}

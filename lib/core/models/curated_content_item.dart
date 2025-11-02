@@ -16,6 +16,9 @@ class CuratedContentItem {
   final List<String> goodForDiseases;
   final List<String> badForDiseases;
   final List<String> allergens;
+  final List<String> ingredients;
+  final List<String> instructions;
+  final Map<String, String> nutrition;
 
   CuratedContentItem({
     required this.id,
@@ -31,7 +34,12 @@ class CuratedContentItem {
     required this.goodForDiseases,
     required this.badForDiseases,
     required this.allergens,
-  });
+    List<String>? ingredients,
+    List<String>? instructions,
+    Map<String, String>? nutrition,
+  }) : ingredients = ingredients ?? [],
+       instructions = instructions ?? [],
+       nutrition = nutrition ?? {};
 
   // MODIFIED: This factory constructor is now more robust to handle the exact RTDB structure.
   factory CuratedContentItem.fromRTDB(String id, Map<dynamic, dynamic> data) {
@@ -45,6 +53,17 @@ class CuratedContentItem {
         return List<String>.from(keywordData.values.map((e) => e.toString()));
       }
       return [];
+    }
+
+    // Helper to parse nutrition map
+    Map<String, String> parseNutrition(dynamic nutritionData) {
+      if (nutritionData == null) return {};
+      if (nutritionData is Map) {
+        return Map<String, String>.from(
+          nutritionData.map((key, value) => MapEntry(key.toString(), value.toString()))
+        );
+      }
+      return {};
     }
 
     return CuratedContentItem(
@@ -62,6 +81,9 @@ class CuratedContentItem {
       goodForDiseases: parseKeywords(data['goodForDiseases']),
       badForDiseases: parseKeywords(data['badForDiseases']),
       allergens: parseKeywords(data['allergens']),
+      ingredients: parseKeywords(data['ingredients']),
+      instructions: parseKeywords(data['instructions']),
+      nutrition: parseNutrition(data['nutrition']),
     );
   }
 }

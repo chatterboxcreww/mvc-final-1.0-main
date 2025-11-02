@@ -25,13 +25,17 @@ class _PersonalInfoScreenState extends State<PersonalInfoScreen>
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
-  final _ageController = TextEditingController();
   final _heightController = TextEditingController();
   final _weightController = TextEditingController();
 
   Gender? _selectedGender;
   ActivityLevel _selectedActivityLevel = ActivityLevel.moderate;
   bool _isLoading = false;
+  
+  // Date of Birth dropdowns
+  int? _selectedDay;
+  int? _selectedMonth;
+  int? _selectedYear;
 
   @override
   void initState() {
@@ -67,18 +71,17 @@ class _PersonalInfoScreenState extends State<PersonalInfoScreen>
     _animationController.dispose();
     _nameController.dispose();
     _emailController.dispose();
-    _ageController.dispose();
     _heightController.dispose();
     _weightController.dispose();
     super.dispose();
   }
 
   void _continue() async {
-    print('Continue button pressed');
+    debugPrint('Continue button pressed');
     
     // Validate form first
     if (!_formKey.currentState!.validate()) {
-      print('Form validation failed');
+      debugPrint('Form validation failed');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: const Text('Please fill in all required fields correctly'),
@@ -90,7 +93,7 @@ class _PersonalInfoScreenState extends State<PersonalInfoScreen>
     
     // Check if gender is selected
     if (_selectedGender == null) {
-      print('Gender not selected');
+      debugPrint('Gender not selected');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: const Text('Please select your gender'),
@@ -100,14 +103,28 @@ class _PersonalInfoScreenState extends State<PersonalInfoScreen>
       return;
     }
     
-    print('All validations passed, proceeding...');
+    debugPrint('All validations passed, proceeding...');
     setState(() => _isLoading = true);
     
     try {
       final userProvider = context.read<UserDataProvider>();
       
+      // Calculate age from date of birth
+      if (_selectedDay == null || _selectedMonth == null || _selectedYear == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Please select your complete date of birth')),
+        );
+        return;
+      }
+      
+      final birthDate = DateTime(_selectedYear!, _selectedMonth!, _selectedDay!);
+      final today = DateTime.now();
+      int age = today.year - birthDate.year;
+      if (today.month < birthDate.month || (today.month == birthDate.month && today.day < birthDate.day)) {
+        age--;
+      }
+      
       // Calculate BMR and suggested daily goals
-      final age = int.parse(_ageController.text);
       final height = double.parse(_heightController.text);
       final weight = double.parse(_weightController.text);
       
@@ -284,20 +301,7 @@ class _PersonalInfoScreenState extends State<PersonalInfoScreen>
                                     },
                                   ),
                                   const SizedBox(height: 16),
-                                  _buildTextField(
-                                    controller: _ageController,
-                                    label: "Age",
-                                    icon: Icons.cake_outlined,
-                                    keyboardType: TextInputType.number,
-                                    validator: (value) {
-                                      if (value?.isEmpty == true) return "Please enter your age";
-                                      final age = int.tryParse(value!);
-                                      if (age == null || age < 1 || age > 120) {
-                                        return "Please enter a valid age (1-120)";
-                                      }
-                                      return null;
-                                    },
-                                  ),
+                                  _buildDateOfBirthDropdowns(),
                                 ],
                               ),
                               
@@ -411,6 +415,175 @@ class _PersonalInfoScreenState extends State<PersonalInfoScreen>
         ),
       ),
     );
+  }
+
+  Widget _buildDateOfBirthDropdowns() {
+    final colorScheme = Theme.of(context).colorScheme;
+    final currentYear = DateTime.now().year;
+    
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Icon(Icons.cake_outlined, color: colorScheme.primary, size: 20),
+            const SizedBox(width: 8),
+            Text(
+              'Date of Birth',
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.w600,
+                color: colorScheme.onSurface,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        Row(
+          children: [
+            // Day Dropdown
+            Expanded(
+              flex: 2,
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: colorScheme.outline),
+                  color: colorScheme.surface,
+                ),
+                child: DropdownButtonHideUnderline(
+                  child: DropdownButton<int>(
+                    value: _selectedDay,
+                    hint: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      child: Text('Day', style: TextStyle(color: colorScheme.onSurfaceVariant)),
+                    ),
+                    isExpanded: true,
+                    items: List.generate(31, (index) => index + 1).map((day) {
+                      return DropdownMenuItem<int>(
+                        value: day,
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 12),
+                          child: Text(day.toString()),
+                        ),
+                      );
+                    }).toList(),
+                    onChanged: (value) {
+                      setState(() {
+                        _selectedDay = value;
+                      });
+                    },
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(width: 12),
+            // Month Dropdown
+            Expanded(
+              flex: 3,
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: colorScheme.outline),
+                  color: colorScheme.surface,
+                ),
+                child: DropdownButtonHideUnderline(
+                  child: DropdownButton<int>(
+                    value: _selectedMonth,
+                    hint: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      child: Text('Month', style: TextStyle(color: colorScheme.onSurfaceVariant)),
+                    ),
+                    isExpanded: true,
+                    items: [
+                      {'value': 1, 'name': 'January'},
+                      {'value': 2, 'name': 'February'},
+                      {'value': 3, 'name': 'March'},
+                      {'value': 4, 'name': 'April'},
+                      {'value': 5, 'name': 'May'},
+                      {'value': 6, 'name': 'June'},
+                      {'value': 7, 'name': 'July'},
+                      {'value': 8, 'name': 'August'},
+                      {'value': 9, 'name': 'September'},
+                      {'value': 10, 'name': 'October'},
+                      {'value': 11, 'name': 'November'},
+                      {'value': 12, 'name': 'December'},
+                    ].map((month) {
+                      return DropdownMenuItem<int>(
+                        value: month['value'] as int,
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 12),
+                          child: Text(month['name'] as String),
+                        ),
+                      );
+                    }).toList(),
+                    onChanged: (value) {
+                      setState(() {
+                        _selectedMonth = value;
+                      });
+                    },
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(width: 12),
+            // Year Dropdown
+            Expanded(
+              flex: 2,
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: colorScheme.outline),
+                  color: colorScheme.surface,
+                ),
+                child: DropdownButtonHideUnderline(
+                  child: DropdownButton<int>(
+                    value: _selectedYear,
+                    hint: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      child: Text('Year', style: TextStyle(color: colorScheme.onSurfaceVariant)),
+                    ),
+                    isExpanded: true,
+                    items: List.generate(100, (index) => currentYear - index).map((year) {
+                      return DropdownMenuItem<int>(
+                        value: year,
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 12),
+                          child: Text(year.toString()),
+                        ),
+                      );
+                    }).toList(),
+                    onChanged: (value) {
+                      setState(() {
+                        _selectedYear = value;
+                      });
+                    },
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+        if (_selectedDay != null && _selectedMonth != null && _selectedYear != null) ...[
+          const SizedBox(height: 8),
+          Text(
+            'Age: ${_calculateAge(_selectedDay!, _selectedMonth!, _selectedYear!)} years',
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+              color: colorScheme.primary,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+  
+  int _calculateAge(int day, int month, int year) {
+    final birthDate = DateTime(year, month, day);
+    final today = DateTime.now();
+    int age = today.year - birthDate.year;
+    if (today.month < birthDate.month || (today.month == birthDate.month && today.day < birthDate.day)) {
+      age--;
+    }
+    return age;
   }
 
   Widget _buildTextField({
