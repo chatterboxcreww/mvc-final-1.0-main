@@ -81,13 +81,19 @@ class CuratedContentProvider with ChangeNotifier {
     List<CuratedContentItem> sourceList;
     List<CuratedContentItem> beverageList = [];
 
-    // Determine meal category based on time
-    if (currentHour >= 4 && currentHour < 11) {
+    // TIME-BASED MEAL FILTERING (as per requirements)
+    // 4 AM - 9 AM: Breakfast
+    // 9 AM - 4 PM: Lunch
+    // 4 PM onwards: Dinner
+    if (currentHour >= 4 && currentHour < 9) {
       sourceList = _breakfastFeed;
-    } else if (currentHour >= 11 && currentHour < 17) {
+      print('🍳 Showing breakfast feed (4 AM - 9 AM)');
+    } else if (currentHour >= 9 && currentHour < 16) {
       sourceList = _lunchFeed;
+      print('🍛 Showing lunch feed (9 AM - 4 PM)');
     } else {
       sourceList = _dinnerFeed;
+      print('🍽️ Showing dinner feed (4 PM onwards)');
     }
 
     // Add beverage content based on user preferences and time
@@ -95,6 +101,7 @@ class CuratedContentProvider with ChangeNotifier {
       // Show coffee content primarily in morning (6-12) and early afternoon (12-15)
       if (currentHour >= 6 && currentHour < 15) {
         beverageList.addAll(_coffeeFeed);
+        print('☕ Adding coffee options');
       }
     }
     
@@ -102,18 +109,27 @@ class CuratedContentProvider with ChangeNotifier {
       // Show tea content throughout the day, especially afternoon/evening (14-22)
       if (currentHour >= 14 && currentHour < 22) {
         beverageList.addAll(_teaFeed);
+        print('🍵 Adding tea options (afternoon/evening)');
       } else if (currentHour >= 6 && currentHour < 14) {
         // Show a subset of tea options in morning/midday
         beverageList.addAll(_teaFeed.take(6));
+        print('🍵 Adding limited tea options (morning)');
       }
     }
 
     // Combine meal and beverage content
     final combinedList = [...sourceList, ...beverageList];
     
-    if (combinedList.isEmpty) return [];
+    if (combinedList.isEmpty) {
+      print('⚠️ No content available for current time slot');
+      return [];
+    }
 
-    return _applyHealthAndDietaryFilters(combinedList, userData);
+    print('📊 Total items before filtering: ${combinedList.length}');
+    final filtered = _applyHealthAndDietaryFilters(combinedList, userData);
+    print('📊 Total items after filtering: ${filtered.length}');
+    
+    return filtered;
   }
 
   List<CuratedContentItem> _applyHealthAndDietaryFilters(List<CuratedContentItem> items, UserData userData) {

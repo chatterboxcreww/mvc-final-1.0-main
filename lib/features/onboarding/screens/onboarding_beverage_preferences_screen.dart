@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 import '../../../core/models/user_data.dart';
 import '../../../core/providers/user_data_provider.dart';
 import '../../../core/services/storage_service.dart';
+import '../../../shared/widgets/glass_container.dart';
 import '../widgets/onboarding_progress_indicator.dart';
 import '../../home/screens/home_page.dart';
 
@@ -58,16 +59,29 @@ class _OnboardingBeveragePreferencesScreenState extends State<OnboardingBeverage
       return;
     }
 
-    // Update user data with error handling
-    bool success = await userDataProvider.updateUserData(updatedData);
-
-    if (!success) {
+    // FIRST TIME ONBOARDING: Save to Firestore first, then local storage
+    try {
+      // Save to Firestore first (initial onboarding)
+      // Update with immediate Firebase sync (isOnboarding flag handles both local and Firebase)
+      bool success = await userDataProvider.updateUserData(updatedData, isOnboarding: true);
+      
+      if (!success) {
+        if (mounted) {
+          setState(() {
+            _isLoading = false;
+            _errorMessage = userDataProvider.lastError;
+          });
+          _showErrorDialog(_errorMessage ?? 'Failed to update user data');
+        }
+        return;
+      }
+    } catch (e) {
       if (mounted) {
         setState(() {
           _isLoading = false;
-          _errorMessage = userDataProvider.lastError;
+          _errorMessage = 'Failed to save to cloud: $e';
         });
-        _showErrorDialog(_errorMessage ?? 'Failed to update user data');
+        _showErrorDialog('Failed to save your data to the cloud. Please check your internet connection and try again.');
       }
       return;
     }
@@ -240,10 +254,7 @@ class _OnboardingBeveragePreferencesScreenState extends State<OnboardingBeverage
   }) {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
     
-    return Card(
-      elevation: 0,
-      color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+    return GlassCard(
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(

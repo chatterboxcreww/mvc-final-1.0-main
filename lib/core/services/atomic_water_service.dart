@@ -96,9 +96,21 @@ class AtomicWaterService {
   Future<int> updateWaterCount(int change) async {
     await _ensureInitialized();
     
-    // Wait for any ongoing operation to complete
-    while (_operationCompleter != null && !_operationCompleter!.isCompleted) {
-      await _operationCompleter!.future;
+    // Wait for any ongoing operation to complete with timeout
+    int waitCount = 0;
+    const maxWait = 50; // 5 seconds max
+    
+    while (_operationCompleter != null && 
+           !_operationCompleter!.isCompleted && 
+           waitCount < maxWait) {
+      await Future.delayed(const Duration(milliseconds: 100));
+      waitCount++;
+    }
+    
+    if (_operationCompleter != null && !_operationCompleter!.isCompleted) {
+      print('AtomicWaterService: ⚠️ Operation timeout - forcing completion');
+      _operationCompleter!.completeError(TimeoutException('Water operation timed out'));
+      _operationCompleter = null;
     }
     
     // Start new operation
@@ -152,9 +164,21 @@ class AtomicWaterService {
   Future<void> setWaterCount(int count) async {
     await _ensureInitialized();
     
-    // Wait for any ongoing operation
-    while (_operationCompleter != null && !_operationCompleter!.isCompleted) {
-      await _operationCompleter!.future;
+    // Wait for any ongoing operation with timeout
+    int waitCount = 0;
+    const maxWait = 50; // 5 seconds max
+    
+    while (_operationCompleter != null && 
+           !_operationCompleter!.isCompleted && 
+           waitCount < maxWait) {
+      await Future.delayed(const Duration(milliseconds: 100));
+      waitCount++;
+    }
+    
+    if (_operationCompleter != null && !_operationCompleter!.isCompleted) {
+      print('AtomicWaterService: ⚠️ Set count timeout - forcing completion');
+      _operationCompleter!.completeError(TimeoutException('Set water count timed out'));
+      _operationCompleter = null;
     }
     
     _operationCompleter = Completer<void>();
@@ -263,8 +287,21 @@ class AtomicWaterService {
   Future<void> resetWaterCount() async {
     await _ensureInitialized();
     
-    while (_operationCompleter != null && !_operationCompleter!.isCompleted) {
-      await _operationCompleter!.future;
+    // Wait for any ongoing operation with timeout
+    int waitCount = 0;
+    const maxWait = 50; // 5 seconds max
+    
+    while (_operationCompleter != null && 
+           !_operationCompleter!.isCompleted && 
+           waitCount < maxWait) {
+      await Future.delayed(const Duration(milliseconds: 100));
+      waitCount++;
+    }
+    
+    if (_operationCompleter != null && !_operationCompleter!.isCompleted) {
+      print('AtomicWaterService: ⚠️ Reset timeout - forcing completion');
+      _operationCompleter!.completeError(TimeoutException('Water reset timed out'));
+      _operationCompleter = null;
     }
     
     _operationCompleter = Completer<void>();

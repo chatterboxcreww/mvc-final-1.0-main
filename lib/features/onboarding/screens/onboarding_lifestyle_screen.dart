@@ -69,6 +69,7 @@ class _OnboardingLifestyleScreenState
         prefersCoffee: _coffee,
         prefersTea: _tea,
       ),
+      isOnboarding: true, // Immediate Firebase sync during onboarding
     );
 
     if (!mounted) return;

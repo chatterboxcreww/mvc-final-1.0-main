@@ -1,16 +1,18 @@
-// lib/features/settings/screens/settings_screen.dart
+// lib/features/settings/screens/settings_screen_glass.dart
+// Glass-themed settings screen - Complete implementation
+
 import 'dart:async';
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import '../../../shared/widgets/gradient_background.dart';
+import '../../../shared/widgets/glass_container.dart';
+import '../../../shared/widgets/glass_background.dart';
 import '../../../shared/widgets/fluid_page_transitions.dart';
 import '../../../core/providers/theme_provider.dart';
 import '../../../core/providers/user_data_provider.dart';
 import '../../../core/services/auth_service.dart';
-import '../widgets/settings_section.dart';
-import '../widgets/settings_tile.dart';
 import '../../profile/widgets/edit_personal_details_dialog.dart';
 import '../../profile/widgets/edit_health_info_dialog.dart';
 import '../../onboarding/screens/health_goals_screen.dart';
@@ -29,363 +31,381 @@ class SettingsScreen extends StatefulWidget {
 
 class _SettingsScreenState extends State<SettingsScreen>
     with SingleTickerProviderStateMixin {
-  late AnimationController _animationController;
-  late Animation<double> _fadeAnimation;
-  late Animation<Offset> _slideAnimation;
+  late AnimationController _controller;
 
   @override
   void initState() {
     super.initState();
-    _animationController = AnimationController(
-      duration: const Duration(milliseconds: 800),
+    _controller = AnimationController(
+      duration: const Duration(seconds: 20),
       vsync: this,
-    );
-    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _animationController, curve: Curves.easeOut),
-    );
-    _slideAnimation = Tween<Offset>(
-      begin: const Offset(0, 0.2),
-      end: Offset.zero,
-    ).animate(CurvedAnimation(parent: _animationController, curve: Curves.easeOut));
-    
-    _animationController.forward();
+    )..repeat();
   }
 
   @override
   void dispose() {
-    _animationController.dispose();
+    _controller.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    
     return Scaffold(
-      body: GradientBackground(
-        colors: [
-          Theme.of(context).colorScheme.primaryContainer.withValues(alpha: 0.3),
-          Theme.of(context).colorScheme.surface,
-        ],
-        child: SafeArea(
-          child: FadeTransition(
-            opacity: _fadeAnimation,
-            child: SlideTransition(
-              position: _slideAnimation,
+      extendBodyBehindAppBar: true,
+      appBar: GlassAppBar(
+        title: 'Settings',
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_rounded),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+      ),
+      body: Stack(
+        children: [
+          // Glass background
+          Positioned.fill(
+            child: CustomPaint(
+              painter: GlassBackgroundPainter(
+                animation: _controller,
+                colorScheme: colorScheme,
+              ),
+            ),
+          ),
+          // Content
+          SafeArea(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(16),
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  // Header
-                  Container(
-                    padding: const EdgeInsets.all(20),
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [
-                          Theme.of(context).colorScheme.primary,
-                          Theme.of(context).colorScheme.primary.withValues(alpha: 0.8),
-                        ],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
-                      borderRadius: const BorderRadius.vertical(
-                        bottom: Radius.circular(30),
-                      ),
-                    ),
-                    child: Column(
-                      children: [
-                        Row(
-                          children: [
-                            IconButton(
-                              onPressed: () => Navigator.of(context).pop(),
-                              icon: Icon(
-                                Icons.arrow_back_ios_rounded,
-                                color: Theme.of(context).colorScheme.onPrimary,
-                              ),
-                            ),
-                            Expanded(
-                              child: Text(
-                                "Settings",
-                                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                                  color: Theme.of(context).colorScheme.onPrimary,
-                                  fontWeight: FontWeight.w700,
-                                ),
-                                textAlign: TextAlign.center,
-                              ),
-                            ),
-                            const SizedBox(width: 48),
-                          ],
-                        ),
-                        const SizedBox(height: 16),
-                        Consumer<UserDataProvider>(
-                          builder: (context, userProvider, child) {
-                            return Row(
-                              children: [
-                                CircleAvatar(
-                                  radius: 30,
-                                  backgroundColor: Theme.of(context).colorScheme.onPrimary.withValues(alpha: 0.2),
-                                  backgroundImage: userProvider.userData.profilePicturePath != null
-                                      ? NetworkImage(userProvider.userData.profilePicturePath!)
-                                      : null,
-                                  child: userProvider.userData.profilePicturePath == null
-                                      ? Icon(
-                                          Icons.person_rounded,
-                                          color: Theme.of(context).colorScheme.onPrimary,
-                                          size: 32,
-                                        )
-                                      : null,
-                                ),
-                                const SizedBox(width: 16),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        userProvider.userData.name ?? "User",
-                                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                                          color: Theme.of(context).colorScheme.onPrimary,
-                                          fontWeight: FontWeight.w700,
-                                        ),
-                                      ),
-                                      Text(
-                                        userProvider.userData.email ?? 
-                                        FirebaseAuth.instance.currentUser?.email ?? 
-                                        "user@example.com",
-                                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                          color: Theme.of(context).colorScheme.onPrimary.withValues(alpha: 0.8),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            );
-                          },
-                        ),
-                      ],
-                    ),
-                  ),
+                  const SizedBox(height: 16),
                   
-                  // Content
-                  Expanded(
-                    child: SingleChildScrollView(
-                      padding: const EdgeInsets.all(24),
-                      child: Column(
-                        children: [
-                          // Profile Section
-                          SettingsSection(
-                            title: "Profile",
-                            children: [
-                              SettingsTile(
-                                title: "Personal Information",
-                                subtitle: "Update your basic details",
-                                icon: Icons.person_outline_rounded,
-                                color: Colors.blue,
-                                onTap: () {
-                                  showDialog(
-                                    context: context,
-                                    builder: (context) => const EditPersonalDetailsDialog(),
-                                  );
-                                },
-                              ),
-                              SettingsTile(
-                                title: "Health Information",
-                                subtitle: "Medical conditions and allergies",
-                                icon: Icons.health_and_safety_outlined,
-                                color: Colors.red,
-                                onTap: () {
-                                  showDialog(
-                                    context: context,
-                                    builder: (context) => const EditHealthInfoDialog(),
-                                  );
-                                },
-                              ),
-                              SettingsTile(
-                                title: "Goals & Targets",
-                                subtitle: "Adjust your daily health goals",
-                                icon: Icons.track_changes_rounded,
-                                color: Colors.green,
-                                onTap: () {
-                                  final userData = context.read<UserDataProvider>().userData;
-                                  Navigator.of(context).pushFluid(
-                                    HealthGoalsScreen(
-                                      suggestedSteps: userData.dailyStepGoal ?? 10000,
-                                      suggestedWater: userData.dailyWaterGoal ?? 8,
-                                      bmr: (userData.bmr ?? 1500).round(),
-                                    ),
-                                  );
-                                },
-                              ),
-                            ],
-                          ),
-                          
-                          const SizedBox(height: 24),
-                          
-                          // App Preferences
-                          SettingsSection(
-                            title: "App Preferences",
-                            children: [
-                              Consumer<ThemeProvider>(
-                                builder: (context, themeProvider, child) {
-                                  return SettingsTile(
-                                    title: "Theme",
-                                    subtitle: _getThemeSubtitle(themeProvider.themeMode),
-                                    icon: Icons.palette_outlined,
-                                    color: Colors.purple,
-                                    onTap: () => _showThemeSelector(context, themeProvider),
-                                    trailing: Icon(
-                                      _getThemeIcon(themeProvider.themeMode),
-                                      color: Colors.purple,
-                                    ),
-                                  );
-                                },
-                              ),
-                              SettingsTile(
-                                title: "Notifications",
-                                subtitle: "Manage your notification preferences",
-                                icon: Icons.notifications_outlined,
-                                color: Colors.orange,
-                                onTap: () {
-                                  Navigator.of(context).push(
-                                    MaterialPageRoute(
-                                      builder: (context) => const NotificationSettingsScreen(),
-                                    ),
-                                  );
-                                },
-                              ),
-                              SettingsTile(
-                                title: "Privacy & Security",
-                                subtitle: "Data privacy and security settings",
-                                icon: Icons.security_rounded,
-                                color: Colors.indigo,
-                                onTap: () {
-                                  Navigator.of(context).push(
-                                    MaterialPageRoute(
-                                      builder: (context) => const PrivacySettingsScreen(),
-                                    ),
-                                  );
-                                },
-                              ),
-                            ],
-                          ),
-                          
-                          const SizedBox(height: 24),
-                          
-                          // Data & Backup
-                          SettingsSection(
-                            title: "Data & Backup",
-                            children: [
-                              SettingsTile(
-                                title: "Export Data",
-                                subtitle: "Download your health data as PDF",
-                                icon: Icons.download_rounded,
-                                color: Colors.teal,
-                                onTap: () {
-                                  Navigator.of(context).push(
-                                    MaterialPageRoute(
-                                      builder: (context) => const ExportDataScreen(),
-                                    ),
-                                  );
-                                },
-                              ),
-                              SettingsTile(
-                                title: "Sync Settings",
-                                subtitle: "Manage data synchronization",
-                                icon: Icons.sync_rounded,
-                                color: Colors.cyan,
-                                onTap: () {
-                                  Navigator.of(context).push(
-                                    MaterialPageRoute(
-                                      builder: (context) => const SyncSettingsScreen(),
-                                    ),
-                                  );
-                                },
-                              ),
-                            ],
-                          ),
-                          
-                          const SizedBox(height: 24),
-                          
-                          // Support
-                          SettingsSection(
-                            title: "Support",
-                            children: [
-                              SettingsTile(
-                                title: "Help Center",
-                                subtitle: "Get help and support",
-                                icon: Icons.help_outline_rounded,
-                                color: Colors.blue,
-                                onTap: () {
-                                  Navigator.of(context).push(
-                                    MaterialPageRoute(
-                                      builder: (context) => const HelpCenterScreen(),
-                                    ),
-                                  );
-                                },
-                              ),
-                              SettingsTile(
-                                title: "Contact Us",
-                                subtitle: "Send feedback or report issues",
-                                icon: Icons.contact_support_outlined,
-                                color: Colors.green,
-                                onTap: () {
-                                  _showContactUsDialog();
-                                },
-                              ),
-                              SettingsTile(
-                                title: "About",
-                                subtitle: "App version and information",
-                                icon: Icons.info_outline_rounded,
-                                color: Colors.grey,
-                                onTap: () {
-                                  _showAboutDialog(context);
-                                },
-                              ),
-                            ],
-                          ),
-                          
-                          const SizedBox(height: 32),
-                          
-                          // Sign Out Button
-                          Container(
-                            width: double.infinity,
-                            padding: const EdgeInsets.all(20),
-                            decoration: BoxDecoration(
-                              color: Colors.red.withValues(alpha: 0.1),
-                              borderRadius: BorderRadius.circular(16),
+                  // User Profile Card
+                  Consumer<UserDataProvider>(
+                    builder: (context, userProvider, child) {
+                      return GlassCard(
+                        child: Row(
+                          children: [
+                            GlassContainer(
+                              padding: const EdgeInsets.all(4),
+                              borderRadius: 30,
+                              shape: BoxShape.circle,
+                              gradientColors: [
+                                colorScheme.primary.withOpacity(0.2),
+                                colorScheme.primary.withOpacity(0.1),
+                              ],
                               border: Border.all(
-                                color: Colors.red.withValues(alpha: 0.3),
+                                color: colorScheme.primary.withOpacity(0.3),
+                                width: 2,
+                              ),
+                              child: CircleAvatar(
+                                radius: 30,
+                                backgroundColor: colorScheme.primaryContainer,
+                                backgroundImage: userProvider.userData.profilePicturePath != null
+                                    ? NetworkImage(userProvider.userData.profilePicturePath!)
+                                    : null,
+                                child: userProvider.userData.profilePicturePath == null
+                                    ? Icon(
+                                        Icons.person_rounded,
+                                        color: colorScheme.onPrimaryContainer,
+                                        size: 32,
+                                      )
+                                    : null,
                               ),
                             ),
-                            child: InkWell(
-                              onTap: () => _showSignOutDialog(context),
-                              borderRadius: BorderRadius.circular(16),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
+                            const SizedBox(width: 16),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Icon(
-                                    Icons.logout_rounded,
-                                    color: Colors.red,
-                                  ),
-                                  const SizedBox(width: 12),
                                   Text(
-                                    "Sign Out",
-                                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                      color: Colors.red,
-                                      fontWeight: FontWeight.w600,
+                                    userProvider.userData.name ?? "User",
+                                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  Text(
+                                    userProvider.userData.email ?? 
+                                    FirebaseAuth.instance.currentUser?.email ?? 
+                                    "user@example.com",
+                                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                      color: colorScheme.onSurfaceVariant,
                                     ),
                                   ),
                                 ],
                               ),
                             ),
-                          ),
-                          
-                          const SizedBox(height: 20),
-                        ],
-                      ),
-                    ),
+                          ],
+                        ),
+                      );
+                    },
                   ),
+                  
+                  const SizedBox(height: 24),
+                  
+                  // Profile Section
+                  _buildSectionTitle(context, 'Profile'),
+                  const SizedBox(height: 12),
+                  _buildSettingsTile(
+                    context,
+                    Icons.person_outline_rounded,
+                    'Personal Information',
+                    'Update your basic details',
+                    Colors.blue,
+                    () {
+                      showDialog(
+                        context: context,
+                        builder: (context) => const EditPersonalDetailsDialog(),
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 8),
+                  _buildSettingsTile(
+                    context,
+                    Icons.health_and_safety_outlined,
+                    'Health Information',
+                    'Medical conditions and allergies',
+                    Colors.red,
+                    () {
+                      showDialog(
+                        context: context,
+                        builder: (context) => const EditHealthInfoDialog(),
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 8),
+                  _buildSettingsTile(
+                    context,
+                    Icons.track_changes_rounded,
+                    'Goals & Targets',
+                    'Adjust your daily health goals',
+                    Colors.green,
+                    () {
+                      final userData = context.read<UserDataProvider>().userData;
+                      Navigator.of(context).pushFluid(
+                        HealthGoalsScreen(
+                          suggestedSteps: userData.dailyStepGoal ?? 10000,
+                          suggestedWater: userData.dailyWaterGoal ?? 8,
+                          bmr: (userData.bmr ?? 1500).round(),
+                        ),
+                      );
+                    },
+                  ),
+                  
+                  const SizedBox(height: 24),
+                  
+                  // App Preferences
+                  _buildSectionTitle(context, 'App Preferences'),
+                  const SizedBox(height: 12),
+                  Consumer<ThemeProvider>(
+                    builder: (context, themeProvider, child) {
+                      return _buildSettingsTile(
+                        context,
+                        _getThemeIcon(themeProvider.themeMode),
+                        'Theme',
+                        _getThemeSubtitle(themeProvider.themeMode),
+                        Colors.purple,
+                        () => _showThemeSelector(context, themeProvider),
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 8),
+                  _buildSettingsTile(
+                    context,
+                    Icons.notifications_outlined,
+                    'Notifications',
+                    'Manage your notification preferences',
+                    Colors.orange,
+                    () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => const NotificationSettingsScreen(),
+                        ),
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 8),
+                  _buildSettingsTile(
+                    context,
+                    Icons.security_rounded,
+                    'Privacy & Security',
+                    'Data privacy and security settings',
+                    Colors.indigo,
+                    () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => const PrivacySettingsScreen(),
+                        ),
+                      );
+                    },
+                  ),
+                  
+                  const SizedBox(height: 24),
+                  
+                  // Data & Backup
+                  _buildSectionTitle(context, 'Data & Backup'),
+                  const SizedBox(height: 12),
+                  _buildSettingsTile(
+                    context,
+                    Icons.download_rounded,
+                    'Export Data',
+                    'Download your health data as PDF',
+                    Colors.teal,
+                    () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => const ExportDataScreen(),
+                        ),
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 8),
+                  _buildSettingsTile(
+                    context,
+                    Icons.sync_rounded,
+                    'Sync Settings',
+                    'Manage data synchronization',
+                    Colors.cyan,
+                    () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => const SyncSettingsScreen(),
+                        ),
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 8),
+                  // Manual Sync to Cloud Button
+                  Consumer<UserDataProvider>(
+                    builder: (context, userProvider, child) {
+                      return _buildSyncToCloudTile(
+                        context,
+                        userProvider,
+                      );
+                    },
+                  ),
+                  
+                  const SizedBox(height: 24),
+                  
+                  // Support
+                  _buildSectionTitle(context, 'Support'),
+                  const SizedBox(height: 12),
+                  _buildSettingsTile(
+                    context,
+                    Icons.help_outline_rounded,
+                    'Help Center',
+                    'Get help and support',
+                    Colors.blue,
+                    () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => const HelpCenterScreen(),
+                        ),
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 8),
+                  _buildSettingsTile(
+                    context,
+                    Icons.contact_support_outlined,
+                    'Contact Us',
+                    'Send feedback or report issues',
+                    Colors.green,
+                    () => _showContactUsDialog(context),
+                  ),
+                  const SizedBox(height: 8),
+                  _buildSettingsTile(
+                    context,
+                    Icons.info_outline_rounded,
+                    'About',
+                    'App version and information',
+                    Colors.grey,
+                    () => _showAboutDialog(context),
+                  ),
+                  
+                  const SizedBox(height: 32),
+                  
+                  // Sign Out Button
+                  GlassButton(
+                    text: 'Sign Out',
+                    icon: Icons.logout_rounded,
+                    onPressed: () => _showSignOutDialog(context),
+                    isPrimary: false,
+                  ),
+                  
+                  const SizedBox(height: 20),
                 ],
               ),
             ),
           ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSectionTitle(BuildContext context, String title) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 4),
+      child: Text(
+        title,
+        style: Theme.of(context).textTheme.titleSmall?.copyWith(
+          fontWeight: FontWeight.bold,
+          color: Theme.of(context).colorScheme.primary,
+          letterSpacing: 0.5,
         ),
+      ),
+    );
+  }
+
+  Widget _buildSettingsTile(
+    BuildContext context,
+    IconData icon,
+    String title,
+    String subtitle,
+    Color color,
+    VoidCallback onTap,
+  ) {
+    return GlassCard(
+      margin: EdgeInsets.zero,
+      padding: const EdgeInsets.all(16),
+      onTap: onTap,
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: color.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Icon(icon, color: color, size: 24),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                Text(
+                  subtitle,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Icon(
+            Icons.arrow_forward_ios_rounded,
+            size: 16,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
+        ],
       ),
     );
   }
@@ -416,11 +436,9 @@ class _SettingsScreenState extends State<SettingsScreen>
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
-      builder: (context) => Container(
-        decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surface,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
-        ),
+      builder: (context) => GlassContainer(
+        margin: EdgeInsets.zero,
+        borderRadius: 28,
         padding: const EdgeInsets.all(24),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -429,7 +447,7 @@ class _SettingsScreenState extends State<SettingsScreen>
               width: 40,
               height: 4,
               decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.4),
+                color: Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.4),
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
@@ -437,12 +455,14 @@ class _SettingsScreenState extends State<SettingsScreen>
             Text(
               "Choose Theme",
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.w700,
+                fontWeight: FontWeight.bold,
               ),
             ),
             const SizedBox(height: 24),
             _buildThemeOption(context, themeProvider, AppThemeMode.system, "System Default", Icons.settings_brightness_rounded),
+            const SizedBox(height: 12),
             _buildThemeOption(context, themeProvider, AppThemeMode.light, "Light Theme", Icons.light_mode_rounded),
+            const SizedBox(height: 12),
             _buildThemeOption(context, themeProvider, AppThemeMode.dark, "Dark Theme", Icons.dark_mode_rounded),
             const SizedBox(height: 20),
           ],
@@ -453,97 +473,63 @@ class _SettingsScreenState extends State<SettingsScreen>
 
   Widget _buildThemeOption(BuildContext context, ThemeProvider themeProvider, AppThemeMode mode, String title, IconData icon) {
     final isSelected = themeProvider.themeMode == mode.toThemeMode();
+    final colorScheme = Theme.of(context).colorScheme;
     
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      child: InkWell(
-        onTap: () {
-          themeProvider.setThemeMode(mode);
-          Navigator.of(context).pop();
-        },
-        borderRadius: BorderRadius.circular(16),
-        child: Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: isSelected 
-                ? Theme.of(context).colorScheme.primaryContainer 
-                : Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(
-              color: isSelected 
-                  ? Theme.of(context).colorScheme.primary 
-                  : Theme.of(context).colorScheme.outline.withValues(alpha: 0.3),
-              width: isSelected ? 2 : 1,
+    return GlassContainer(
+      padding: const EdgeInsets.all(16),
+      borderRadius: 16,
+      onTap: () {
+        themeProvider.setThemeMode(mode);
+        Navigator.of(context).pop();
+      },
+      gradientColors: isSelected
+          ? [
+              colorScheme.primary.withOpacity(0.2),
+              colorScheme.primary.withOpacity(0.1),
+            ]
+          : null,
+      border: Border.all(
+        color: isSelected 
+            ? colorScheme.primary.withOpacity(0.3)
+            : Colors.white.withOpacity(0.2),
+        width: isSelected ? 2 : 1,
+      ),
+      child: Row(
+        children: [
+          Icon(
+            icon,
+            color: isSelected ? colorScheme.primary : colorScheme.onSurfaceVariant,
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Text(
+              title,
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                color: isSelected ? colorScheme.primary : colorScheme.onSurface,
+                fontWeight: FontWeight.w600,
+              ),
             ),
           ),
-          child: Row(
-            children: [
-              Icon(
-                icon,
-                color: isSelected 
-                    ? Theme.of(context).colorScheme.primary 
-                    : Theme.of(context).colorScheme.onSurfaceVariant,
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Text(
-                  title,
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    color: isSelected 
-                        ? Theme.of(context).colorScheme.primary 
-                        : Theme.of(context).colorScheme.onSurface,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-              if (isSelected)
-                Icon(
-                  Icons.check_circle_rounded,
-                  color: Theme.of(context).colorScheme.primary,
-                ),
-            ],
-          ),
-        ),
+          if (isSelected)
+            Icon(
+              Icons.check_circle,
+              color: colorScheme.primary,
+            ),
+        ],
       ),
     );
   }
 
-  void _showContactUsDialog() {
+  void _showContactUsDialog(BuildContext context) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Row(
-          children: [
-            Icon(Icons.mail_outline, color: Colors.green),
-            SizedBox(width: 12),
-            Text("Contact Us"),
-          ],
-        ),
-        content: const Text(
-          "We'd love to hear from you! 💚\n\n"
-          "📧 Email: support@health-trkd.com\n"
-          "📞 Phone: Coming Soon\n"
-          "💬 Live Chat: Coming Soon\n"
-          "📱 In-App Messaging: Coming Soon\n\n"
-          "Response time: 24-48 hours\n"
-          "Available: Monday-Friday, 9 AM - 6 PM EST",
-        ),
+        title: const Text('Contact Us'),
+        content: const Text('Email: support@health-trkd.com\n\nWe\'d love to hear from you!'),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: const Text("Close"),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Enhanced contact features coming soon!'),
-                  backgroundColor: Colors.green,
-                ),
-              );
-            },
-            child: const Text("Coming Soon"),
+            child: const Text('Close'),
           ),
         ],
       ),
@@ -554,24 +540,144 @@ class _SettingsScreenState extends State<SettingsScreen>
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text("About Health-TRKD"),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text("Version 1.0.0"),
-            const SizedBox(height: 8),
-            const Text("Your comprehensive health tracking companion."),
-            const SizedBox(height: 16),
-            const Text("Developed with ❤️ for your wellness journey."),
-          ],
-        ),
+        title: const Text('About Health-TRKD'),
+        content: const Text('Version 1.0.0\n\nYour personal health and activity tracker.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: const Text("OK"),
+            child: const Text('Close'),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildSyncToCloudTile(BuildContext context, UserDataProvider userProvider) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final isLoading = userProvider.isLoading;
+    
+    return GlassCard(
+      margin: EdgeInsets.zero,
+      padding: const EdgeInsets.all(16),
+      onTap: isLoading ? null : () => _syncToCloud(context, userProvider),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: Colors.blue.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: isLoading
+                ? SizedBox(
+                    width: 24,
+                    height: 24,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
+                    ),
+                  )
+                : Icon(Icons.cloud_upload_rounded, color: Colors.blue, size: 24),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Upload to Cloud',
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                Text(
+                  isLoading 
+                      ? 'Syncing...' 
+                      : 'Manually sync your data to Firestore',
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          if (!isLoading)
+            Icon(
+              Icons.arrow_forward_ios_rounded,
+              size: 16,
+              color: colorScheme.onSurfaceVariant,
+            ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _syncToCloud(BuildContext context, UserDataProvider userProvider) async {
+    // Show confirmation dialog
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Row(
+          children: [
+            Icon(Icons.cloud_upload_rounded, color: Colors.blue),
+            const SizedBox(width: 12),
+            const Text('Upload to Cloud'),
+          ],
+        ),
+        content: const Text(
+          'This will upload your current data to Firestore. '
+          'Make sure you have an active internet connection.\n\n'
+          'Do you want to continue?'
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton.icon(
+            onPressed: () => Navigator.of(context).pop(true),
+            icon: const Icon(Icons.cloud_upload_rounded, size: 18),
+            label: const Text('Upload'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true || !context.mounted) return;
+
+    // Perform sync
+    final success = await userProvider.syncLocalChangesToFirebase();
+
+    if (!context.mounted) return;
+
+    // Show result
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            Icon(
+              success ? Icons.check_circle : Icons.error,
+              color: Colors.white,
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                success
+                    ? 'Successfully uploaded to cloud!'
+                    : 'Upload failed: ${userProvider.lastError ?? "Unknown error"}',
+              ),
+            ),
+          ],
+        ),
+        backgroundColor: success ? Colors.green : Colors.red,
+        duration: Duration(seconds: success ? 3 : 5),
+        action: success
+            ? null
+            : SnackBarAction(
+                label: 'Retry',
+                textColor: Colors.white,
+                onPressed: () => _syncToCloud(context, userProvider),
+              ),
       ),
     );
   }
@@ -580,85 +686,38 @@ class _SettingsScreenState extends State<SettingsScreen>
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text("Sign Out"),
-        content: const Text("Are you sure you want to sign out?"),
+        title: const Text('Sign Out'),
+        content: const Text('Are you sure you want to sign out?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: const Text("Cancel"),
+            child: const Text('Cancel'),
           ),
           TextButton(
             onPressed: () async {
-              Navigator.of(context).pop(); // Close confirmation dialog
-              
-              // Show loading indicator while signing out
-              final loadingDialogCompleter = Completer<BuildContext>();
-              
-              if (mounted) {
-                showDialog(
-                  context: context,
-                  barrierDismissible: false,
-                  builder: (BuildContext dialogContext) {
-                    // Complete the completer with the dialog context
-                    loadingDialogCompleter.complete(dialogContext);
-                    return const AlertDialog(
-                      content: Row(
-                        children: [
-                          CircularProgressIndicator(),
-                          SizedBox(width: 20),
-                          Text("Signing out..."),
-                        ],
-                      ),
-                    );
-                  },
-                );
-              }
-              
-              try {
-                // Use proper AuthService for complete sign-out with cleanup
-                await AuthService().signOut();
-                
-                // Explicitly close the loading dialog
-                if (mounted && loadingDialogCompleter.isCompleted) {
-                  final dialogContext = await loadingDialogCompleter.future;
-                  Navigator.of(dialogContext).pop();
-                }
-                
-                // Force navigation to auth screen instead of relying on AuthWrapper
-                if (mounted) {
-                  Navigator.of(context).pushNamedAndRemoveUntil('/', (route) => false);
-                }
-                
-              } catch (e) {
-                debugPrint('Sign-out error: $e');
-                
-                // Close loading dialog if still mounted
-                if (mounted && loadingDialogCompleter.isCompleted) {
-                  final dialogContext = await loadingDialogCompleter.future;
-                  Navigator.of(dialogContext).pop();
-                  
-                  // Show error message
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('Sign out failed: Please try again'),
-                      backgroundColor: Colors.red,
-                      action: SnackBarAction(
-                        label: 'Retry',
-                        textColor: Colors.white,
-                        onPressed: () => _showSignOutDialog(context),
-                      ),
-                    ),
-                  );
-                }
-              }
+              Navigator.of(context).pop();
+              await _performSignOut(context);
             },
-            child: const Text(
-              "Sign Out",
-              style: TextStyle(color: Colors.red),
-            ),
+            child: const Text('Sign Out', style: TextStyle(color: Colors.red)),
           ),
         ],
       ),
     );
+  }
+
+  Future<void> _performSignOut(BuildContext context) async {
+    try {
+      await FirebaseAuth.instance.signOut();
+      await GoogleSignIn().signOut();
+      if (context.mounted) {
+        Navigator.of(context).pushNamedAndRemoveUntil('/', (route) => false);
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error signing out: $e')),
+        );
+      }
+    }
   }
 }

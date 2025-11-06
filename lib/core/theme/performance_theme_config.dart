@@ -28,10 +28,10 @@ class PerformanceThemeConfig {
         color: colorScheme.primary,
         linearTrackColor: isDark 
             ? colorScheme.surfaceContainerHighest 
-            : colorScheme.primary.withOpacity(0.1), // More visible track in light mode
+            : colorScheme.primary.withValues(alpha: 0.1), // More visible track in light mode
         circularTrackColor: isDark 
             ? colorScheme.surfaceContainerHighest 
-            : colorScheme.primary.withOpacity(0.1),
+            : colorScheme.primary.withValues(alpha: 0.1),
         refreshBackgroundColor: colorScheme.surface,
       ),
       
@@ -106,7 +106,7 @@ class PerformanceThemeConfig {
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           elevation: 2,
-          shadowColor: colorScheme.shadow.withOpacity(0.1),
+          shadowColor: colorScheme.shadow.withValues(alpha: 0.1),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
@@ -140,7 +140,7 @@ class PerformanceThemeConfig {
           borderSide: isDark 
               ? BorderSide.none 
               : BorderSide(
-                  color: colorScheme.outline.withOpacity(0.3),
+                  color: colorScheme.outline.withValues(alpha: 0.3),
                   width: 1,
                 ), // Subtle border for light mode
         ),
@@ -149,7 +149,7 @@ class PerformanceThemeConfig {
           borderSide: isDark 
               ? BorderSide.none 
               : BorderSide(
-                  color: colorScheme.outline.withOpacity(0.2),
+                  color: colorScheme.outline.withValues(alpha: 0.2),
                   width: 1,
                 ),
         ),
@@ -176,7 +176,7 @@ class PerformanceThemeConfig {
           fontSize: 16,
         ),
         hintStyle: TextStyle(
-          color: colorScheme.onSurfaceVariant.withOpacity(0.7),
+          color: colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
           fontSize: 16,
         ),
       ),
@@ -344,3 +344,4 @@ extension ThemeDataExtensions on ThemeData {
   /// Get optimized curve for animations
   Curve getOptimizedCurve() => PerformanceThemeConfig.normalCurve;
 }
+

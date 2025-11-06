@@ -250,10 +250,21 @@ class UserDataProvider with ChangeNotifier {
     // Prevent concurrent loading
     if (_isLoading) {
       print('UserDataProvider: Load already in progress, waiting...');
-      // Wait for current load to complete
-      while (_isLoading) {
+      // Wait for current load to complete with timeout
+      int waitCount = 0;
+      const maxWaitTime = 100; // 10 seconds max
+
+      while (_isLoading && waitCount < maxWaitTime) {
         await Future.delayed(const Duration(milliseconds: 100));
+        waitCount++;
       }
+
+      if (_isLoading) {
+        print('UserDataProvider: ⚠️ Load timeout after 10 seconds - forcing reset');
+        _isLoading = false;
+        _lastError = 'Previous load operation timed out. Please try again.';
+      }
+
       return _userData.userId.isNotEmpty;
     }
 
@@ -276,14 +287,14 @@ class UserDataProvider with ChangeNotifier {
       if (cachedData != null) {
         _userData = cachedData;
         print('UserDataProvider: Loaded data from offline cache');
-        
+
         // If we have cache data and we're offline, return success
         if (!isOnline) {
           _isLoading = false;
           notifyListeners();
           return true;
         }
-        
+
         // If online, continue to sync with Firebase but don't block on it
         notifyListeners(); // Update UI with cache data immediately
       }
@@ -291,11 +302,11 @@ class UserDataProvider with ChangeNotifier {
       // Handle authentication state
       if (_cachedUser == null && isOnline) {
         print('UserDataProvider: No cached user, checking persisted auth...');
-        
+
         final hasPersistedAuth = await checkPersistedAuthState();
         if (hasPersistedAuth) {
           print('UserDataProvider: Using persisted auth state');
-          
+
           // Try to restore Firebase auth
           try {
             _cachedUser = await _authService.silentSignIn().timeout(
@@ -325,7 +336,7 @@ class UserDataProvider with ChangeNotifier {
           notifyListeners();
           return true;
         }
-        
+
         print('UserDataProvider: No user found, clearing data');
         _userData = UserData(userId: '');
         await _clearLocalCache();
@@ -337,12 +348,12 @@ class UserDataProvider with ChangeNotifier {
 
       print('UserDataProvider: User found, loading data from Firestore...');
 
-      // Try to load from Firestore with retry logic
+      // Try to load from Firestore with retry logic and offline-first approach
       UserData? loadedData;
       if (isOnline) {
         int retryCount = 0;
         const maxRetries = 2;
-        
+
         while (retryCount <= maxRetries && loadedData == null) {
           try {
             loadedData = await _authService.loadUserDataFromFirestore().timeout(
@@ -352,13 +363,14 @@ class UserDataProvider with ChangeNotifier {
           } catch (e) {
             retryCount++;
             print('UserDataProvider: Firestore loading attempt $retryCount failed: $e');
-            
+
             // Check if it's a network/timeout error
             final isNetworkError = e.toString().contains('network') ||
-                                 e.toString().contains('timeout') ||
-                                 e.toString().contains('connection') ||
-                                 e.toString().contains('Failed host lookup');
-            
+                                  e.toString().contains('timeout') ||
+                                  e.toString().contains('connection') ||
+                                  e.toString().contains('Failed host lookup') ||
+                                  e.toString().contains('UNAVAILABLE');
+
             if (isNetworkError && retryCount <= maxRetries) {
               print('UserDataProvider: Network error, retrying in ${retryCount * 2}s...');
               await Future.delayed(Duration(seconds: retryCount * 2));
@@ -393,18 +405,19 @@ class UserDataProvider with ChangeNotifier {
       notifyListeners();
       await _saveAuthState();
       return true;
-      
+
     } catch (e) {
       print('UserDataProvider: Critical error in loadUserData: $e');
-      
+
       // Determine if this is a recoverable error
       final isRecoverableError = e.toString().contains('network') ||
-                               e.toString().contains('timeout') ||
-                               e.toString().contains('connection');
-      
+                                e.toString().contains('timeout') ||
+                                e.toString().contains('connection') ||
+                                e.toString().contains('UNAVAILABLE');
+
       if (isRecoverableError) {
         _lastError = "Network error. Using offline data.";
-        
+
         // Try to use cached data
         try {
           final cachedData = await _loadFromLocalCache();
@@ -770,7 +783,8 @@ class UserDataProvider with ChangeNotifier {
   }
 
     /// Updates user data with mutex lock to prevent concurrent operations
-  Future<bool> updateUserData(UserData newData) async {
+  /// IMPORTANT: During onboarding, data is immediately synced to Firebase
+  Future<bool> updateUserData(UserData newData, {bool isOnboarding = false}) async {
     // Ensure basic initialization
     if (!_isInitialized) {
       try {
@@ -804,10 +818,11 @@ class UserDataProvider with ChangeNotifier {
       // Create a copy of the new data to avoid mutating the input
       UserData dataToUpdate = newData.copyWith();
 
-      // Validate the new data
-      Map<String, String> validationErrors = dataToUpdate.validate();
+      // Validate the new data (lenient during onboarding)
+      Map<String, String> validationErrors = dataToUpdate.validate(isOnboarding: isOnboarding);
       if (validationErrors.isNotEmpty) {
         _lastError = "Validation errors: ${validationErrors.values.join(', ')}";
+        print('UserDataProvider: Validation failed: $validationErrors');
         return false;
       }
 
@@ -821,26 +836,90 @@ class UserDataProvider with ChangeNotifier {
       // Sanitize data to ensure it's valid
       _userData = dataToUpdate.sanitized();
 
-      // Ensure profile picture is preserved
+      // Ensure profile picture and email are preserved from Firebase Auth
       _cachedUser = _cachedUser ?? FirebaseAuth.instance.currentUser;
-      if(_cachedUser != null && _shouldUpdateProfilePicture(null)) {
-        String? googlePhotoURL = ImageUtils.processGooglePhotoUrl(_cachedUser!.photoURL);
-        if (googlePhotoURL != null && googlePhotoURL.isNotEmpty) {
-          _userData = _userData.copyWith(profilePicturePath: googlePhotoURL);
+      if(_cachedUser != null) {
+        // Update profile picture if needed
+        if (_shouldUpdateProfilePicture(null)) {
+          String? googlePhotoURL = ImageUtils.processGooglePhotoUrl(_cachedUser!.photoURL);
+          if (googlePhotoURL != null && googlePhotoURL.isNotEmpty) {
+            _userData = _userData.copyWith(profilePicturePath: googlePhotoURL);
+          }
+        }
+        
+        // Ensure email is set from Firebase Auth if not already present
+        if (_userData.email == null || _userData.email!.isEmpty) {
+          if (_cachedUser!.email != null && _cachedUser!.email!.isNotEmpty) {
+            _userData = _userData.copyWith(email: _cachedUser!.email);
+          }
         }
       }
 
       // Update UI immediately for instant feedback
       notifyListeners();
 
-      // Save to local storage immediately (daily sync approach)
+      // Save to local storage immediately
       await _dailySyncService.saveLocalUserData(_userData);
-      debugPrint('UserDataProvider: User data saved to local storage for daily sync');
+      debugPrint('UserDataProvider: User data saved to local storage');
 
       // Also save to existing cache for backward compatibility
       await _saveToAllCacheLayers();
 
-      // NO direct Firebase sync - this will happen at sleep time via daily sync service
+      // CRITICAL: During onboarding OR when explicitly requested, ALWAYS sync immediately to Firebase
+      // This ensures all onboarding data is saved to server immediately
+      final shouldSyncImmediately = isOnboarding || _dailySyncService.isRealTimeSyncEnabled;
+      
+      if (shouldSyncImmediately) {
+        print('UserDataProvider: 🔥 IMMEDIATE SYNC MODE - Starting Firebase upload');
+        print('UserDataProvider: Reason: ${isOnboarding ? "ONBOARDING" : "REAL-TIME SYNC"}');
+        print('UserDataProvider: User ID: ${_userData.userId}');
+        print('UserDataProvider: Data to sync: Name=${_userData.name}, Age=${_userData.age}, Goals=${_userData.dailyStepGoal}/${_userData.dailyWaterGoal}');
+        
+        // Check if user is authenticated
+        _cachedUser = _cachedUser ?? FirebaseAuth.instance.currentUser;
+        if (_cachedUser == null) {
+          debugPrint('UserDataProvider: CRITICAL - No authenticated user for Firebase sync');
+          _lastError = "Not authenticated. Please sign in again.";
+          // Only fail if this is during onboarding
+          if (isOnboarding) {
+            return false;
+          }
+        } else {
+          // Check connectivity
+          final connectivityResult = await _connectivity.checkConnectivity();
+          if (connectivityResult == ConnectivityResult.none) {
+            debugPrint('UserDataProvider: WARNING - No internet connection for Firebase sync');
+            _lastError = "No internet connection. Data saved locally and will sync when online.";
+            // Only fail if this is during onboarding
+            if (isOnboarding) {
+              _lastError = "No internet connection. Please connect and try again.";
+              return false;
+            }
+          } else {
+            print('UserDataProvider: ✅ User authenticated and online, proceeding with Firebase sync...');
+            
+            try {
+              await _authService.saveUserDataToFirestore(_userData).timeout(
+                const Duration(seconds: 30),
+                onTimeout: () => throw Exception('Firebase sync timeout after 30 seconds'),
+              );
+              print('UserDataProvider: ✅✅✅ Data SUCCESSFULLY synced to Firebase!');
+              print('UserDataProvider: Synced data verification: ${_userData.toJson()}');
+            } catch (firebaseError) {
+              print('UserDataProvider: ❌ Firebase sync FAILED');
+              print('UserDataProvider: Error type: ${firebaseError.runtimeType}');
+              print('UserDataProvider: Error details: $firebaseError');
+              _lastError = "Failed to save to server: $firebaseError";
+              // Only fail if this is during onboarding
+              if (isOnboarding) {
+                return false;
+              }
+              // For non-onboarding, queue for later sync
+              print('UserDataProvider: Data queued for later sync');
+            }
+          }
+        }
+      }
       
       return true;
     } catch (e) {
@@ -910,6 +989,7 @@ class UserDataProvider with ChangeNotifier {
   }
 
   /// Completes the onboarding process
+  /// CRITICAL: All onboarding data is immediately synced to Firebase
   Future<bool> completeOnboarding() async {
     _isLoading = true;
     _lastError = null;
@@ -947,8 +1027,8 @@ class UserDataProvider with ChangeNotifier {
         sleepGoalHours: _userData.sleepGoalHours ?? 8,
       );
 
-      // Force direct save to Firestore
-      bool updateSuccess = await updateUserData(updatedData);
+      // CRITICAL: Use isOnboarding flag to force immediate Firebase sync
+      bool updateSuccess = await updateUserData(updatedData, isOnboarding: true);
       if (!updateSuccess) {
         _lastError = "Failed to update user data during onboarding completion";
         print('PROVIDER DEBUG: $_lastError');
@@ -957,17 +1037,8 @@ class UserDataProvider with ChangeNotifier {
         return false;
       }
 
-      print('PROVIDER DEBUG: User data updated successfully');
+      print('PROVIDER DEBUG: User data updated and synced to Firebase successfully');
       
-      // Attempt direct Firebase sync to ensure data is saved remotely
-      try {
-        await _authService.saveUserDataToFirestore(_userData);
-        print('PROVIDER DEBUG: Successfully saved user data to Firestore');
-      } catch (firebaseError) {
-        print('PROVIDER DEBUG: Warning - Firebase save had error: $firebaseError');
-        // Continue anyway since we have local data updated
-      }
-
       // Also update local storage to mark onboarding as complete
       await _storageService.setOnboardingComplete(true);
       
@@ -975,7 +1046,7 @@ class UserDataProvider with ChangeNotifier {
       final onboardingComplete = await _storageService.isOnboardingComplete();
       print('PROVIDER DEBUG: Onboarding flag verification: $onboardingComplete');
       
-      print('PROVIDER DEBUG: Onboarding successfully completed');
+      print('PROVIDER DEBUG: Onboarding successfully completed with immediate Firebase sync');
       _isLoading = false;
       notifyListeners();
       return true;
@@ -1014,30 +1085,68 @@ class UserDataProvider with ChangeNotifier {
     _clearLocalCache();
   }
 
+  /// Method to save data directly to Firestore (used for initial onboarding)
+  Future<void> saveToFirestoreDirectly(UserData data) async {
+    _cachedUser = _cachedUser ?? FirebaseAuth.instance.currentUser;
+    if (_cachedUser == null) {
+      throw Exception('No authenticated user found');
+    }
+
+    final connectivityResult = await _connectivity.checkConnectivity();
+    if (connectivityResult == ConnectivityResult.none) {
+      throw Exception('No internet connection. Please connect to the internet to complete setup.');
+    }
+
+    // Validate data
+    Map<String, String> validationErrors = data.validate();
+    if (validationErrors.isNotEmpty) {
+      throw Exception('Validation errors: ${validationErrors.values.join(', ')}');
+    }
+
+    // Save to Firestore with timeout
+    await _authService.saveUserDataToFirestore(data).timeout(
+      const Duration(seconds: 30),
+      onTimeout: () => throw Exception('Connection timeout. Please try again.'),
+    );
+
+    print('UserDataProvider: Data successfully saved to Firestore');
+  }
+
   /// Method to sync local changes to Firebase when connection is restored
   Future<bool> syncLocalChangesToFirebase() async {
     try {
       final connectivityResult = await _connectivity.checkConnectivity();
       if (connectivityResult == ConnectivityResult.none) {
         print('UserDataProvider: Cannot sync - no network connection');
+        _lastError = 'No internet connection';
         return false;
       }
 
       _cachedUser = _cachedUser ?? FirebaseAuth.instance.currentUser;
       if (_cachedUser == null) {
         print('UserDataProvider: Cannot sync - no authenticated user');
+        _lastError = 'Not signed in';
         return false;
       }
 
+      _isLoading = true;
+      notifyListeners();
+
       await _authService.saveUserDataToFirestore(_userData).timeout(
-        const Duration(seconds: 20),
+        const Duration(seconds: 30),
         onTimeout: () => throw Exception('Sync timeout'),
       );
 
       print('UserDataProvider: Successfully synced local changes to Firebase');
+      _lastError = null;
+      _isLoading = false;
+      notifyListeners();
       return true;
     } catch (e) {
-      // print('UserDataProvider: Sync failed: $e');
+      _lastError = 'Sync failed: $e';
+      print('UserDataProvider: $_lastError');
+      _isLoading = false;
+      notifyListeners();
       return false;
     }
   }

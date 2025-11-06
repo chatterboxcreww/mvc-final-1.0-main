@@ -11,6 +11,7 @@ import '../../../core/providers/experience_provider.dart';
 import '../../../core/providers/user_data_provider.dart';
 import '../../../core/services/notification_service.dart';
 import '../../../shared/widgets/animated_list_item.dart';
+import '../../../shared/widgets/glass_container.dart';
 import 'daily_checkin_card.dart';
 
 class ProgressSection extends StatefulWidget {
@@ -385,8 +386,7 @@ class _ProgressSectionState extends State<ProgressSection>
   Widget _buildProgressCard(int completed, int total, double progress) {
     final colorScheme = Theme.of(context).colorScheme;
 
-    return Card(
-      elevation: 4,
+    return GlassCard(
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(12),
@@ -508,7 +508,7 @@ class _ProgressSectionState extends State<ProgressSection>
   Widget _buildEmptyState() {
     final colorScheme = Theme.of(context).colorScheme;
 
-    return Card(
+    return GlassCard(
       child: Padding(
         padding: const EdgeInsets.all(40.0),
         child: Column(
@@ -570,8 +570,7 @@ class _ProgressSectionState extends State<ProgressSection>
   Widget _buildActivityTile(Activity activity) {
     final colorScheme = Theme.of(context).colorScheme;
 
-    return Card(
-      elevation: activity.isDone ? 1 : 2,
+    return GlassCard(
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         decoration: BoxDecoration(
@@ -678,8 +677,7 @@ class _ProgressSectionState extends State<ProgressSection>
   Widget _buildSummaryCard(int completed, int total, double progress) {
     final colorScheme = Theme.of(context).colorScheme;
 
-    return Card(
-      elevation: 2,
+    return GlassCard(
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(12),

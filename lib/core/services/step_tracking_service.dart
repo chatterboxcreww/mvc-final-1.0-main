@@ -351,14 +351,20 @@ class StepTrackingService {
     }
 
     try {
-      // Get current step count from Kotlin service
-      final currentSteps = await getCurrentStepCount();
-      
+      // Get current step count from Kotlin service with timeout
+      final currentSteps = await getCurrentStepCount().timeout(
+        const Duration(seconds: 5),
+        onTimeout: () {
+          print('StepTrackingService: Step count retrieval timed out');
+          return 0;
+        },
+      );
+
       if (currentSteps <= 0) {
         print('StepTrackingService: No steps to sync');
         return;
       }
-      
+
       final today = DateTime.now();
       final dateKey = '${today.year}-${today.month}-${today.day}';
       final ref = FirebaseFirestore.instance
@@ -367,24 +373,25 @@ class StepTrackingService {
           .collection('steps')
           .doc(dateKey);
 
+      // Add timeout to Firestore operation
       await ref.set({
         'count': currentSteps,
         'timestamp': FieldValue.serverTimestamp(),
         'date': '${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}',
         'source': 'kotlin_service',
         'devicePlatform': Platform.operatingSystem,
-      }, SetOptions(merge: true));
-      
+      }, SetOptions(merge: true)).timeout(
+        const Duration(seconds: 10),
+        onTimeout: () {
+          throw Exception('Firebase sync timeout after 10 seconds');
+        },
+      );
+
       print('StepTrackingService: Successfully synced $currentSteps steps to Firebase');
     } catch (e) {
       print('StepTrackingService: Failed to sync steps to Firebase: $e');
-      for (final callback in _errorCallbacks) {
-        try {
-          callback('Firebase sync failed: $e');
-        } catch (e) {
-          print('StepTrackingService: Error in error callback: $e');
-        }
-      }
+      // Don't call error callbacks for sync failures - they're not critical
+      // The app should continue working offline
     }
   }
 

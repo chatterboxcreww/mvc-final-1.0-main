@@ -5,9 +5,12 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
+import 'dart:ui';
 
 import '../../../core/models/achievement.dart';
 import '../../../core/providers/achievement_provider.dart';
+import '../../../shared/widgets/glass_container.dart';
+import '../../../shared/widgets/glass_background.dart';
 
 class AchievementsScreen extends StatefulWidget {
   const AchievementsScreen({super.key});
@@ -47,23 +50,60 @@ class _AchievementsScreenState extends State<AchievementsScreen> with SingleTick
     }
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Achievements'),
-        bottom: TabBar(
-          controller: _tabController,
-          tabs: const [
-            Tab(text: 'All Achievements', icon: Icon(Icons.emoji_events_outlined)),
-            Tab(text: 'Categories', icon: Icon(Icons.category_outlined)),
-          ],
-        ),
+      extendBodyBehindAppBar: true,
+      appBar: GlassAppBar(
+        title: 'Achievements',
       ),
-      body: TabBarView(
-        controller: _tabController,
+      body: Stack(
         children: [
-          // All Achievements Tab
-          _buildAllAchievementsTab(allAchievements, unlockedAchievements),
-          // Categories Tab
-          _buildCategoriesTab(achievementsByCategory),
+          // Glass background
+          Positioned.fill(
+            child: CustomPaint(
+              painter: GlassBackgroundPainter(
+                animation: AlwaysStoppedAnimation(0.5),
+                colorScheme: Theme.of(context).colorScheme,
+              ),
+            ),
+          ),
+          // Content
+          Column(
+            children: [
+              SizedBox(height: kToolbarHeight + MediaQuery.of(context).padding.top),
+              // Tab bar with glass effect
+              GlassContainer(
+                margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                padding: EdgeInsets.zero,
+                borderRadius: 16,
+                child: TabBar(
+                  controller: _tabController,
+                  tabs: const [
+                    Tab(text: 'All', icon: Icon(Icons.emoji_events_outlined)),
+                    Tab(text: 'Categories', icon: Icon(Icons.category_outlined)),
+                  ],
+                  indicator: BoxDecoration(
+                    borderRadius: BorderRadius.circular(12),
+                    gradient: LinearGradient(
+                      colors: [
+                        Theme.of(context).colorScheme.primary.withOpacity(0.3),
+                        Theme.of(context).colorScheme.primary.withOpacity(0.2),
+                      ],
+                    ),
+                  ),
+                  labelColor: Theme.of(context).colorScheme.primary,
+                  unselectedLabelColor: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+              ),
+              Expanded(
+                child: TabBarView(
+                  controller: _tabController,
+                  children: [
+                    _buildAllAchievementsTab(allAchievements, unlockedAchievements),
+                    _buildCategoriesTab(achievementsByCategory),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ],
       ),
     );
@@ -83,9 +123,11 @@ class _AchievementsScreenState extends State<AchievementsScreen> with SingleTick
 
     return Column(
       children: [
-        // Progress indicator
-        Container(
-          padding: const EdgeInsets.all(16),
+        // Progress indicator with glass effect
+        GlassContainer(
+          margin: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(20),
+          borderRadius: 20,
           child: Column(
             children: [
               Row(
@@ -106,29 +148,32 @@ class _AchievementsScreenState extends State<AchievementsScreen> with SingleTick
                   ),
                 ],
               ),
-              const SizedBox(height: 8),
-              LinearProgressIndicator(
-                value: allAchievements.isNotEmpty ? unlockedAchievements.length / allAchievements.length : 0,
-                backgroundColor: Colors.grey[300],
-                valueColor: AlwaysStoppedAnimation<Color>(
-                  Theme.of(context).colorScheme.primary,
+              const SizedBox(height: 12),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: LinearProgressIndicator(
+                  value: allAchievements.isNotEmpty ? unlockedAchievements.length / allAchievements.length : 0,
+                  backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest.withOpacity(0.3),
+                  valueColor: AlwaysStoppedAnimation<Color>(
+                    Theme.of(context).colorScheme.primary,
+                  ),
+                  minHeight: 10,
                 ),
-                minHeight: 8,
-                borderRadius: BorderRadius.circular(4),
               ),
               const SizedBox(height: 8),
               Text(
                 '${((unlockedAchievements.length / allAchievements.length) * 100).toStringAsFixed(1)}% Complete',
-                style: Theme.of(context).textTheme.bodyMedium,
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  fontWeight: FontWeight.w600,
+                ),
               ),
             ],
           ),
         ),
-        const Divider(),
         // Achievements list
         Expanded(
           child: ListView.builder(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.symmetric(horizontal: 16),
             itemCount: sortedAchievements.length,
             itemBuilder: (context, index) {
               final achievement = sortedAchievements[index];
@@ -169,14 +214,10 @@ class _AchievementsScreenState extends State<AchievementsScreen> with SingleTick
     
     return Opacity(
       opacity: isUnlocked ? 1.0 : 0.6,
-      child: Card(
-        elevation: 4,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Row(
+      child: GlassCard(
+        margin: const EdgeInsets.only(bottom: 12),
+        padding: const EdgeInsets.all(16),
+        child: Row(
             children: [
               // Achievement icon
               Container(
@@ -288,7 +329,6 @@ class _AchievementsScreenState extends State<AchievementsScreen> with SingleTick
               ),
             ],
           ),
-        ),
       ),
     );
   }

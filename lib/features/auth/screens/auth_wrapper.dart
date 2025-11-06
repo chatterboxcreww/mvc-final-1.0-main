@@ -121,18 +121,31 @@ class _AuthWrapperState extends State<AuthWrapper> {
             if (snapshot.hasError) {
               // Check if it's a network error vs authentication error
               final errorMessage = snapshot.error.toString();
-              if (errorMessage.contains('timeout') || errorMessage.contains('network')) {
+              if (errorMessage.contains('timeout') || errorMessage.contains('network') ||
+                  errorMessage.contains('connection') || errorMessage.contains('Failed host lookup')) {
                 return _buildRetryScreen(
-                  'Network timeout occurred',
-                  'Please check your connection and try again',
+                  'Connection Problem',
+                  'Unable to connect to our servers. Please check your internet connection and try again.',
                   () => setState(() {}), // Trigger rebuild to retry
                 );
               } else {
-                _authService.signOut();
-                return const AuthScreen(
-                  initialError: "Failed to load app data. Please try again.",
-                  isChildMode: false,
-                );
+                // For non-network errors, try to continue with cached data
+                print('AuthWrapper: Non-network error, attempting to continue with cached data: $errorMessage');
+                final userData = userDataProvider.userData;
+
+                // If we have cached user data, proceed to home
+                if (userData.name != null && userData.name!.isNotEmpty) {
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    _navigateToPage(context, const HomePage(), 'HomePage');
+                  });
+                  return _buildLoadingScreen('Loading from cache...');
+                } else {
+                  // No cached data, show auth screen
+                  return const AuthScreen(
+                    initialError: "Unable to load your data. Please sign in again.",
+                    isChildMode: false,
+                  );
+                }
               }
             }
 

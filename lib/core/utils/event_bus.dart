@@ -140,7 +140,7 @@ class EventBus {
   ) {
     // Merge all streams
     final streams = AppEventType.values.map((type) => _getController(type).stream);
-    return StreamGroup.merge(streams).listen(onEvent);
+    return StreamGroup.merge<AppEvent>(streams).listen(onEvent);
   }
   
   /// Dispose all controllers
@@ -161,8 +161,8 @@ class EventBus {
 }
 
 /// Stream group helper for merging streams
-class StreamGroup<T> {
-  static Stream<T> merge(Iterable<Stream<T>> streams) {
+class StreamGroup {
+  static Stream<T> merge<T>(Iterable<Stream<T>> streams) {
     final controller = StreamController<T>.broadcast();
     final subscriptions = <StreamSubscription<T>>[];
     

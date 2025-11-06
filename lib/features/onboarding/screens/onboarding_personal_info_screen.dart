@@ -69,6 +69,7 @@ class _OnboardingPersonalInfoScreenState
         gender: _gender,
         dailyStepGoal: int.tryParse(_dailyGoal.text) ?? 10000,
       ),
+      isOnboarding: true, // Immediate Firebase sync during onboarding
     );
 
     if (!mounted) return;

@@ -20,6 +20,11 @@ class UserData {
   bool? hasDiabetes;
   bool? isSkinnyFat;
   bool? hasProteinDeficiency;
+  bool? hasHighBloodPressure;
+  bool? hasHighCholesterol;
+  bool? isUnderweight;
+  bool? hasAnxiety;
+  bool? hasLowEnergyLevels;
   List<String>? allergies;
 
   // User preferences and goals
@@ -58,12 +63,17 @@ class UserData {
     this.hasDiabetes,
     this.isSkinnyFat,
     this.hasProteinDeficiency,
+    this.hasHighBloodPressure,
+    this.hasHighCholesterol,
+    this.isUnderweight,
+    this.hasAnxiety,
+    this.hasLowEnergyLevels,
     this.allergies,
     this.activityLevel,
-    this.dailyWaterGoal,
+    this.dailyWaterGoal = 8,
     this.dailyStepGoal = 10000,
     this.dailyCalorieGoal,
-    this.sleepGoalHours,
+    this.sleepGoalHours = 8,
     this.todaySteps = 0,
     this.memberSince,
     this.profilePicturePath,
@@ -106,6 +116,11 @@ class UserData {
       hasDiabetes: json['hasDiabetes'],
       isSkinnyFat: json['isSkinnyFat'],
       hasProteinDeficiency: json['hasProteinDeficiency'],
+      hasHighBloodPressure: json['hasHighBloodPressure'],
+      hasHighCholesterol: json['hasHighCholesterol'],
+      isUnderweight: json['isUnderweight'],
+      hasAnxiety: json['hasAnxiety'],
+      hasLowEnergyLevels: json['hasLowEnergyLevels'],
       allergies: json['allergies'] != null ? List<String>.from(json['allergies']) : null,
       activityLevel: json['activityLevel'],
       dailyWaterGoal: json['dailyWaterGoal'],
@@ -143,6 +158,11 @@ class UserData {
       'hasDiabetes': hasDiabetes,
       'isSkinnyFat': isSkinnyFat,
       'hasProteinDeficiency': hasProteinDeficiency,
+      'hasHighBloodPressure': hasHighBloodPressure,
+      'hasHighCholesterol': hasHighCholesterol,
+      'isUnderweight': isUnderweight,
+      'hasAnxiety': hasAnxiety,
+      'hasLowEnergyLevels': hasLowEnergyLevels,
       'allergies': allergies,
       'activityLevel': activityLevel,
       'dailyWaterGoal': dailyWaterGoal,
@@ -167,6 +187,11 @@ class UserData {
       hasDiabetes != null ||
           isSkinnyFat != null ||
           hasProteinDeficiency != null ||
+          hasHighBloodPressure != null ||
+          hasHighCholesterol != null ||
+          isUnderweight != null ||
+          hasAnxiety != null ||
+          hasLowEnergyLevels != null ||
           (allergies != null && allergies!.isNotEmpty);
 
   double? get bmi {
@@ -203,24 +228,92 @@ class UserData {
     return hasBasicInfo && hasHealthGoals;
   }
 
+  /// Calculate BMR using Mifflin-St Jeor Equation
+  double? calculateBMR() {
+    if (height == null || weight == null || age == null || gender == null) {
+      return null;
+    }
+    
+    // Mifflin-St Jeor Equation
+    // Men: BMR = 10 × weight(kg) + 6.25 × height(cm) - 5 × age(years) + 5
+    // Women: BMR = 10 × weight(kg) + 6.25 × height(cm) - 5 × age(years) - 161
+    
+    double baseBMR = (10 * weight!) + (6.25 * height!) - (5 * age!);
+    
+    if (gender == Gender.male) {
+      return baseBMR + 5;
+    } else if (gender == Gender.female) {
+      return baseBMR - 161;
+    } else {
+      // For other/non-binary, use average
+      return baseBMR - 78; // Average of +5 and -161
+    }
+  }
+  
+  /// Calculate daily calorie goal based on BMR and activity level
+  int? calculateDailyCalorieGoal() {
+    final calculatedBMR = bmr ?? calculateBMR();
+    if (calculatedBMR == null || activityLevel == null) {
+      return null;
+    }
+    
+    // Activity level multipliers
+    double multiplier;
+    switch (activityLevel) {
+      case 'sedentary':
+        multiplier = 1.2;
+        break;
+      case 'light':
+        multiplier = 1.375;
+        break;
+      case 'moderate':
+        multiplier = 1.55;
+        break;
+      case 'active':
+        multiplier = 1.725;
+        break;
+      case 'veryActive':
+        multiplier = 1.9;
+        break;
+      default:
+        multiplier = 1.55; // Default to moderate
+    }
+    
+    return (calculatedBMR * multiplier).round();
+  }
+
   UserData sanitized() {
+    // Calculate BMR if not already set
+    final calculatedBMR = bmr ?? calculateBMR();
+    final calculatedCalorieGoal = dailyCalorieGoal ?? calculateDailyCalorieGoal();
+    
     return UserData(
       userId: userId,
       name: name,
+      email: email,
       age: age,
       height: height,
       weight: weight,
+      bmr: calculatedBMR,
       dietPreference: dietPreference,
       gender: gender,
       sleepTime: sleepTime,
       wakeupTime: wakeupTime,
-      hasDiabetes: hasDiabetes,
-      isSkinnyFat: isSkinnyFat,
-      hasProteinDeficiency: hasProteinDeficiency,
-      allergies: allergies,
+      // Ensure health conditions have proper boolean values instead of null
+      hasDiabetes: hasDiabetes ?? false,
+      isSkinnyFat: isSkinnyFat ?? false,
+      hasProteinDeficiency: hasProteinDeficiency ?? false,
+      hasHighBloodPressure: hasHighBloodPressure ?? false,
+      hasHighCholesterol: hasHighCholesterol ?? false,
+      isUnderweight: isUnderweight ?? false,
+      hasAnxiety: hasAnxiety ?? false,
+      hasLowEnergyLevels: hasLowEnergyLevels ?? false,
+      allergies: allergies ?? [],
       activityLevel: activityLevel,
       dailyWaterGoal: dailyWaterGoal ?? 8,
       dailyStepGoal: dailyStepGoal ?? 10000,
+      dailyCalorieGoal: calculatedCalorieGoal,
+      sleepGoalHours: sleepGoalHours ?? 8,
       todaySteps: todaySteps >= 0 ? todaySteps : 0,
       memberSince: memberSince,
       profilePicturePath: profilePicturePath,
@@ -228,8 +321,9 @@ class UserData {
       morningWalkReminderEnabled: morningWalkReminderEnabled,
       wakeupNotificationEnabled: wakeupNotificationEnabled,
       sleepNotificationEnabled: sleepNotificationEnabled,
-      prefersCoffee: prefersCoffee,
-      prefersTea: prefersTea,
+      // Ensure preferences have proper boolean values
+      prefersCoffee: prefersCoffee ?? false,
+      prefersTea: prefersTea ?? false,
       level: level > 0 ? level : 1,
     );
   }
@@ -276,30 +370,42 @@ class UserData {
   }
 
   // Comprehensive validation
-  Map<String, String> validate() {
+  Map<String, String> validate({bool isOnboarding = false}) {
     Map<String, String> errors = {};
 
-    if (name == null || name!.trim().isEmpty) {
-      errors['name'] = 'Name is required';
+    // During onboarding, only validate fields that are actually set
+    // After onboarding, require all essential fields
+    
+    if (!isOnboarding) {
+      // Strict validation for profile completion
+      if (name == null || name!.trim().isEmpty) {
+        errors['name'] = 'Name is required';
+      }
+    } else {
+      // Lenient validation during onboarding - only check if field exists
+      if (name != null && name!.trim().isEmpty) {
+        errors['name'] = 'Name cannot be empty';
+      }
     }
 
-    if (!isValidAge()) {
+    // Only validate if the field is set (not null)
+    if (age != null && !isValidAge()) {
       errors['age'] = 'Age must be between 1 and 120 years';
     }
     
-    if (!isValidHeight()) {
+    if (height != null && !isValidHeight()) {
       errors['height'] = 'Height must be between 50 and 300 cm';
     }
     
-    if (!isValidWeight()) {
+    if (weight != null && !isValidWeight()) {
       errors['weight'] = 'Weight must be between 20 and 500 kg';
     }
     
-    if (!isValidDailyStepGoal()) {
+    if (dailyStepGoal != null && !isValidDailyStepGoal()) {
       errors['dailyStepGoal'] = 'Daily step goal must be between 1,000 and 50,000 steps';
     }
     
-    if (!isValidDailyWaterGoal()) {
+    if (dailyWaterGoal != null && !isValidDailyWaterGoal()) {
       errors['dailyWaterGoal'] = 'Daily water goal must be between 1 and 20 glasses';
     }
     
@@ -325,6 +431,11 @@ class UserData {
     bool? hasDiabetes,
     bool? isSkinnyFat,
     bool? hasProteinDeficiency,
+    bool? hasHighBloodPressure,
+    bool? hasHighCholesterol,
+    bool? isUnderweight,
+    bool? hasAnxiety,
+    bool? hasLowEnergyLevels,
     List<String>? allergies,
     String? activityLevel,
     int? dailyWaterGoal,
@@ -357,6 +468,11 @@ class UserData {
       hasDiabetes: hasDiabetes ?? this.hasDiabetes,
       isSkinnyFat: isSkinnyFat ?? this.isSkinnyFat,
       hasProteinDeficiency: hasProteinDeficiency ?? this.hasProteinDeficiency,
+      hasHighBloodPressure: hasHighBloodPressure ?? this.hasHighBloodPressure,
+      hasHighCholesterol: hasHighCholesterol ?? this.hasHighCholesterol,
+      isUnderweight: isUnderweight ?? this.isUnderweight,
+      hasAnxiety: hasAnxiety ?? this.hasAnxiety,
+      hasLowEnergyLevels: hasLowEnergyLevels ?? this.hasLowEnergyLevels,
       allergies: allergies ?? this.allergies,
       activityLevel: activityLevel ?? this.activityLevel,
       dailyWaterGoal: dailyWaterGoal ?? this.dailyWaterGoal,

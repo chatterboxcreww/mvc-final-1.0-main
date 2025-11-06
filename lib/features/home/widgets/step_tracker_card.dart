@@ -3,9 +3,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
+import 'dart:ui';
 
 import '../../../core/providers/step_counter_provider.dart';
 import '../../../core/providers/user_data_provider.dart';
+import '../../../shared/widgets/glass_container.dart';
 import '../../profile/screens/step_history_screen.dart';
 
 class StepTrackerCard extends StatefulWidget {
@@ -72,58 +74,26 @@ class _StepTrackerCardState extends State<StepTrackerCard>
         final colorScheme = Theme.of(context).colorScheme;
         final textTheme = Theme.of(context).textTheme;
 
-        return Card(
-          elevation: 8,
-          color: colorScheme.surface,
-          shadowColor: Color.fromRGBO(colorScheme.shadow.red, colorScheme.shadow.green, colorScheme.shadow.blue, 0.3),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(24), // Increased border radius
-            side: BorderSide(
-              color: Color.fromRGBO(colorScheme.outline.red, colorScheme.outline.green, colorScheme.outline.blue, 0.1),
-              width: 1,
-            ),
-          ),
-          clipBehavior: Clip.antiAlias,
-          child: Material(
-            color: Colors.transparent,
-            child: InkWell(
-              onTap: () {
-                Navigator.of(context).push(MaterialPageRoute(
-                  builder: (_) => const StepHistoryScreen(),
-                ));
-              },
-              borderRadius: BorderRadius.circular(24),
-              child: Semantics(
-                label: 'Step tracker card. Current steps: ${stepProvider.todaySteps}, Goal: $stepGoal. Tap to view step history.',
-                button: true,
-                child: Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [
-                      Color.fromRGBO(colorScheme.primaryContainer.red, colorScheme.primaryContainer.green, colorScheme.primaryContainer.blue, 0.1),
-                      colorScheme.surface,
-                    ],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(20.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _buildHeader(stepProvider, stepGoal, colorScheme, textTheme),
-                      const SizedBox(height: 20),
-                      _buildProgressSection(progressClamped, progress, colorScheme),
-                      const SizedBox(height: 20),
-                      _buildStatsRow(stepProvider, context),
-                      const SizedBox(height: 16),
-                      _buildStatusIndicator(progress, stepProvider, colorScheme, textTheme),
-                    ],
-                  ),
-                ),
-              ),
-              ),
+        return GlassCard(
+          onTap: () {
+            Navigator.of(context).push(MaterialPageRoute(
+              builder: (_) => const StepHistoryScreen(),
+            ));
+          },
+          child: Semantics(
+            label: 'Step tracker card. Current steps: ${stepProvider.todaySteps}, Goal: $stepGoal. Tap to view step history.',
+            button: true,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildHeader(stepProvider, stepGoal, colorScheme, textTheme),
+                const SizedBox(height: 20),
+                _buildProgressSection(progressClamped, progress, colorScheme),
+                const SizedBox(height: 20),
+                _buildStatsRow(stepProvider, context),
+                const SizedBox(height: 16),
+                _buildStatusIndicator(progress, stepProvider, colorScheme, textTheme),
+              ],
             ),
           ),
         );
@@ -327,11 +297,17 @@ class _StepTrackerCardState extends State<StepTrackerCard>
   Widget _buildStatColumn(BuildContext context, String value, String label,
       IconData icon, Color color) {
     return Expanded(
-      child: Container(
+      child: GlassContainer(
         padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
-        decoration: BoxDecoration(
-          color: Color.fromRGBO(color.red, color.green, color.blue, 0.1),
-          borderRadius: BorderRadius.circular(12),
+        borderRadius: 12,
+        opacity: 0.05,
+        gradientColors: [
+          color.withOpacity(0.15),
+          color.withOpacity(0.05),
+        ],
+        border: Border.all(
+          color: color.withOpacity(0.2),
+          width: 1,
         ),
         child: Column(
           children: [

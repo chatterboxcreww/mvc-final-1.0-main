@@ -1,0 +1,2602 @@
+{
+  "breakfast": {
+    "items": {
+      "item001": {
+        "title": "Masala Poha with Peanuts",
+        "description": "A light and tangy breakfast dish made from flattened rice (poha), tempered with mustard seeds, curry leaves, turmeric, and mixed with vegetables like onions, peas, and potatoes. Peanuts are added for crunch and healthy fats. **Significance:** Poha is easily digestible and low in fat when cooked with minimal oil, making it an excellent choice for a light start to the day or for weight management. The turmeric adds anti-inflammatory benefits, and peanuts provide healthy monounsaturated fats.",
+        "keywords": [
+          "veg",
+          "breakfast",
+          "rice",
+          "low_fat",
+          "easy_digest"
+        ],
+        "allergens": [
+          "peanuts"
+        ],
+        "goodForDiseases": [
+          "thyroid",
+          "pcos",
+          "easy_digest"
+        ],
+        "badForDiseases": [
+          "diabetes"
+        ],
+        "healthBenefit": "Poha is a good source of iron. A typical serving (approx. 250g) contains about 280 calories, 5g protein, 55g carbs, and 4g fat, depending on oil usage. The fiber content aids in gut health.",
+        "category": "breakfast",
+        "imagePlaceholder": "assets/food/placeholder.jpg",
+        "ingredients": [
+          "1 cup poha (flattened rice)",
+          "1/2 medium onion, finely chopped",
+          "1/4 cup green peas (fresh/frozen)",
+          "2 tablespoons roasted peanuts",
+          "1 teaspoon oil (groundnut/mustard)",
+          "1/2 teaspoon mustard seeds",
+          "1 sprig curry leaves",
+          "1/2 teaspoon turmeric powder",
+          "1/2 teaspoon sugar (optional)",
+          "1 teaspoon lemon juice",
+          "Salt to taste",
+          "1/4 cup water",
+          "2 tablespoons fresh coriander, chopped (garnish)"
+        ],
+        "instructions": [
+          "Rinse the poha lightly under running water in a sieve and set aside to fluff for 5 minutes.",
+          "Heat oil in a pan over medium heat.",
+          "Add mustard seeds and allow them to splutter. Add curry leaves.",
+          "Add chopped onion and sauté until translucent (about 2 minutes).",
+          "Add green peas, a pinch of salt, and sauté until tender (3-4 minutes).",
+          "Stir in turmeric powder and mix well.",
+          "Add the fluffed poha, peanuts, sugar (if using), and salt. Mix gently.",
+          "Sprinkle 1/4 cup of water over the poha, cover the pan, and let it steam for 2 minutes.",
+          "Remove from heat, stir in lemon juice.",
+          "Garnish with fresh coriander and serve hot."
+        ],
+        "nutrition": {
+          "calories": "280 kcal",
+          "protein": "8g",
+          "carbs": "55g",
+          "fat": "4g",
+          "fiber": "4g",
+          "sugar": "6g",
+          "sodium": "350mg"
+        }
+      },
+      "item002": {
+        "title": "Spinach and Vegetable Besan Chilla",
+        "description": "Savory Indian pancakes made from gram flour (besan), enriched with finely chopped spinach and other vegetables like carrot/onion. **Significance:** Besan chilla is naturally gluten-free and high in plant-based protein and fiber from the chickpea flour. This supports muscle maintenance (muscle_building) and keeps you feeling full longer (weight_loss). It's an excellent high-protein breakfast option.",
+        "keywords": [
+          "veg",
+          "gluten_free",
+          "high_protein",
+          "breakfast",
+          "bread"
+        ],
+        "allergens": [
+          "none"
+        ],
+        "goodForDiseases": [
+          "weight_loss",
+          "pcos",
+          "diabetes"
+        ],
+        "badForDiseases": [
+          "none"
+        ],
+        "healthBenefit": "A medium piece (approx. 100g) provides about 200 calories, 8g protein, and 30g carbs, with high fiber content supporting blood sugar control.",
+        "category": "breakfast",
+        "imagePlaceholder": "assets/food/placeholder.jpg",
+        "ingredients": [
+          "1 cup besan (gram flour)",
+          "1 cup finely chopped spinach",
+          "1/4 cup finely chopped onion",
+          "1/2 teaspoon ajwain (carom seeds)",
+          "1/4 teaspoon turmeric powder",
+          "Salt to taste",
+          "Water (approx. 1 cup) for batter",
+          "2 teaspoons oil (for cooking)"
+        ],
+        "instructions": [
+          "In a large bowl, combine besan, chopped spinach, onion, ajwain, turmeric, and salt.",
+          "Gradually add water, whisking continuously to create a smooth, lump-free batter, similar to pancake batter.",
+          "Heat a non-stick tawa (griddle) over medium heat and lightly grease with 1/2 teaspoon of oil.",
+          "Pour a ladleful of batter onto the tawa and spread it into a thin circle.",
+          "Drizzle a few drops of oil around the edges.",
+          "Cook for 2-3 minutes until the bottom is golden brown.",
+          "Flip carefully and cook the other side until golden brown (about 2 minutes).",
+          "Repeat with the remaining batter, using minimal oil for each chilla.",
+          "Serve hot with mint chutney."
+        ],
+        "nutrition": {
+          "calories": "200 kcal (per 100g)",
+          "protein": "8g",
+          "carbs": "30g",
+          "fat": "6g",
+          "fiber": "7g",
+          "sugar": "4g",
+          "sodium": "300mg"
+        }
+      },
+      "item003": {
+        "title": "Oats Idli with Sambhar",
+        "description": "Steamed savory cakes made from a batter of ground oats and lentils, lighter than traditional idli. Served with a mixed vegetable sambhar (lentil and vegetable stew). **Significance:** Oats provide soluble fiber (beta-glucan) which is beneficial for heart health by potentially lowering cholesterol. Idlis are steamed, making them virtually fat-free and easy on the digestive system. This is a high-fiber, easy-to-digest breakfast.",
+        "keywords": [
+          "veg",
+          "high_fiber",
+          "easy_digest",
+          "breakfast",
+          "probiotic"
+        ],
+        "allergens": [
+          "none"
+        ],
+        "goodForDiseases": [
+          "heart_healthy",
+          "diabetes",
+          "digestive_issues"
+        ],
+        "badForDiseases": [
+          "none"
+        ],
+        "healthBenefit": "Oats contribute significant dietary fiber (approx. 3g per medium idli). The fermentation process in the batter (if done traditionally) adds probiotics.",
+        "category": "breakfast",
+        "imagePlaceholder": "assets/food/placeholder.jpg",
+        "ingredients": [
+          "1 cup rolled oats, powdered",
+          "1/2 cup urad dal (soaked and ground)",
+          "1/4 cup mixed vegetables (grated carrot, cabbage)",
+          "1/2 teaspoon baking soda",
+          "Salt to taste",
+          "Water to make batter",
+          "For Sambhar: 1/2 cup toor dal, mixed vegetables (drumstick, brinjal, pumpkin), sambhar powder, tamarind pulp, water, oil."
+        ],
+        "instructions": [
+          "Mix the powdered oats with the ground dal, vegetables, salt, and enough water to form a thick, pourable batter.",
+          "Cover and let the batter rest for 30 minutes (or ideally ferment overnight for better digestion).",
+          "Just before steaming, mix in the baking soda.",
+          "Prepare the sambhar by boiling dal and vegetables with sambhar powder and tamarind.",
+          "Grease the idli molds lightly.",
+          "Pour the batter into the molds, filling them 3/4 full.",
+          "Steam in an idli steamer for 10-12 minutes until a skewer inserted comes out clean.",
+          "Once cooled slightly, demold the idlis.",
+          "Serve hot with vegetable sambhar (probiotic/fermented component) and coconut chutney."
+        ],
+        "nutrition": {
+          "calories": "250 kcal (3 idlis + sambhar)",
+          "protein": "10g",
+          "carbs": "40g",
+          "fat": "5g",
+          "fiber": "6g",
+          "sugar": "4g",
+          "sodium": "400mg"
+        }
+      },
+      "item006": {
+        "title": "South Indian Vegetable Upma",
+        "description": "A hearty, savory porridge made from roasted semolina (rava), cooked with mixed vegetables like carrots, peas, and beans, tempered with mustard seeds and curry leaves. **Significance:** Vegetable Upma is generally low in fat when prepared traditionally. Semolina provides quick energy from complex carbohydrates. It is often a good source of Vitamin C and A from the vegetables, making it a good option for immunity_boost and a light lunch.",
+        "keywords": [
+          "veg",
+          "breakfast",
+          "easy_digest",
+          "rice",
+          "immunity_boost"
+        ],
+        "allergens": [
+          "gluten"
+        ],
+        "goodForDiseases": [
+          "thyroid",
+          "easy_digest"
+        ],
+        "badForDiseases": [
+          "celiac_disease"
+        ],
+        "healthBenefit": "A typical cup provides about 350 calories, with vegetables adding fiber and micronutrients.",
+        "category": "breakfast",
+        "imagePlaceholder": "assets/food/placeholder.jpg",
+        "ingredients": [
+          "1 cup medium rava (semolina)",
+          "1 tablespoon oil",
+          "1/2 teaspoon mustard seeds",
+          "1 sprig curry leaves",
+          "1/2 cup mixed vegetables (carrots, beans, peas)",
+          "1/4 teaspoon turmeric powder",
+          "Salt to taste",
+          "2 cups water",
+          "1/4 cup fresh coriander, chopped (garnish)"
+        ],
+        "instructions": [
+          "Dry roast the rava in a separate pan until light golden and aromatic. Set aside.",
+          "Heat oil in a wide, heavy-bottomed pan over medium heat.",
+          "Add mustard seeds; once they splutter, add curry leaves.",
+          "Add chopped vegetables and sauté until tender-crisp (about 5-7 minutes).",
+          "Stir in turmeric powder and salt.",
+          "Gradually add the roasted rava to the pan, stirring continuously to prevent lumps.",
+          "Slowly pour in the water (about 2 cups), stirring constantly until the mixture thickens.",
+          "Cover the pan and cook on low heat until all the water is absorbed and the upma is fluffy (5-7 minutes).",
+          "Garnish with fresh coriander and serve hot."
+        ],
+        "nutrition": {
+          "calories": "350 kcal",
+          "protein": "7g",
+          "carbs": "50g",
+          "fat": "12g",
+          "fiber": "3g",
+          "sugar": "2g",
+          "sodium": "300mg"
+        }
+      },
+      "item015": {
+        "title": "Tofu Bhurji with Whole Grain Dosa",
+        "description": "A vegan scramble (bhurji) made from crumbled tofu instead of eggs, cooked with onions, tomatoes, and spices. Served with a thin, fermented whole grain dosa (e.g., ragi/oats). **Significance:** Vegan-friendly, high-protein alternative to scrambled eggs. Tofu is a complete protein. Fermented dosa aids in digestion and nutrient absorption, making this a balanced, light, or medium meal.",
+        "keywords": [
+          "vegan",
+          "high_protein",
+          "gluten_free",
+          "breakfast",
+          "bread"
+        ],
+        "allergens": [
+          "soy"
+        ],
+        "goodForDiseases": [
+          "muscle_building",
+          "heart_healthy",
+          "osteoporosis"
+        ],
+        "badForDiseases": [
+          "soy_allergy"
+        ],
+        "healthBenefit": "Tofu provides high-quality protein (approx. 10g per 100g serving). Dosa provides iron and calcium depending on the grain used.",
+        "category": "breakfast",
+        "imagePlaceholder": "assets/food/placeholder.jpg",
+        "ingredients": [
+          "200g firm tofu, crumbled",
+          "1/2 medium onion, chopped",
+          "1 small tomato, chopped",
+          "1/2 teaspoon turmeric powder",
+          "1/4 teaspoon garam masala",
+          "1 teaspoon oil",
+          "Salt to taste",
+          "1 Whole Grain Dosa (made from Ragi/Oats flour)"
+        ],
+        "instructions": [
+          "In a pan, heat oil over medium heat. Sauté onions until translucent (3 minutes).",
+          "Add tomatoes and cook until soft (2 minutes).",
+          "Add turmeric powder, garam masala, and salt. Mix well.",
+          "Add the crumbled tofu. Mix gently and cook for 5-7 minutes, allowing the tofu to absorb the spices.",
+          "Prepare the whole grain dosa batter (fermented if possible) and cook on a hot tawa until crisp.",
+          "Serve the Tofu Bhurji hot alongside the dosa."
+        ],
+        "nutrition": {
+          "calories": "350 kcal (Tofu + 1 Dosa)",
+          "protein": "25g",
+          "carbs": "30g",
+          "fat": "15g",
+          "fiber": "5g",
+          "sugar": "4g",
+          "sodium": "400mg"
+        }
+      },
+      "item022": {
+        "title": "Besan Cheela with Mixed Vegetables",
+        "description": "Savory pancakes made from gram flour (besan), mixed with grated carrots, finely chopped capsicum, and coriander. **Significance:** This gluten-free, vegan option is high in protein and fiber, making it very filling and beneficial for weight management and blood sugar control. A great versatile breakfast or light dinner.",
+        "keywords": [
+          "veg",
+          "vegan",
+          "gluten_free",
+          "high_protein",
+          "breakfast",
+          "bread"
+        ],
+        "allergens": [
+          "none"
+        ],
+        "goodForDiseases": [
+          "weight_loss",
+          "diabetes",
+          "pcos"
+        ],
+        "badForDiseases": [
+          "none"
+        ],
+        "healthBenefit": "Contains about 8g protein per 100g serving. Its complex carbs and fiber help stabilize energy release.",
+        "category": "breakfast",
+        "imagePlaceholder": "assets/food/placeholder.jpg",
+        "ingredients": [
+          "1 cup besan (gram flour)",
+          "1/2 cup grated carrots/capsicum mix",
+          "1/4 teaspoon ajwain (carom seeds)",
+          "1/4 teaspoon turmeric",
+          "Salt to taste",
+          "Water to make medium batter",
+          "2 teaspoons oil (for cooking)"
+        ],
+        "instructions": [
+          "In a bowl, combine besan, grated vegetables, ajwain, turmeric, and salt.",
+          "Slowly add water while whisking to form a smooth, pourable batter (thicker than crepe batter).",
+          "Heat a non-stick tawa over medium heat and lightly grease with 1/2 teaspoon oil.",
+          "Pour a ladleful of batter and quickly spread into a thick pancake shape.",
+          "Drizzle a few drops of oil around the edges.",
+          "Cook for 3-4 minutes until the bottom is golden brown and firm.",
+          "Flip and cook the other side for 2-3 minutes.",
+          "Repeat with the remaining batter. Serve hot with mint chutney."
+        ],
+        "nutrition": {
+          "calories": "260 kcal (2 medium chillas)",
+          "protein": "12g",
+          "carbs": "38g",
+          "fat": "7g",
+          "fiber": "8g",
+          "sugar": "5g",
+          "sodium": "400mg"
+        }
+      },
+      "item024": {
+        "title": "Peanut & Vegetable Poha (West Indian Style)",
+        "description": "Flattened rice cooked with onions, a little mustard oil, green chilies, and a generous amount of roasted peanuts. **Significance:** This preparation maximizes healthy fats from peanuts, which are good for satiety and heart health (monounsaturated fats). Peanuts boost the protein content significantly, making it a more robust breakfast than plain poha.",
+        "keywords": [
+          "veg",
+          "breakfast",
+          "high_protein",
+          "nut_free"
+        ],
+        "allergens": [
+          "peanuts"
+        ],
+        "goodForDiseases": [
+          "muscle_building",
+          "thyroid"
+        ],
+        "badForDiseases": [
+          "peanut_allergy",
+          "low_carb_diet"
+        ],
+        "healthBenefit": "Peanuts contribute approximately 7g protein per 2 tablespoons added.",
+        "category": "breakfast",
+        "imagePlaceholder": "assets/food/placeholder.jpg",
+        "ingredients": [
+          "1 cup poha (flattened rice)",
+          "1/2 medium onion, chopped",
+          "1/4 cup mixed vegetables (peas, capsicum)",
+          "3 tablespoons roasted peanuts",
+          "1 tablespoon mustard oil",
+          "1/2 teaspoon mustard seeds",
+          "5-6 curry leaves",
+          "1/2 teaspoon turmeric powder",
+          "Salt to taste",
+          "1 teaspoon lemon juice"
+        ],
+        "instructions": [
+          "Rinse poha lightly and let it fluff for 5 minutes.",
+          "Heat mustard oil in a pan until it just begins to smoke. Turn off heat, let it cool slightly, then turn heat back to medium.",
+          "Add mustard seeds; let them splutter. Add curry leaves.",
+          "Add onions and sauté until soft (3 minutes). Add vegetables and cook until tender.",
+          "Stir in turmeric and mix well.",
+          "Add the fluffed poha, salt, and roasted peanuts. Mix gently.",
+          "Sprinkle a little water (1-2 tbsp), cover, and cook on low heat for 2 minutes.",
+          "Finish with lemon juice before serving."
+        ],
+        "nutrition": {
+          "calories": "350 kcal",
+          "protein": "12g",
+          "carbs": "50g",
+          "fat": "12g",
+          "fiber": "5g",
+          "sugar": "5g",
+          "sodium": "300mg"
+        }
+      },
+      "item029": {
+        "title": "Methi Thepla with Plain Yogurt",
+        "description": "Thin, unleavened flatbreads from Gujarat, made with whole wheat flour and fresh fenugreek leaves (methi), lightly spiced. Served with plain yogurt. **Significance:** Methi is known for its potential benefits in managing blood sugar levels and promoting good digestion. Thepla is a whole-grain source of energy, and the yogurt adds probiotics and calcium.",
+        "keywords": [
+          "veg",
+          "roti",
+          "diabetes_friendly",
+          "breakfast",
+          "dairy"
+        ],
+        "allergens": [
+          "gluten",
+          "dairy"
+        ],
+        "goodForDiseases": [
+          "diabetes",
+          "digestive_issues"
+        ],
+        "badForDiseases": [
+          "celiac_disease"
+        ],
+        "healthBenefit": "Fenugreek (methi) is traditionally linked to glycemic control.",
+        "category": "breakfast",
+        "imagePlaceholder": "assets/food/placeholder.jpg",
+        "ingredients": [
+          "1 cup whole wheat flour",
+          "1 cup finely chopped fresh methi (fenugreek) leaves",
+          "1/2 teaspoon turmeric powder",
+          "1/2 teaspoon salt",
+          "1 teaspoon oil (for dough)",
+          "Water for kneading",
+          "1/2 cup plain yogurt (curd) for serving"
+        ],
+        "instructions": [
+          "In a bowl, mix the whole wheat flour, chopped methi leaves, turmeric, salt, and 1 teaspoon of oil.",
+          "Gradually add water and knead into a firm, smooth dough. Let it rest for 20 minutes.",
+          "Divide the dough into small, equal-sized balls.",
+          "Roll each ball into a thin, flat circle (thepla).",
+          "Cook on a hot, dry tawa over medium heat, flipping when small bubbles appear.",
+          "Lightly brush each side with a few drops of oil/ghee until golden brown spots appear.",
+          "Serve the hot theplas with plain yogurt."
+        ],
+        "nutrition": {
+          "calories": "380 kcal (3 theplas + yogurt)",
+          "protein": "12g",
+          "carbs": "60g",
+          "fat": "10g",
+          "fiber": "9g",
+          "sugar": "5g",
+          "sodium": "500mg"
+        }
+      },
+      "item031": {
+        "title": "Sprouted Moong Dal Cheela (High Protein Breakfast)",
+        "description": "Thin pancakes made purely from ground, soaked, and sprouted moong lentils, cooked with minimal oil. **Significance:** This is a potent, naturally gluten-free, high-protein, and easy-to-digest breakfast. The sprouting process increases the vitamin content and makes the protein and minerals more bioavailable.",
+        "keywords": [
+          "veg",
+          "vegan",
+          "gluten_free",
+          "high_protein",
+          "breakfast"
+        ],
+        "allergens": [
+          "none"
+        ],
+        "goodForDiseases": [
+          "muscle_building",
+          "weight_loss",
+          "diabetes"
+        ],
+        "badForDiseases": [
+          "none"
+        ],
+        "healthBenefit": "Excellent protein source, low glycemic index, and very light on the stomach.",
+        "category": "breakfast",
+        "imagePlaceholder": "assets/food/placeholder.jpg",
+        "ingredients": [
+          "1 cup sprouted moong dal",
+          "1/2 inch ginger",
+          "1 green chili (optional)",
+          "1/2 teaspoon salt",
+          "Water for grinding",
+          "2 teaspoons oil (for cooking)"
+        ],
+        "instructions": [
+          "Grind the sprouted moong dal along with ginger, green chili, and salt using minimal water to form a thick, smooth batter.",
+          "Heat a non-stick tawa over medium heat and lightly grease with 1/2 teaspoon of oil.",
+          "Pour a ladleful of batter and spread it quickly into a thin, even circle.",
+          "Drizzle a few drops of oil around the edges.",
+          "Cook for 2-3 minutes until the bottom turns golden brown.",
+          "Flip carefully and cook the other side until done (about 2 minutes).",
+          "Repeat with the remaining batter, using minimal oil for each cheela.",
+          "Serve hot with mint chutney."
+        ],
+        "nutrition": {
+          "calories": "250 kcal (2 medium cheelas)",
+          "protein": "16g",
+          "carbs": "35g",
+          "fat": "6g",
+          "fiber": "10g",
+          "sugar": "3g",
+          "sodium": "350mg"
+        }
+      },
+      "item033": {
+        "title": "Oats Chilla with Grated Mixed Vegetables",
+        "description": "Savory pancakes made from ground rolled oats and/or oat flour, mixed with grated carrots, onion, and spinach. **Significance:** Oats provide soluble fiber, making this a heart-healthy and diabetes-friendly breakfast or snack. It's a nutritious, whole-grain alternative to traditional savory pancakes.",
+        "keywords": [
+          "veg",
+          "breakfast",
+          "high_fiber",
+          "heart_healthy",
+          "bread"
+        ],
+        "allergens": [
+          "gluten"
+        ],
+        "goodForDiseases": [
+          "heart_disease",
+          "diabetes"
+        ],
+        "badForDiseases": [
+          "celiac_disease"
+        ],
+        "healthBenefit": "Oats provide beta-glucan fiber, which is known to help manage cholesterol levels.",
+        "category": "breakfast",
+        "imagePlaceholder": "assets/food/placeholder.jpg",
+        "ingredients": [
+          "1 cup rolled oats, ground into fine flour",
+          "1/2 cup grated carrot",
+          "1/4 cup finely chopped spinach",
+          "1/4 teaspoon salt",
+          "1/2 teaspoon cumin powder",
+          "Water to make a thick batter",
+          "2 teaspoons oil (for cooking)"
+        ],
+        "instructions": [
+          "Grind the rolled oats into a fine flour if not using oat flour.",
+          "In a bowl, combine the oat flour, grated carrot, spinach, salt, and cumin powder.",
+          "Gradually add water while mixing to form a thick batter that coats the back of a spoon.",
+          "Heat a non-stick tawa over medium heat and grease lightly.",
+          "Pour a ladleful of batter and spread it into a circle (can be slightly thicker than a dosa).",
+          "Drizzle a few drops of oil around the edges.",
+          "Cook for 3-4 minutes until the underside is golden brown and cooked through.",
+          "Flip and cook the other side for 2 minutes.",
+          "Serve hot."
+        ],
+        "nutrition": {
+          "calories": "280 kcal (2 medium chillas)",
+          "protein": "8g",
+          "carbs": "48g",
+          "fat": "6g",
+          "fiber": "8g",
+          "sugar": "5g",
+          "sodium": "350mg"
+        }
+      },
+      "item037": {
+        "title": "South Indian Millet Upma (Nutrient-Dense Breakfast)",
+        "description": "Upma preparation using Ragi (finger millet) or Bajra (pearl millet) flour instead of semolina, cooked with vegetables. **Significance:** Millets are naturally gluten-free and offer a significantly lower Glycemic Index than rava, making this excellent for diabetes management. Millets are also rich in iron and calcium, boosting overall nutrition.",
+        "keywords": [
+          "veg",
+          "gluten_free",
+          "diabetes_friendly",
+          "breakfast",
+          "immunity_boost"
+        ],
+        "allergens": [
+          "none"
+        ],
+        "goodForDiseases": [
+          "diabetes",
+          "anemia",
+          "osteoporosis"
+        ],
+        "badForDiseases": [
+          "none"
+        ],
+        "healthBenefit": "Millet-based grains have a lower GI (usually 50-65) than wheat, promoting better blood sugar control.",
+        "category": "breakfast",
+        "imagePlaceholder": "assets/food/placeholder.jpg",
+        "ingredients": [
+          "1 cup Ragi flour (or Bajra flour)",
+          "1 tablespoon oil",
+          "1/2 teaspoon mustard seeds",
+          "1 sprig curry leaves",
+          "1/2 cup mixed vegetables (finely chopped)",
+          "1/2 teaspoon ginger paste",
+          "Salt to taste",
+          "2.5 cups water"
+        ],
+        "instructions": [
+          "Heat oil in a pan. Add mustard seeds and curry leaves. Let them splutter.",
+          "Add ginger paste and chopped vegetables. Sauté until tender (5-7 minutes).",
+          "Add 2.5 cups of water and salt. Bring the water to a rolling boil.",
+          "Slowly sprinkle the ragi/bajra flour into the boiling water while whisking continuously to prevent lumps.",
+          "Reduce heat to low. Cover and cook for 8-10 minutes, stirring occasionally, until the mixture thickens to a soft porridge consistency.",
+          "Serve hot, garnished with coriander."
+        ],
+        "nutrition": {
+          "calories": "320 kcal",
+          "protein": "9g",
+          "carbs": "55g",
+          "fat": "7g",
+          "fiber": "8g",
+          "sugar": "4g",
+          "sodium": "350mg"
+        }
+      },
+      "item042": {
+        "title": "Spinach Omelette with a Side of Sprouts",
+        "description": "A fluffy omelette made with whole eggs, packed with chopped spinach and green chilies. Served with a small side of plain, lightly seasoned sprouts. **Significance:** Excellent, fast, high-protein breakfast for muscle building. Spinach boosts iron and Vitamin K content. This combines complete protein with fiber and micronutrients.",
+        "keywords": [
+          "non_veg",
+          "high_protein",
+          "breakfast",
+          "easy_digest",
+          "muscle_building"
+        ],
+        "allergens": [
+          "eggs"
+        ],
+        "goodForDiseases": [
+          "muscle_building",
+          "anemia"
+        ],
+        "badForDiseases": [
+          "egg_allergy"
+        ],
+        "healthBenefit": "Three eggs provide over 18g of high-biological-value protein.",
+        "category": "breakfast",
+        "imagePlaceholder": "assets/food/placeholder.jpg",
+        "ingredients": [
+          "3 large eggs",
+          "1 cup spinach, finely chopped",
+          "1 green chili, finely chopped",
+          "1/4 teaspoon black pepper",
+          "Salt to taste",
+          "1 teaspoon oil",
+          "1/2 cup mung bean sprouts (lightly steamed/raw)"
+        ],
+        "instructions": [
+          "In a bowl, whisk the eggs thoroughly with salt and pepper.",
+          "Stir in the finely chopped spinach and green chili.",
+          "Heat oil in a non-stick pan over medium heat.",
+          "Pour the egg mixture into the hot pan.",
+          "Let it set for 1-2 minutes, then gently fold or flip to cook into an omelette.",
+          "Cook until done to your liking (slightly runny or fully set).",
+          "Lightly steam or toss the sprouts with a pinch of salt.",
+          "Serve the spinach omelette immediately with the side of sprouts."
+        ],
+        "nutrition": {
+          "calories": "300 kcal",
+          "protein": "22g",
+          "carbs": "8g",
+          "fat": "18g",
+          "fiber": "3g",
+          "sugar": "3g",
+          "sodium": "400mg"
+        }
+      },
+      "item044": {
+        "title": "Light Vegetable Dalia (Broken Wheat Porridge)",
+        "description": "A savory porridge made from cracked/broken wheat (dalia) cooked with a generous amount of chopped vegetables like peas, carrots, and beans, lightly spiced. **Significance:** Dalia is high in fiber, making it excellent for diabetes and weight loss as it promotes slow digestion and satiety. It's a lighter alternative to rice/roti for dinner or breakfast.",
+        "keywords": [
+          "veg",
+          "high_fiber",
+          "breakfast",
+          "diabetes_friendly",
+          "easy_digest"
+        ],
+        "allergens": [
+          "gluten"
+        ],
+        "goodForDiseases": [
+          "diabetes",
+          "weight_loss",
+          "digestive_issues"
+        ],
+        "badForDiseases": [
+          "celiac_disease"
+        ],
+        "healthBenefit": "Dalia is a complex carbohydrate with high fiber, promoting gut health and blood sugar stability.",
+        "category": "breakfast",
+        "imagePlaceholder": "assets/food/placeholder.jpg",
+        "ingredients": [
+          "1 cup cracked wheat (dalia)",
+          "1/2 cup mixed vegetables (peas, carrots, beans)",
+          "1 teaspoon oil",
+          "1/2 teaspoon mustard seeds",
+          "1/2 teaspoon turmeric powder",
+          "Salt to taste",
+          "3 cups water"
+        ],
+        "instructions": [
+          "Wash the dalia well until the water runs clear. Drain.",
+          "Heat oil in a heavy-bottomed pot. Add mustard seeds; let them splutter.",
+          "Add vegetables and sauté for 3-4 minutes.",
+          "Add turmeric powder and mix.",
+          "Add the washed dalia and sauté for 1 minute.",
+          "Add 3 cups of water and salt. Bring to a boil.",
+          "Cover, reduce heat to low, and simmer for 15-20 minutes, stirring occasionally, until the dalia is soft and the water is absorbed.",
+          "Serve hot."
+        ],
+        "nutrition": {
+          "calories": "310 kcal",
+          "protein": "9g",
+          "carbs": "60g",
+          "fat": "4g",
+          "fiber": "10g",
+          "sugar": "5g",
+          "sodium": "300mg"
+        }
+      }
+    }
+  },
+  "lunch": {
+    "items": {
+      "item004": {
+        "title": "Scrambled Eggs (Anda Bhurji) with Whole Wheat Roti",
+        "description": "Spicy, flavorful scramble of eggs cooked with onions, tomatoes, and Indian spices like turmeric and chili. Served with unleavened whole wheat flatbread (roti). **Significance:** This is a high-protein, balanced meal perfect for muscle building or satiety. Whole wheat roti provides complex carbohydrates and fiber, supporting sustained energy and gut health. Eggs are a complete protein source.",
+        "keywords": [
+          "non_veg",
+          "high_protein",
+          "muscle_building",
+          "lunch",
+          "roti"
+        ],
+        "allergens": [
+          "eggs"
+        ],
+        "goodForDiseases": [
+          "muscle_building",
+          "anemia"
+        ],
+        "badForDiseases": [
+          "high_cholesterol"
+        ],
+        "healthBenefit": "Two eggs provide about 12g of high-quality protein. A medium whole wheat roti provides approx. 120 kcal and 2.4g fiber.",
+        "category": "lunch",
+        "imagePlaceholder": "assets/food/placeholder.jpg",
+        "ingredients": [
+          "3 large eggs",
+          "1/2 medium onion, finely chopped",
+          "1 small tomato, finely chopped",
+          "1/2 green chili, finely chopped",
+          "1/2 teaspoon turmeric powder",
+          "1/2 teaspoon cumin powder",
+          "1 teaspoon oil",
+          "Salt and pepper to taste",
+          "2 medium whole wheat rotis"
+        ],
+        "instructions": [
+          "In a bowl, whisk the eggs with salt, pepper, turmeric, and cumin powder until slightly frothy.",
+          "Heat oil in a pan over medium heat.",
+          "Add chopped onion and green chili, sauté until soft (2-3 minutes).",
+          "Add chopped tomato and cook until mushy (3 minutes).",
+          "Pour the whisked egg mixture into the pan.",
+          "Let the eggs set slightly around the edges (about 1 minute).",
+          "Begin scrambling gently with a spatula, cooking until the eggs are cooked through but still moist.",
+          "Prepare rotis by rolling dough and cooking on a dry tawa until puffed.",
+          "Serve the hot Anda Bhurji immediately with the whole wheat rotis."
+        ],
+        "nutrition": {
+          "calories": "450 kcal (3 eggs + 2 rotis)",
+          "protein": "25g",
+          "carbs": "50g",
+          "fat": "12g",
+          "fiber": "5g",
+          "sugar": "6g",
+          "sodium": "450mg"
+        }
+      },
+      "item005": {
+        "title": "Moong Dal Cheela with Paneer Filling",
+        "description": "Savory crepes made from ground soaked moong lentils, stuffed with crumbled, lightly spiced paneer (Indian cottage cheese). **Significance:** Moong dal is an easily digestible, high-protein legume, providing complete amino acid profiles when combined with the grains usually eaten with it. The paneer adds dairy protein and calcium. This makes it a robust, high-protein, veg option for lunch or dinner.",
+        "keywords": [
+          "veg",
+          "high_protein",
+          "gluten_free",
+          "lunch",
+          "bread"
+        ],
+        "allergens": [
+          "dairy"
+        ],
+        "goodForDiseases": [
+          "muscle_building",
+          "weight_loss",
+          "pcos"
+        ],
+        "badForDiseases": [
+          "dairy_allergy"
+        ],
+        "healthBenefit": "Moong dal is known for its high protein content (approx. 7g per 40g piece of plain chilla for besan, moong dal is comparable/higher). Two stuffed cheelas can provide over 20g of protein.",
+        "category": "lunch",
+        "imagePlaceholder": "assets/food/placeholder.jpg",
+        "ingredients": [
+          "1 cup yellow moong dal (soaked for 4 hours)",
+          "1/2 cup crumbled paneer",
+          "1/4 cup finely chopped onion",
+          "1 teaspoon ginger-garlic paste",
+          "1/2 teaspoon cumin seeds",
+          "Pinch of asafoetida (hing)",
+          "Salt and pepper to taste",
+          "Water for batter",
+          "1 teaspoon oil (for cooking)"
+        ],
+        "instructions": [
+          "Drain the soaked moong dal and grind it with a little water to a smooth, thick batter.",
+          "Mix in cumin seeds and salt.",
+          "For the filling: Heat 1/2 tsp oil, sauté onion until soft, add ginger-garlic paste and cook for 1 minute.",
+          "Add crumbled paneer, salt, and pepper to the filling mix. Cook for 2 minutes and set aside.",
+          "Heat a non-stick tawa over medium heat and lightly grease.",
+          "Pour a ladleful of dal batter and spread thinly into a circle.",
+          "Cook until the edges start to lift and the top looks cooked.",
+          "Place a portion of the paneer filling on one half of the chilla.",
+          "Fold or roll the chilla and cook for another minute until lightly golden.",
+          "Serve hot with mint chutney."
+        ],
+        "nutrition": {
+          "calories": "350 kcal (2 chillas with filling)",
+          "protein": "22g",
+          "carbs": "35g",
+          "fat": "14g",
+          "fiber": "8g",
+          "sugar": "4g",
+          "sodium": "450mg"
+        }
+      },
+      "item009": {
+        "title": "Sprout Salad with Lemon-Mint Dressing",
+        "description": "A refreshing, uncooked salad made from mixed germinated lentils (mung, moth), mixed with chopped cucumber, tomato, onion, and a zingy dressing of lemon juice and mint. **Significance:** This is a nutrient-dense, low-calorie, high-fiber, and raw food option, excellent for weight_loss, detoxification, and providing bioavailable vitamins (like Vitamin C). It's naturally vegan and gluten-free.",
+        "keywords": [
+          "veg",
+          "vegan",
+          "gluten_free",
+          "nut_free",
+          "salad",
+          "weight_loss"
+        ],
+        "allergens": [
+          "none"
+        ],
+        "goodForDiseases": [
+          "weight_loss",
+          "diabetes",
+          "immunity_boost"
+        ],
+        "badForDiseases": [
+          "digestive_issues_for_some"
+        ],
+        "healthBenefit": "A cup serving can be as low as 130-190 calories with high fiber (up to 8g) and good protein (around 9g).",
+        "category": "lunch",
+        "imagePlaceholder": "assets/food/placeholder.jpg",
+        "ingredients": [
+          "1 cup mixed sprouted lentils (moong, moth)",
+          "1/2 cup chopped cucumber",
+          "1/2 cup chopped tomato",
+          "1/4 cup finely chopped onion",
+          "2 tablespoons fresh mint, chopped",
+          "Juice of 1 large lemon",
+          "1/2 teaspoon chaat masala",
+          "Pinch of black salt",
+          "1/2 teaspoon black pepper powder"
+        ],
+        "instructions": [
+          "Ensure the sprouts are clean and drain off any excess water thoroughly.",
+          "In a large mixing bowl, combine the sprouted lentils, chopped cucumber, tomato, and onion.",
+          "In a small bowl, prepare the dressing by whisking together lemon juice, chaat masala, black salt, and pepper powder.",
+          "Pour the dressing over the salad mixture.",
+          "Add the chopped fresh mint and toss gently until all ingredients are evenly coated.",
+          "Taste and adjust salt/lemon as per preference.",
+          "Serve immediately for maximum crunch. Can be refrigerated for up to 2 hours."
+        ],
+        "nutrition": {
+          "calories": "180 kcal",
+          "protein": "9g",
+          "carbs": "30g",
+          "fat": "5g",
+          "fiber": "8g",
+          "sugar": "5g",
+          "sodium": "350mg"
+        }
+      },
+      "item012": {
+        "title": "Masoor Dal Tadka with Mixed Vegetable Sabzi",
+        "description": "Simple, nutritious red lentil (masoor dal) tempered with spices and garlic (tadka). Paired with a North Indian dry mixed vegetable sabzi (carrot, beans, cauliflower). **Significance:** This is a classic, complete vegetarian meal providing a balance of protein (dal), carbohydrates (vegetables), and micronutrients. It's easily digestible and heart-healthy due to low fat when prepared with minimal oil.",
+        "keywords": [
+          "veg",
+          "lunch",
+          "dal",
+          "high_protein",
+          "heart_healthy"
+        ],
+        "allergens": [
+          "none"
+        ],
+        "goodForDiseases": [
+          "heart_disease",
+          "anemia",
+          "digestive_issues"
+        ],
+        "badForDiseases": [
+          "none"
+        ],
+        "healthBenefit": "Masoor dal is one of the fastest cooking dals and is high in protein and folate. A standard serving provides around 15g of protein.",
+        "category": "lunch",
+        "imagePlaceholder": "assets/food/placeholder.jpg",
+        "ingredients": [
+          "1 cup cooked masoor dal",
+          "1/2 cup mixed vegetables (diced carrots, beans, cauliflower)",
+          "1/2 teaspoon turmeric (for dal)",
+          "1 teaspoon oil/ghee (for dal tadka)",
+          "1 teaspoon oil (for sabzi)",
+          "1 teaspoon cumin seeds (for tadka)",
+          "2 cloves garlic, sliced (for tadka)",
+          "1/2 teaspoon cumin seeds (for sabzi)",
+          "Salt to taste",
+          "Fresh coriander for garnish"
+        ],
+        "instructions": [
+          "For Dal: Boil masoor dal with turmeric and salt until soft. Prepare tadka by heating oil/ghee, adding cumin seeds and sliced garlic until golden. Pour over the cooked dal and mix.",
+          "For Sabzi: Heat 1 tsp oil in a separate pan. Add cumin seeds.",
+          "Add diced vegetables and a pinch of salt. Sauté until tender-crisp (8-10 minutes).",
+          "Cover and cook on low heat until fully done, ensuring they remain slightly firm.",
+          "Combine the dal and sabzi on the plate or serve separately.",
+          "Garnish both with fresh coriander and serve immediately."
+        ],
+        "nutrition": {
+          "calories": "380 kcal (1.5 cups total)",
+          "protein": "18g",
+          "carbs": "55g",
+          "fat": "10g",
+          "fiber": "10g",
+          "sugar": "6g",
+          "sodium": "400mg"
+        }
+      },
+      "item013": {
+        "title": "Vegetable Biryani with Cucumber Raita",
+        "description": "Fragrant, layered rice dish cooked with basmati rice, mixed vegetables, and aromatic spices (biryani masala). Paired with a cooling raita made from yogurt and cucumber. **Significance:** A wholesome one-pot meal providing complex carbs from rice and fiber/vitamins from vegetables. Using yogurt-based raita adds probiotics for digestion. Best kept moderate on oil/ghee to maintain health benefits.",
+        "keywords": [
+          "veg",
+          "lunch",
+          "rice",
+          "probiotic",
+          "brain_food"
+        ],
+        "allergens": [
+          "dairy"
+        ],
+        "goodForDiseases": [
+          "digestive_issues",
+          "thyroid"
+        ],
+        "badForDiseases": [
+          "none"
+        ],
+        "healthBenefit": "Vegetable biryani is rich in complex carbs and spices like turmeric (antioxidants). A moderate serving with raita is balanced.",
+        "category": "lunch",
+        "imagePlaceholder": "assets/food/placeholder.jpg",
+        "ingredients": [
+          "1 cup basmati rice (partially cooked)",
+          "1 cup mixed vegetables (peas, carrot, beans, potato)",
+          "1 medium onion, sliced",
+          "1 teaspoon ginger-garlic paste",
+          "2 tablespoons plain yogurt (for raita)",
+          "1/2 cup grated cucumber (for raita)",
+          "2 tablespoons biryani masala",
+          "1 teaspoon oil/ghee",
+          "Saffron/turmeric for color",
+          "Mint/coriander leaves",
+          "Salt to taste"
+        ],
+        "instructions": [
+          "Cook rice until 70% done, drain, and set aside.",
+          "In a pot, heat oil/ghee. Sauté onions until golden. Add ginger-garlic paste and cook briefly.",
+          "Add vegetables and biryani masala. Sauté for 5 minutes.",
+          "Layer: Add a layer of the partially cooked rice over the vegetables, sprinkle with mint/coriander and color water/saffron mix.",
+          "Cover tightly and cook on low heat (dum) for 15-20 minutes until rice is fully cooked.",
+          "For Raita: Mix grated cucumber, yogurt, salt, and a pinch of roasted cumin powder.",
+          "Serve the fragrant Vegetable Biryani hot with the cooling Cucumber Raita."
+        ],
+        "nutrition": {
+          "calories": "380 kcal (1 serving)",
+          "protein": "10g",
+          "carbs": "50g",
+          "fat": "15g",
+          "fiber": "5g",
+          "sugar": "5g",
+          "sodium": "700mg"
+        }
+      },
+      "item014": {
+        "title": "High-Protein Sprouted Moong Dal Salad",
+        "description": "A substantial, raw salad featuring sprouted moong beans, tossed with crunchy vegetables, and dressed with a light vinaigrette. **Significance:** This is an incredibly high-protein, low-carb, vegan meal ideal for muscle_building, weight_loss, or as a detox meal. Sprouts maximize nutrient bioavailability, offering enzymes and fiber.",
+        "keywords": [
+          "veg",
+          "vegan",
+          "high_protein",
+          "low_carb",
+          "salad",
+          "muscle_building"
+        ],
+        "allergens": [
+          "none"
+        ],
+        "goodForDiseases": [
+          "muscle_building",
+          "weight_loss",
+          "diabetes"
+        ],
+        "badForDiseases": [
+          "digestive_issues_for_some"
+        ],
+        "healthBenefit": "High protein density (over 20g per large bowl) for satiety and muscle repair, with very low fat/sugar.",
+        "category": "lunch",
+        "imagePlaceholder": "assets/food/placeholder.jpg",
+        "ingredients": [
+          "1.5 cups sprouted moong beans",
+          "1/2 cup diced bell peppers (mixed colors)",
+          "1/4 cup grated carrot",
+          "2 tablespoons lemon juice",
+          "1 teaspoon olive oil",
+          "1/2 teaspoon black pepper",
+          "Pinch of rock salt",
+          "1 tablespoon fresh coriander, chopped"
+        ],
+        "instructions": [
+          "Ensure the moong sprouts are thoroughly rinsed and drained.",
+          "In a large bowl, combine the sprouted moong beans, diced bell peppers, and grated carrot.",
+          "In a small cup, whisk together lemon juice, olive oil, black pepper, and rock salt to create the dressing.",
+          "Pour the dressing over the salad mixture.",
+          "Toss gently until all ingredients are well coated.",
+          "Garnish with fresh coriander.",
+          "Serve immediately. This salad is best consumed fresh."
+        ],
+        "nutrition": {
+          "calories": "320 kcal",
+          "protein": "22g",
+          "carbs": "35g",
+          "fat": "10g",
+          "fiber": "14g",
+          "sugar": "6g",
+          "sodium": "250mg"
+        }
+      },
+      "item017": {
+        "title": "Fish Curry with Steamed Rice (South Indian Style)",
+        "description": "Lean fish (like Rohu or Tilapia) simmered in a tangy, spiced gravy, typically using coconut milk or tomato/tamarind base. Served with plain steamed rice. **Significance:** Excellent source of lean protein, Vitamin B12, and Omega-3 fatty acids (if using fatty fish), which are crucial for heart and brain health. A well-balanced meal combining lean protein and carbohydrates.",
+        "keywords": [
+          "non_veg",
+          "fish",
+          "heart_healthy",
+          "lunch",
+          "rice"
+        ],
+        "allergens": [
+          "fish",
+          "soy"
+        ],
+        "goodForDiseases": [
+          "heart_disease",
+          "brain_food",
+          "muscle_building"
+        ],
+        "badForDiseases": [
+          "fish_allergy"
+        ],
+        "healthBenefit": "Fish provides essential Omega-3s (EPA/DHA). A 200g serving is around 214 kcal with 8g protein and healthy fats.",
+        "category": "lunch",
+        "imagePlaceholder": "assets/food/placeholder.jpg",
+        "ingredients": [
+          "200g lean white fish fillets (e.g., Tilapia/Rohu)",
+          "1 medium onion, sliced",
+          "1 tomato, chopped",
+          "1 teaspoon ginger-garlic paste",
+          "1/2 cup light coconut milk (or water)",
+          "2 tablespoons fish curry powder/blend",
+          "1 teaspoon coconut oil",
+          "1 cup steamed rice (preferably brown rice)",
+          "Tamarind pulp (small amount for tang)",
+          "Salt to taste"
+        ],
+        "instructions": [
+          "Marinate fish fillets with a pinch of salt and turmeric for 10 minutes.",
+          "Heat coconut oil in a pan. Sauté onion until translucent (4 minutes).",
+          "Add ginger-garlic paste and cook for 1 minute.",
+          "Stir in the fish curry powder and cook until fragrant (1 minute).",
+          "Add chopped tomatoes, salt, and cook until soft.",
+          "Pour in coconut milk and tamarind pulp (dissolved in a little water). Bring to a gentle simmer.",
+          "Carefully slide the fish pieces into the simmering gravy.",
+          "Cover and cook on low heat for 8-10 minutes, until the fish is opaque and cooked through.",
+          "Serve hot with steamed rice."
+        ],
+        "nutrition": {
+          "calories": "480 kcal (Curry + Rice)",
+          "protein": "25g",
+          "carbs": "55g",
+          "fat": "15g",
+          "fiber": "3g",
+          "sugar": "5g",
+          "sodium": "650mg"
+        }
+      },
+      "item019": {
+        "title": "Vegetable Pulao with Curd (Dahi)",
+        "description": "A lighter rice dish than biryani, made by cooking rice and mixed vegetables (peas, carrots, beans) together with mild whole spices like bay leaf and cardamom. Served with plain curd (yogurt). **Significance:** A balanced single-pot meal providing complex carbs and vegetables. Curd adds probiotics for gut health, making this a moderate, well-rounded lunch option.",
+        "keywords": [
+          "veg",
+          "rice",
+          "lunch",
+          "probiotic",
+          "easy_digest"
+        ],
+        "allergens": [
+          "dairy"
+        ],
+        "goodForDiseases": [
+          "digestive_issues",
+          "thyroid"
+        ],
+        "badForDiseases": [
+          "none"
+        ],
+        "healthBenefit": "Provides sustained energy from rice and essential vitamins from vegetables. Curd aids in digestion.",
+        "category": "lunch",
+        "imagePlaceholder": "assets/food/placeholder.jpg",
+        "ingredients": [
+          "1 cup basmati rice (soaked 20 min)",
+          "1 cup mixed vegetables (peas, carrot, beans)",
+          "1 medium onion, sliced",
+          "1 tablespoon oil/ghee",
+          "1 bay leaf, 2 green cardamom pods",
+          "1/2 teaspoon cumin seeds",
+          "Salt to taste",
+          "2 cups water",
+          "1/2 cup plain curd (yogurt) for serving"
+        ],
+        "instructions": [
+          "Wash and soak the rice for 20 minutes, then drain.",
+          "Heat oil/ghee in a heavy-bottomed pan. Add cumin seeds, bay leaf, and cardamom pods; sauté until fragrant (30 seconds).",
+          "Add sliced onion and sauté until golden brown (4 minutes).",
+          "Add the mixed vegetables and a pinch of salt. Sauté for 5 minutes.",
+          "Add the drained rice and gently sauté for 1 minute to coat the grains.",
+          "Add 2 cups of water and salt. Bring to a boil.",
+          "Cover the pan, reduce heat to the lowest setting, and cook undisturbed for 15 minutes until all water is absorbed.",
+          "Turn off heat and let it rest, covered, for 10 minutes.",
+          "Fluff with a fork and serve hot with a side of plain curd."
+        ],
+        "nutrition": {
+          "calories": "400 kcal (Pulao + Curd)",
+          "protein": "10g",
+          "carbs": "70g",
+          "fat": "8g",
+          "fiber": "5g",
+          "sugar": "4g",
+          "sodium": "400mg"
+        }
+      },
+      "item025": {
+        "title": "High-Protein Paneer Bhurji with Veggie Salad",
+        "description": "Scrambled paneer cooked with a light touch of ginger, green chili, and minimal onion/tomato base. Served with a large side salad of fresh greens and cucumber. **Significance:** Extremely high in protein and calcium from the paneer, supporting muscle maintenance. Pairing with a simple, low-carb salad makes this ideal for low-carb or weight-loss goals.",
+        "keywords": [
+          "veg",
+          "high_protein",
+          "low_carb",
+          "dairy",
+          "lunch"
+        ],
+        "allergens": [
+          "dairy"
+        ],
+        "goodForDiseases": [
+          "muscle_building",
+          "weight_loss",
+          "pcos"
+        ],
+        "badForDiseases": [
+          "lactose_intolerance"
+        ],
+        "healthBenefit": "Paneer provides about 28g protein for a standard 200g serving, with low net carbs.",
+        "category": "lunch",
+        "imagePlaceholder": "assets/food/placeholder.jpg",
+        "ingredients": [
+          "200g paneer, crumbled",
+          "1/4 cup onion, finely chopped",
+          "1 small tomato, finely chopped",
+          "1 teaspoon ginger, grated",
+          "1 green chili, finely chopped",
+          "1/2 teaspoon cumin powder",
+          "1 teaspoon oil",
+          "Salt and pepper to taste",
+          "2 cups mixed salad greens (lettuce, spinach, cucumber)"
+        ],
+        "instructions": [
+          "Heat oil in a pan over medium heat.",
+          "Add cumin powder and let it sizzle (10 seconds). Add onion, ginger, and green chili; sauté for 2 minutes.",
+          "Add tomato and cook until soft (3 minutes).",
+          "Add crumbled paneer, salt, and pepper. Mix gently.",
+          "Cook for 3-4 minutes until the paneer is heated through and slightly drier.",
+          "Prepare the salad by tossing greens and cucumber with a light squeeze of lemon juice (no added dressing).",
+          "Serve the hot Paneer Bhurji alongside the fresh salad for a complete, low-carb meal."
+        ],
+        "nutrition": {
+          "calories": "400 kcal (Bhurji + Salad)",
+          "protein": "30g",
+          "carbs": "15g",
+          "fat": "25g",
+          "fiber": "5g",
+          "sugar": "6g",
+          "sodium": "450mg"
+        }
+      },
+      "item027": {
+        "title": "Mushroom and Peas Curry (Matar Mushroom)",
+        "description": "A flavorful, low-fat curry featuring mushrooms and green peas in a light tomato and onion gravy, flavored with traditional Indian spices. **Significance:** Mushrooms are low in calories and provide B vitamins and antioxidants. Peas add fiber and protein. A great vegetable-centric curry for a light lunch, especially when paired with minimal rice or one roti.",
+        "keywords": [
+          "veg",
+          "curry",
+          "low_fat",
+          "lunch",
+          "immunity_boost"
+        ],
+        "allergens": [
+          "none"
+        ],
+        "goodForDiseases": [
+          "weight_loss",
+          "immunity_boost"
+        ],
+        "badForDiseases": [
+          "none"
+        ],
+        "healthBenefit": "Low in fat and calories, high in volume, which aids in satiety for weight management.",
+        "category": "lunch",
+        "imagePlaceholder": "assets/food/placeholder.jpg",
+        "ingredients": [
+          "1 cup sliced mushrooms",
+          "1/2 cup green peas",
+          "1 medium onion, pureed",
+          "1 cup tomato puree",
+          "1 teaspoon ginger-garlic paste",
+          "1 teaspoon garam masala",
+          "1/2 teaspoon turmeric powder",
+          "1 teaspoon oil",
+          "Salt to taste",
+          "1/2 cup water"
+        ],
+        "instructions": [
+          "Heat oil in a pan. Add onion puree and cook until golden (5 minutes).",
+          "Add ginger-garlic paste and cook for 1 minute.",
+          "Stir in turmeric, garam masala, and salt. Cook spices for 30 seconds.",
+          "Add tomato puree and cook until oil separates (4 minutes).",
+          "Add mushrooms and peas. Sauté for 3 minutes.",
+          "Add water, cover, and simmer on low heat for 10-12 minutes until vegetables are tender.",
+          "Serve hot."
+        ],
+        "nutrition": {
+          "calories": "220 kcal (Curry only)",
+          "protein": "8g",
+          "carbs": "25g",
+          "fat": "9g",
+          "fiber": "6g",
+          "sugar": "6g",
+          "sodium": "380mg"
+        }
+      },
+      "item034": {
+        "title": "Lentil and Vegetable Pulao (Brown Rice Based)",
+        "description": "A one-pot rice dish where brown rice is cooked along with soaked lentils (like masoor or moong) and mixed vegetables, flavored with mild whole spices. **Significance:** This combination creates a near-complete protein profile while brown rice ensures high fiber intake, making it excellent for diabetics and weight management. It’s a balanced, low-fat lunch.",
+        "keywords": [
+          "veg",
+          "vegan",
+          "high_fiber",
+          "rice",
+          "lunch"
+        ],
+        "allergens": [
+          "none"
+        ],
+        "goodForDiseases": [
+          "diabetes",
+          "weight_loss",
+          "digestive_issues"
+        ],
+        "badForDiseases": [
+          "none"
+        ],
+        "healthBenefit": "High fiber content (approx. 9g per serving) from brown rice and lentils slows glucose absorption.",
+        "category": "lunch",
+        "imagePlaceholder": "assets/food/placeholder.jpg",
+        "ingredients": [
+          "1/2 cup brown rice, soaked 30 min",
+          "1/4 cup masoor dal, soaked 30 min",
+          "1 cup mixed vegetables (peas, carrots, cauliflower)",
+          "1 tablespoon oil",
+          "1 bay leaf, 2 cloves, 1 small cinnamon stick",
+          "1/2 teaspoon cumin seeds",
+          "Salt to taste",
+          "2.5 cups water"
+        ],
+        "instructions": [
+          "Heat oil in a pressure cooker. Add cumin seeds, bay leaf, cloves, and cinnamon; let them splutter.",
+          "Add vegetables and sauté for 3 minutes.",
+          "Add the soaked and drained rice and dal. Sauté gently for 1 minute.",
+          "Add 2.5 cups of water and salt. Stir well.",
+          "Cover and pressure cook for 4-5 whistles on medium heat.",
+          "Let the pressure release naturally. Fluff the pulao gently with a fork before serving."
+        ],
+        "nutrition": {
+          "calories": "390 kcal",
+          "protein": "14g",
+          "carbs": "70g",
+          "fat": "6g",
+          "fiber": "10g",
+          "sugar": "4g",
+          "sodium": "300mg"
+        }
+      },
+      "item039": {
+        "title": "Stuffed Whole Wheat Roti with Onion & Spice",
+        "description": "Whole wheat flatbread stuffed with a simple, pungent filling of chopped onions, green chilies, and spices, cooked with minimal oil. **Significance:** This provides fiber from the whole wheat and a satisfying texture. It's a more substantial, low-carb alternative to plain roti when eaten in moderation, suitable for a filling lunch component.",
+        "keywords": [
+          "veg",
+          "roti",
+          "low_carb",
+          "lunch",
+          "bread"
+        ],
+        "allergens": [
+          "gluten"
+        ],
+        "goodForDiseases": [
+          "diabetes",
+          "weight_loss"
+        ],
+        "badForDiseases": [
+          "celiac_disease"
+        ],
+        "healthBenefit": "Whole wheat fiber aids in blood sugar stabilization. Fiber content approx. 2.5g per roti.",
+        "category": "lunch",
+        "imagePlaceholder": "assets/food/placeholder.jpg",
+        "ingredients": [
+          "1 cup whole wheat flour",
+          "1/2 medium onion, finely chopped",
+          "1 green chili, finely chopped",
+          "1/2 teaspoon cumin powder",
+          "Salt and coriander powder to taste",
+          "Water for kneading",
+          "Oil/ghee for cooking (minimal)"
+        ],
+        "instructions": [
+          "In a bowl, mix onion, chili, cumin powder, coriander powder, and salt. This is the stuffing.",
+          "Knead the whole wheat flour with water to form a smooth, medium-soft dough. Rest for 15 minutes.",
+          "Divide the dough into equal portions.",
+          "Take one portion, flatten it slightly, place a spoonful of the stuffing in the center, and gently bring the edges together to seal the stuffing inside.",
+          "Lightly dust with flour and roll out into a medium-thin roti.",
+          "Cook on a dry, hot tawa, flipping once when light brown spots appear.",
+          "Lightly brush with a few drops of oil/ghee on both sides until cooked through.",
+          "Serve hot."
+        ],
+        "nutrition": {
+          "calories": "180 kcal (1 stuffed roti)",
+          "protein": "5g",
+          "carbs": "30g",
+          "fat": "4g",
+          "fiber": "4g",
+          "sugar": "2g",
+          "sodium": "250mg"
+        }
+      },
+      "item041": {
+        "title": "Sambar Sadam (Lentil Rice Stew)",
+        "description": "A one-pot South Indian dish combining rice, Toor dal, and a variety of vegetables (like drumsticks, okra, carrots), flavored strongly with Sambar powder. **Significance:** This is a complete, fiber-rich, balanced meal in one dish. It's generally low in fat (depending on tempering) and provides excellent complex carbs, protein, and vegetable nutrition for sustained energy.",
+        "keywords": [
+          "veg",
+          "rice",
+          "dal",
+          "high_fiber",
+          "lunch"
+        ],
+        "allergens": [
+          "none"
+        ],
+        "goodForDiseases": [
+          "diabetes",
+          "digestive_issues"
+        ],
+        "badForDiseases": [
+          "none"
+        ],
+        "healthBenefit": "High fiber content from lentils and rice promotes good digestive regularity.",
+        "category": "lunch",
+        "imagePlaceholder": "assets/food/placeholder.jpg",
+        "ingredients": [
+          "1/2 cup rice",
+          "1/3 cup toor dal",
+          "1 cup mixed vegetables (drumstick, carrot, okra, brinjal)",
+          "2 tablespoons sambar powder",
+          "1/2 teaspoon turmeric powder",
+          "1 tablespoon oil/ghee",
+          "1/2 teaspoon mustard seeds",
+          "Pinch of asafoetida (hing)",
+          "Salt to taste",
+          "3.5 cups water"
+        ],
+        "instructions": [
+          "Wash rice and dal together and soak for 20 minutes.",
+          "Heat oil/ghee in a pressure cooker. Add mustard seeds and hing; let them splutter.",
+          "Add the mixed vegetables and sauté for 3-4 minutes.",
+          "Stir in sambar powder and turmeric powder. Cook for 1 minute.",
+          "Add the soaked rice and dal mixture, along with 3.5 cups of water and salt. Stir well.",
+          "Pressure cook for 4-5 whistles on medium heat.",
+          "Let the pressure release naturally. Mix gently and serve hot."
+        ],
+        "nutrition": {
+          "calories": "420 kcal",
+          "protein": "16g",
+          "carbs": "75g",
+          "fat": "7g",
+          "fiber": "10g",
+          "sugar": "7g",
+          "sodium": "450mg"
+        }
+      },
+      "item043": {
+        "title": "Tomato-Onion Raita with Whole Wheat Roti",
+        "description": "A simple, cooling side dish made from whisked yogurt, mixed with finely chopped tomato and onion, seasoned with roasted cumin powder. Served with one plain whole wheat roti. **Significance:** The Raita is an excellent probiotic source, aiding digestion, while the roti provides fiber. This combination is good for gut health and balances spicier main courses.",
+        "keywords": [
+          "veg",
+          "dairy",
+          "probiotic",
+          "roti",
+          "easy_digest"
+        ],
+        "allergens": [
+          "dairy"
+        ],
+        "goodForDiseases": [
+          "digestive_issues",
+          "hypertension"
+        ],
+        "badForDiseases": [
+          "lactose_intolerance"
+        ],
+        "healthBenefit": "Yogurt provides probiotics for a healthy gut microbiome.",
+        "category": "lunch",
+        "imagePlaceholder": "assets/food/placeholder.jpg",
+        "ingredients": [
+          "1 cup plain yogurt (curd)",
+          "1/2 small onion, finely chopped",
+          "1 small tomato, deseeded and finely chopped",
+          "1/2 teaspoon roasted cumin powder",
+          "Pinch of black salt",
+          "1 whole wheat roti"
+        ],
+        "instructions": [
+          "In a bowl, whisk the yogurt until smooth and free of lumps.",
+          "Gently fold in the finely chopped onion and tomato.",
+          "Add roasted cumin powder and black salt. Mix well.",
+          "Taste and adjust seasoning if needed. Chill for 15 minutes for best flavor.",
+          "Prepare one whole wheat roti on a dry tawa.",
+          "Serve the cold Raita alongside the warm roti."
+        ],
+        "nutrition": {
+          "calories": "240 kcal (Raita + Roti)",
+          "protein": "10g",
+          "carbs": "35g",
+          "fat": "6g",
+          "fiber": "3g",
+          "sugar": "8g",
+          "sodium": "350mg"
+        }
+      },
+      "item045": {
+        "title": "Spiced Curd Rice (South Indian Style)",
+        "description": "Cooked rice mixed with plain yogurt, seasoned with a 'tadka' (tempering) of mustard seeds, curry leaves, and a hint of ginger, often with chopped carrots/cucumber. **Significance:** An excellent probiotic source, promoting gut health. It's cooling, low in fat, and easy to digest, making it perfect for recovery or a light, balanced lunch.",
+        "keywords": [
+          "veg",
+          "dairy",
+          "probiotic",
+          "easy_digest",
+          "lunch",
+          "rice"
+        ],
+        "allergens": [
+          "dairy"
+        ],
+        "goodForDiseases": [
+          "digestive_issues",
+          "hypertension"
+        ],
+        "badForDiseases": [
+          "lactose_intolerance"
+        ],
+        "healthBenefit": "Yogurt provides probiotics, balancing the gut flora.",
+        "category": "lunch",
+        "imagePlaceholder": "assets/food/placeholder.jpg",
+        "ingredients": [
+          "1 cup cooked white rice (cooled)",
+          "1 cup plain yogurt (curd)",
+          "1/4 cup finely chopped carrots (optional)",
+          "1 teaspoon oil (for tempering)",
+          "1/2 teaspoon mustard seeds",
+          "1 sprig curry leaves",
+          "1/4 teaspoon grated ginger",
+          "Salt to taste"
+        ],
+        "instructions": [
+          "In a bowl, gently mash the cooled cooked rice with a fork.",
+          "Add the yogurt and salt. Mix gently until combined. Add a splash of water if it becomes too thick.",
+          "Stir in the finely chopped carrots (if using).",
+          "Heat oil in a small pan for tempering. Add mustard seeds; let them splutter.",
+          "Add curry leaves and grated ginger. Sauté for 30 seconds.",
+          "Pour this hot tempering mixture over the curd rice.",
+          "Mix well and serve chilled or at room temperature."
+        ],
+        "nutrition": {
+          "calories": "320 kcal",
+          "protein": "10g",
+          "carbs": "50g",
+          "fat": "8g",
+          "fiber": "2g",
+          "sugar": "9g",
+          "sodium": "380mg"
+        }
+      },
+      "item046": {
+        "title": "Whole Wheat Paratha with Unsalted Curd",
+        "description": "Traditional unleavened flatbread made from whole wheat flour, cooked without any added fat (dry roasted). Served with plain, unsalted yogurt. **Significance:** A good source of complex carbohydrates and fiber (from whole wheat). Cooking dry (no oil/ghee) keeps the fat content very low, making it suitable for weight-loss or heart-healthy meals.",
+        "keywords": [
+          "veg",
+          "roti",
+          "bread",
+          "low_fat",
+          "dairy",
+          "lunch"
+        ],
+        "allergens": [
+          "gluten",
+          "dairy"
+        ],
+        "goodForDiseases": [
+          "weight_loss",
+          "heart_disease"
+        ],
+        "badForDiseases": [
+          "celiac_disease"
+        ],
+        "healthBenefit": "Whole wheat provides essential B vitamins and minerals like magnesium and iron. Fiber is approximately 2.5g per roti.",
+        "category": "lunch",
+        "imagePlaceholder": "assets/food/placeholder.jpg",
+        "ingredients": [
+          "1.5 cups whole wheat flour (atta)",
+          "Water and a pinch of salt for dough",
+          "1 cup plain unsalted yogurt (curd)",
+          "2 medium parathas (cooked dry)"
+        ],
+        "instructions": [
+          "Knead the whole wheat flour with salt and water until a smooth, firm dough is formed. Rest for 30 minutes.",
+          "Divide the dough into portions and roll out into medium-sized, even discs.",
+          "Cook the parathas on a hot, dry tawa over medium-high heat.",
+          "Flip when bubbles appear and cook both sides until golden brown and slightly puffed.",
+          "Crucially, do not add any oil or ghee during cooking.",
+          "Whisk the unsalted yogurt lightly.",
+          "Serve the dry-roasted parathas hot with the plain yogurt."
+        ],
+        "nutrition": {
+          "calories": "390 kcal (2 parathas + yogurt)",
+          "protein": "15g",
+          "carbs": "70g",
+          "fat": "5g",
+          "fiber": "7g",
+          "sugar": "10g",
+          "sodium": "200mg"
+        }
+      },
+      "item049": {
+        "title": "Black Chana (Chickpea) Salad with Indian Spices",
+        "description": "A high-protein, vegan salad made from boiled black chickpeas (kala chana), tossed with chopped onion, tomato, cucumber, and seasoned with chaat masala, lemon juice, and coriander. **Significance:** Black chana is an excellent source of complex carbohydrates, high fiber, and plant-based protein, ideal for managing weight and blood sugar. It's a powerhouse for anemia due to high iron content.",
+        "keywords": [
+          "veg",
+          "vegan",
+          "high_protein",
+          "high_fiber",
+          "salad",
+          "anemia"
+        ],
+        "allergens": [
+          "none"
+        ],
+        "goodForDiseases": [
+          "anemia",
+          "diabetes",
+          "weight_loss",
+          "heart_disease"
+        ],
+        "badForDiseases": [
+          "none"
+        ],
+        "healthBenefit": "Provides over 15g of protein and significant fiber (approx. 12g) per serving, with high iron content.",
+        "category": "lunch",
+        "imagePlaceholder": "assets/food/placeholder.jpg",
+        "ingredients": [
+          "1 cup boiled black chickpeas (kala chana)",
+          "1/2 cup chopped tomato",
+          "1/2 cup chopped cucumber",
+          "1/4 cup chopped onion",
+          "Juice of 1 lemon",
+          "1 teaspoon chaat masala",
+          "1/2 teaspoon black salt",
+          "2 tablespoons fresh coriander, chopped"
+        ],
+        "instructions": [
+          "Ensure the black chickpeas are fully boiled until tender but still hold their shape.",
+          "In a large bowl, combine the boiled chickpeas, chopped tomato, cucumber, and onion.",
+          "In a small cup, mix the lemon juice, chaat masala, and black salt.",
+          "Pour the dressing over the chickpea mixture.",
+          "Toss well to ensure all ingredients are coated evenly.",
+          "Garnish generously with fresh coriander.",
+          "Serve immediately as a refreshing and filling lunch."
+        ],
+        "nutrition": {
+          "calories": "350 kcal",
+          "protein": "18g",
+          "carbs": "60g",
+          "fat": "4g",
+          "fiber": "14g",
+          "sugar": "7g",
+          "sodium": "550mg"
+        }
+      },
+      "item050": {
+        "title": "Sardine Fish Curry (Omega-3 Rich)",
+        "description": "A quick, rustic fish curry made with sardines (known for high Omega-3s) simmered in a spicy, tangy tomato-onion base. **Significance:** Sardines are a budget-friendly powerhouse for Omega-3 fatty acids (DHA/EPA), crucial for heart and brain health. This is a non-vegetarian, high-protein lunch option.",
+        "keywords": [
+          "non_veg",
+          "fish",
+          "high_protein",
+          "heart_healthy",
+          "lunch"
+        ],
+        "allergens": [
+          "fish"
+        ],
+        "goodForDiseases": [
+          "heart_disease",
+          "brain_food",
+          "muscle_building"
+        ],
+        "badForDiseases": [
+          "fish_allergy"
+        ],
+        "healthBenefit": "Sardines are one of the best sources of Omega-3s, which reduce inflammation and support cardiovascular function.",
+        "category": "lunch",
+        "imagePlaceholder": "assets/food/placeholder.jpg",
+        "ingredients": [
+          "200g fresh sardines, cleaned",
+          "1 medium onion, pureed",
+          "1 cup tomato puree",
+          "1 teaspoon ginger-garlic paste",
+          "1 teaspoon fish curry powder blend",
+          "1/2 teaspoon turmeric powder",
+          "1 tablespoon oil",
+          "Salt and chili powder to taste",
+          "1/2 cup water"
+        ],
+        "instructions": [
+          "Heat oil in a pan. Sauté the onion puree until golden brown (5 minutes).",
+          "Add ginger-garlic paste and cook for 1 minute.",
+          "Stir in the fish curry powder, turmeric, salt, and chili powder. Cook spices for 30 seconds.",
+          "Add tomato puree and cook until the oil separates (4 minutes).",
+          "Add 1/2 cup of water to create the gravy base.",
+          "Gently place the cleaned sardines into the simmering gravy.",
+          "Cover and cook on low heat for 10-12 minutes, being careful not to break the fish.",
+          "Serve hot, ideally with plain rice or one roti."
+        ],
+        "nutrition": {
+          "calories": "420 kcal (Curry only, assuming small fish)",
+          "protein": "30g",
+          "carbs": "15g",
+          "fat": "25g",
+          "fiber": "3g",
+          "sugar": "6g",
+          "sodium": "700mg"
+        }
+      }
+    }
+  },
+  "dinner": {
+    "items": {
+      "item007": {
+        "title": "Hearty Rajma (Kidney Bean) Curry with Brown Rice",
+        "description": "A classic North Indian comfort meal featuring kidney beans (rajma) slow-cooked in a thick, spiced tomato-onion gravy. Served with fiber-rich brown rice instead of white. **Significance:** Rajma is an exceptional source of plant-based protein, soluble fiber, iron, and potassium, making it excellent for heart_healthy diets and managing blood pressure/diabetes. Brown rice boosts the fiber content compared to white rice.",
+        "keywords": [
+          "veg",
+          "vegan",
+          "high_fiber",
+          "heart_healthy",
+          "dinner",
+          "rice"
+        ],
+        "allergens": [
+          "none"
+        ],
+        "goodForDiseases": [
+          "heart_disease",
+          "diabetes",
+          "hypertension",
+          "anemia"
+        ],
+        "badForDiseases": [
+          "none"
+        ],
+        "healthBenefit": "A serving provides about 12g protein and significant fiber (up to 8g per serving). Rajma's high fiber helps lower cholesterol.",
+        "category": "dinner",
+        "imagePlaceholder": "assets/food/placeholder.jpg",
+        "ingredients": [
+          "1 cup boiled rajma (red kidney beans)",
+          "1 medium onion, finely chopped",
+          "2 medium tomatoes, pureed",
+          "1 teaspoon ginger-garlic paste",
+          "1 teaspoon rajma masala",
+          "1/2 teaspoon turmeric powder",
+          "1 teaspoon cumin powder",
+          "1 teaspoon coriander powder",
+          "1 tablespoon oil",
+          "Salt to taste",
+          "1 cup cooked brown rice",
+          "Fresh coriander for garnish"
+        ],
+        "instructions": [
+          "Heat oil in a pot over medium heat. Add finely chopped onion and sauté until golden brown (5-7 minutes).",
+          "Add ginger-garlic paste and cook until the raw smell disappears (1 minute).",
+          "Stir in turmeric, cumin, coriander powder, and rajma masala. Cook for 30 seconds.",
+          "Pour in the tomato puree and cook until the oil separates from the mixture (about 5 minutes).",
+          "Add the boiled rajma and 1 cup of water. Add salt to taste.",
+          "Bring to a boil, then reduce heat, cover, and simmer for 15-20 minutes to allow flavors to meld.",
+          "If the gravy is too thick, add a little more water.",
+          "Cook brown rice separately according to package instructions.",
+          "Serve the hot Rajma curry over a bed of brown rice, garnished with fresh coriander."
+        ],
+        "nutrition": {
+          "calories": "450 kcal (1 cup rajma + 1 cup brown rice)",
+          "protein": "16g",
+          "carbs": "80g",
+          "fat": "8g",
+          "fiber": "12g",
+          "sugar": "5g",
+          "sodium": "500mg"
+        }
+      },
+      "item008": {
+        "title": "Lentil Shorba (Soup) with Whole Wheat Toast",
+        "description": "A light, flavorful soup made primarily from masoor dal (red lentils) and aromatic vegetables, seasoned lightly. Served with a slice of toasted whole wheat bread. **Significance:** Lentil soup is extremely easy to digest, high in protein and fiber, and low in fat, making it ideal for digestive issues or as a light, comforting dinner. It is also beneficial for anemia due to the iron content in lentils.",
+        "keywords": [
+          "veg",
+          "high_protein",
+          "easy_digest",
+          "low_fat",
+          "soup",
+          "dinner"
+        ],
+        "allergens": [
+          "gluten"
+        ],
+        "goodForDiseases": [
+          "digestive_issues",
+          "anemia",
+          "weight_loss"
+        ],
+        "badForDiseases": [
+          "none"
+        ],
+        "healthBenefit": "Lentils provide about 9g protein per 1/2 cup serving, and the soup preparation keeps the fat content very low.",
+        "category": "dinner",
+        "imagePlaceholder": "assets/food/placeholder.jpg",
+        "ingredients": [
+          "1/2 cup masoor dal (red lentils), rinsed",
+          "1 tablespoon oil (or skip for fat-free)",
+          "1/2 teaspoon cumin seeds",
+          "1 small carrot, diced",
+          "1/4 cup spinach",
+          "1/2 teaspoon turmeric powder",
+          "Salt and pepper to taste",
+          "4 cups water",
+          "1 slice whole wheat bread, toasted"
+        ],
+        "instructions": [
+          "In a pot, heat oil (if using) and temper with cumin seeds.",
+          "Add diced carrot and sauté for 2 minutes.",
+          "Add the rinsed masoor dal and turmeric powder. Stir for 1 minute.",
+          "Add 4 cups of water and salt. Bring to a boil.",
+          "Reduce heat, cover, and simmer for 20-25 minutes, or until the lentils are very soft.",
+          "Stir in the spinach during the last 5 minutes of cooking.",
+          "Optional: Blend a portion of the soup for a smoother consistency.",
+          "Adjust seasoning if necessary.",
+          "Serve hot in a bowl with a slice of toasted whole wheat bread on the side."
+        ],
+        "nutrition": {
+          "calories": "300 kcal (Soup + Toast)",
+          "protein": "15g",
+          "carbs": "50g",
+          "fat": "4g",
+          "fiber": "10g",
+          "sugar": "5g",
+          "sodium": "300mg"
+        }
+      },
+      "item010": {
+        "title": "Palak Paneer with 2 Whole Wheat Rotis",
+        "description": "Cottage cheese (paneer) cubes simmered in a creamy, vibrant puree of spinach (palak) and tempered with traditional Indian spices. Served with two rotis. **Significance:** Excellent source of calcium, iron (from spinach), and high-quality protein (from paneer), making it suitable for bone health and muscle maintenance. It's a complete, traditional dinner/lunch.",
+        "keywords": [
+          "veg",
+          "dinner",
+          "high_protein",
+          "roti",
+          "dairy"
+        ],
+        "allergens": [
+          "dairy"
+        ],
+        "goodForDiseases": [
+          "anemia",
+          "osteoporosis",
+          "muscle_building"
+        ],
+        "badForDiseases": [
+          "lactose_intolerance"
+        ],
+        "healthBenefit": "Paneer provides about 14g protein per 100g. Spinach contributes significant Vitamin K and Iron.",
+        "category": "dinner",
+        "imagePlaceholder": "assets/food/placeholder.jpg",
+        "ingredients": [
+          "200g paneer, cubed",
+          "2 cups fresh spinach leaves",
+          "1 medium onion, chopped",
+          "1 teaspoon ginger-garlic paste",
+          "1/2 teaspoon cumin seeds",
+          "1/4 cup cashew paste (for creaminess - optional, for higher fat/calorie)",
+          "1/4 cup water/milk/yogurt (for gravy base)",
+          "1 teaspoon oil/ghee",
+          "Salt, garam masala, turmeric to taste",
+          "2 medium whole wheat rotis"
+        ],
+        "instructions": [
+          "Blanch the spinach in boiling water for 2 minutes, then immediately plunge into ice water. Puree the spinach until smooth.",
+          "Heat oil/ghee in a pan. Add cumin seeds, let them splutter, then add onion and sauté until golden.",
+          "Add ginger-garlic paste and cook for 1 minute.",
+          "Pour in the spinach puree. Add turmeric, salt, and garam masala.",
+          "Cook for 5 minutes. If using cashews, add the paste now, along with a little water/milk/yogurt to adjust consistency.",
+          "Gently add the paneer cubes. Simmer for 3-5 minutes, ensuring the paneer absorbs the gravy.",
+          "Prepare rotis on a dry tawa.",
+          "Serve the Palak Paneer hot with the two whole wheat rotis."
+        ],
+        "nutrition": {
+          "calories": "550 kcal (with 2 rotis, minimal oil/cream)",
+          "protein": "28g",
+          "carbs": "50g",
+          "fat": "22g",
+          "fiber": "7g",
+          "sugar": "5g",
+          "sodium": "450mg"
+        }
+      },
+      "item016": {
+        "title": "Aloo Matar (Potato & Pea Curry) with Minimal Oil",
+        "description": "A simple Punjabi curry of potatoes and green peas in a light tomato-onion base. Prepared with minimal oil to keep it light. **Significance:** Peas offer good fiber and vegetarian protein, while potatoes provide energy (complex carbs) and potassium. Good for a light dinner or lunch when oil is controlled.",
+        "keywords": [
+          "veg",
+          "dinner",
+          "low_fat",
+          "easy_digest",
+          "curry"
+        ],
+        "allergens": [
+          "none"
+        ],
+        "goodForDiseases": [
+          "thyroid",
+          "easy_digest"
+        ],
+        "badForDiseases": [
+          "diabetes"
+        ],
+        "healthBenefit": "Peas have a low Glycemic Index (GI 22). A low-oil serving is about 180 kcal.",
+        "category": "dinner",
+        "imagePlaceholder": "assets/food/placeholder.jpg",
+        "ingredients": [
+          "2 medium potatoes, boiled and cubed",
+          "1 cup green peas (frozen/fresh)",
+          "1 medium onion, finely chopped",
+          "1 cup tomato puree",
+          "1 teaspoon ginger-garlic paste",
+          "1 teaspoon cumin powder",
+          "1/2 teaspoon turmeric powder",
+          "1 teaspoon garam masala",
+          "1 teaspoon oil",
+          "Salt to taste",
+          "1 cup water"
+        ],
+        "instructions": [
+          "Heat 1 teaspoon of oil in a pot over medium heat.",
+          "Add chopped onion and sauté until translucent (3 minutes).",
+          "Add ginger-garlic paste and cook for 1 minute.",
+          "Stir in cumin powder, turmeric, salt, and garam masala.",
+          "Pour in the tomato puree and cook until the mixture thickens (5 minutes).",
+          "Add the cubed potatoes and green peas. Mix well.",
+          "Add 1 cup of water, bring to a simmer, cover, and cook for 10 minutes until vegetables are tender.",
+          "Check seasoning and serve hot as a main dish."
+        ],
+        "nutrition": {
+          "calories": "250 kcal (Curry only)",
+          "protein": "5g",
+          "carbs": "40g",
+          "fat": "7g",
+          "fiber": "6g",
+          "sugar": "8g",
+          "sodium": "350mg"
+        }
+      },
+      "item018": {
+        "title": "Spinach and Garlic Dal (Easy Digestion)",
+        "description": "A light preparation of Toor or Masoor dal, cooked with extra spinach and mild tempering of garlic and hing (asafoetida) instead of heavy spices. **Significance:** Spinach boosts iron and Vitamin K, while the simple tempering makes this dal exceptionally easy to digest (easy_digest). Excellent source of plant-based protein and fiber for gut health.",
+        "keywords": [
+          "veg",
+          "dal",
+          "easy_digest",
+          "anemia",
+          "low_fat",
+          "dinner"
+        ],
+        "allergens": [
+          "none"
+        ],
+        "goodForDiseases": [
+          "anemia",
+          "digestive_issues",
+          "thyroid"
+        ],
+        "badForDiseases": [
+          "none"
+        ],
+        "healthBenefit": "High in iron and folate from spinach and lentils, supporting blood health.",
+        "category": "dinner",
+        "imagePlaceholder": "assets/food/placeholder.jpg",
+        "ingredients": [
+          "1 cup Toor Dal (split pigeon peas), washed",
+          "2 cups fresh spinach, chopped",
+          "4 cups water",
+          "1/2 teaspoon turmeric powder",
+          "1/2 teaspoon salt",
+          "For Tadka: 1 teaspoon ghee/oil, 4 cloves garlic (sliced), pinch of hing (asafoetida)"
+        ],
+        "instructions": [
+          "Pressure cook the washed dal with water and turmeric until very soft (about 3-4 whistles).",
+          "Once pressure releases, whisk the dal well to a smooth consistency.",
+          "Add the chopped spinach and salt. Simmer gently until spinach wilts completely (about 5 minutes).",
+          "Prepare the tadka: Heat ghee/oil in a small pan. Add sliced garlic and hing.",
+          "Fry until garlic turns light golden brown (do not burn).",
+          "Pour the hot garlic tadka over the simmering dal.",
+          "Cover immediately for 1 minute to let the flavors infuse.",
+          "Serve hot with lemon wedges."
+        ],
+        "nutrition": {
+          "calories": "270 kcal (1 large bowl)",
+          "protein": "14g",
+          "carbs": "35g",
+          "fat": "7g",
+          "fiber": "10g",
+          "sugar": "3g",
+          "sodium": "300mg"
+        }
+      },
+      "item020": {
+        "title": "North Indian Mixed Vegetable Curry (Low Oil)",
+        "description": "A blend of seasonal vegetables (like cauliflower, bell peppers, carrots, beans) simmered in a light tomato-onion gravy. **Significance:** This dish is packed with a wide spectrum of vitamins, minerals, and antioxidants due to the variety of vegetables. Cooking with minimal oil keeps it low-calorie and heart-healthy, perfect for weight management.",
+        "keywords": [
+          "veg",
+          "curry",
+          "low_fat",
+          "weight_loss",
+          "dinner"
+        ],
+        "allergens": [
+          "none"
+        ],
+        "goodForDiseases": [
+          "weight_loss",
+          "heart_disease",
+          "immunity_boost"
+        ],
+        "badForDiseases": [
+          "none"
+        ],
+        "healthBenefit": "A cup serving is around 120-150 kcal with high fiber content (up to 5g per cup).",
+        "category": "dinner",
+        "imagePlaceholder": "assets/food/placeholder.jpg",
+        "ingredients": [
+          "2 cups mixed vegetables (cauliflower, beans, carrots, capsicum)",
+          "1 medium onion, pureed",
+          "1 large tomato, pureed",
+          "1 teaspoon ginger-garlic paste",
+          "1 teaspoon coriander powder",
+          "1/2 teaspoon cumin powder",
+          "1/2 teaspoon turmeric powder",
+          "1 teaspoon oil",
+          "Salt, red chili powder to taste",
+          "1/2 cup water"
+        ],
+        "instructions": [
+          "Heat 1 teaspoon of oil in a pan over medium heat.",
+          "Add onion puree and sauté until it darkens slightly (5-6 minutes).",
+          "Add ginger-garlic paste and cook for 1 minute.",
+          "Stir in all the dry spices (coriander, cumin, turmeric, chili powder) and cook for 30 seconds.",
+          "Add tomato puree and cook until the oil starts to separate (4-5 minutes).",
+          "Add the mixed vegetables and stir to coat with the masala.",
+          "Add water and salt. Bring to a simmer, cover, and cook on low heat until vegetables are tender but not mushy (8-12 minutes).",
+          "Garnish with fresh coriander and serve hot."
+        ],
+        "nutrition": {
+          "calories": "150 kcal (1 cup serving)",
+          "protein": "4g",
+          "carbs": "25g",
+          "fat": "5g",
+          "fiber": "7g",
+          "sugar": "7g",
+          "sodium": "350mg"
+        }
+      },
+      "item021": {
+        "title": "Vegan Moong Dal & Vegetable Khichdi",
+        "description": "A one-pot comfort meal made from rice and split yellow lentils (moong dal) cooked together with finely chopped vegetables like carrots and cauliflower, lightly spiced. **Significance:** This is a balanced, complete protein source (rice + dal), easy to digest, and a good source of fiber and essential nutrients like iron and folate. It's an ideal choice for detox, recovery, or as a light, nourishing dinner.",
+        "keywords": [
+          "veg",
+          "vegan",
+          "easy_digest",
+          "high_fiber",
+          "dinner",
+          "rice"
+        ],
+        "allergens": [
+          "none"
+        ],
+        "goodForDiseases": [
+          "digestive_issues",
+          "pcos",
+          "thyroid"
+        ],
+        "badForDiseases": [
+          "none"
+        ],
+        "healthBenefit": "Provides a good mix of macronutrients (approx. 250 kcal, 8g protein, 45g carbs, 5g fat per 200g serving) and is high in fiber.",
+        "category": "dinner",
+        "imagePlaceholder": "assets/food/placeholder.jpg",
+        "ingredients": [
+          "1/2 cup white rice (or brown rice for more fiber)",
+          "1/2 cup yellow moong dal, washed and soaked for 15 min",
+          "1 cup mixed vegetables (diced cauliflower, carrots, peas)",
+          "1 teaspoon ghee/oil (optional, for flavor)",
+          "1/2 teaspoon cumin seeds",
+          "1/2 teaspoon turmeric powder",
+          "1 teaspoon ginger paste",
+          "Salt to taste",
+          "4 cups water"
+        ],
+        "instructions": [
+          "Wash the rice and moong dal thoroughly. Soak for 10 minutes and drain.",
+          "Dice all vegetables into small, uniform cubes.",
+          "In a pressure cooker, heat ghee/oil (if using). Add cumin seeds and ginger paste; sauté briefly.",
+          "Add turmeric powder and mix well.",
+          "Add the soaked rice and dal mixture. Sauté for 2 minutes until lightly aromatic.",
+          "Add the diced vegetables and salt. Mix gently.",
+          "Add 4 cups of water. Cover the cooker.",
+          "Pressure cook on medium flame for 4-5 whistles (or until rice and dal are fully mushy).",
+          "Let the pressure release naturally. Fluff gently before serving hot."
+        ],
+        "nutrition": {
+          "calories": "280 kcal (1 serving)",
+          "protein": "10g",
+          "carbs": "48g",
+          "fat": "5g",
+          "fiber": "7g",
+          "sugar": "2g",
+          "sodium": "350mg"
+        }
+      },
+      "item023": {
+        "title": "Light Ragi Roti with Bottle Gourd (Lauki) Curry",
+        "description": "Unleavened flatbread made from nutrient-dense ragi (finger millet) flour, paired with a light, watery curry made from bottle gourd (lauki). **Significance:** Ragi is naturally gluten-free and significantly higher in calcium and iron than wheat, benefiting bone health and anemia. Lauki curry is very low in calories and aids hydration, making this an excellent weight-loss dinner combination.",
+        "keywords": [
+          "veg",
+          "gluten_free",
+          "roti",
+          "weight_loss",
+          "dinner"
+        ],
+        "allergens": [
+          "none"
+        ],
+        "goodForDiseases": [
+          "osteoporosis",
+          "weight_loss",
+          "anemia"
+        ],
+        "badForDiseases": [
+          "none"
+        ],
+        "healthBenefit": "Ragi is a super grain, rich in Calcium (approx. 344mg per 100g). The combination is high in fiber and low in fat.",
+        "category": "dinner",
+        "imagePlaceholder": "assets/food/placeholder.jpg",
+        "ingredients": [
+          "1 cup Ragi (Finger Millet) flour",
+          "Water and salt for roti dough",
+          "2 cups lauki (bottle gourd), cubed",
+          "1 teaspoon oil",
+          "1/2 teaspoon cumin seeds",
+          "1/2 teaspoon turmeric powder",
+          "Salt and chili powder to taste",
+          "1/2 cup water"
+        ],
+        "instructions": [
+          "For Roti: Mix ragi flour with salt and gradually add warm water to knead a soft, pliable dough. Rest for 15 minutes.",
+          "Divide dough into small balls, roll into thin rotis, and cook on a dry tawa until done.",
+          "For Curry: Heat oil in a pan. Add cumin seeds and let them splutter.",
+          "Add lauki cubes, turmeric, salt, and chili powder. Sauté for 3 minutes.",
+          "Add 1/2 cup water, cover, and cook on low heat until the lauki is very soft and mushy (about 15 minutes).",
+          "Mash lightly with a spoon to achieve a semi-liquid consistency.",
+          "Serve the low-calorie Lauki Curry hot with the nutrient-dense Ragi Rotis."
+        ],
+        "nutrition": {
+          "calories": "390 kcal (2 rotis + curry)",
+          "protein": "10g",
+          "carbs": "70g",
+          "fat": "7g",
+          "fiber": "12g",
+          "sugar": "8g",
+          "sodium": "450mg"
+        }
+      },
+      "item026": {
+        "title": "Oats Roti with Simple Dal Fry",
+        "description": "Unleavened flatbread made from a mix of whole wheat and quick-cooking oats flour, served with a simple, lightly spiced lentil (dal fry). **Significance:** Oats boost the soluble fiber content, improving the nutritional profile over plain wheat roti, beneficial for heart health and diabetes management. Dal adds crucial plant protein.",
+        "keywords": [
+          "veg",
+          "roti",
+          "dal",
+          "heart_healthy",
+          "dinner"
+        ],
+        "allergens": [
+          "gluten"
+        ],
+        "goodForDiseases": [
+          "heart_disease",
+          "diabetes"
+        ],
+        "badForDiseases": [
+          "celiac_disease"
+        ],
+        "healthBenefit": "Oats fiber helps in regulating blood sugar levels and cholesterol.",
+        "category": "dinner",
+        "imagePlaceholder": "assets/food/placeholder.jpg",
+        "ingredients": [
+          "1 cup whole wheat flour",
+          "1/2 cup quick oats flour",
+          "Water and salt for dough",
+          "1/2 cup Arhar (Toor) Dal, cooked",
+          "For Tadka: 1 tsp oil, 1/2 tsp cumin seeds, pinch of hing, 2 dried red chilies"
+        ],
+        "instructions": [
+          "For Roti: Mix flours and salt. Add water slowly to knead a firm but pliable dough. Rest for 20 minutes.",
+          "Roll into medium rotis and cook on a dry tawa until done.",
+          "For Dal: Temper the cooked dal by heating oil, adding cumin seeds, hing, and dried red chilies until fragrant.",
+          "Pour tadka over the dal and simmer for 2 minutes.",
+          "Serve 2 hot oats rotis with a bowl of simple Dal Fry."
+        ],
+        "nutrition": {
+          "calories": "410 kcal (2 rotis + dal)",
+          "protein": "15g",
+          "carbs": "65g",
+          "fat": "10g",
+          "fiber": "10g",
+          "sugar": "4g",
+          "sodium": "400mg"
+        }
+      },
+      "item028": {
+        "title": "Tofu & Vegetable Stir-fry (Indo-Chinese Style)",
+        "description": "Cubed firm tofu and mixed crisp vegetables (cabbage, carrots, bell peppers) tossed in a light soy sauce, vinegar, and ginger-garlic seasoning. **Significance:** Tofu provides quality plant protein, and the stir-fry method retains more nutrients in the vegetables than boiling. It's a low-carb, high-protein option suitable for muscle building or weight management.",
+        "keywords": [
+          "vegan",
+          "low_carb",
+          "high_protein",
+          "easy_digest",
+          "skinny_fat_friendly"
+        ],
+        "allergens": [
+          "soy"
+        ],
+        "goodForDiseases": [
+          "weight_loss",
+          "muscle_building"
+        ],
+        "badForDiseases": [
+          "soy_allergy"
+        ],
+        "healthBenefit": "High protein content from tofu with minimal starchy carbohydrates.",
+        "category": "dinner",
+        "imagePlaceholder": "assets/food/placeholder.jpg",
+        "ingredients": [
+          "200g firm tofu, cubed and lightly pan-seared",
+          "1 cup mixed crisp vegetables (cabbage, carrots, capsicum)",
+          "1 tablespoon soy sauce (low sodium)",
+          "1 teaspoon vinegar",
+          "1 teaspoon ginger, minced",
+          "2 cloves garlic, minced",
+          "1 teaspoon sesame oil (for flavor, minimal use)",
+          "Black pepper to taste"
+        ],
+        "instructions": [
+          "Lightly sear the tofu cubes in a dry pan or with a few drops of oil until lightly golden on all sides. Set aside.",
+          "Heat sesame oil in a wok or large pan over high heat.",
+          "Add minced ginger and garlic. Stir-fry rapidly for 30 seconds until fragrant.",
+          "Add the mixed vegetables (cabbage first, then carrots/capsicum). Stir-fry on high heat for 3-4 minutes to keep them crisp.",
+          "Add the seared tofu cubes back into the wok.",
+          "Pour in the low-sodium soy sauce, vinegar, and black pepper.",
+          "Toss quickly to coat everything evenly (about 1 minute). Do not overcook.",
+          "Serve immediately as a standalone dinner."
+        ],
+        "nutrition": {
+          "calories": "300 kcal",
+          "protein": "25g",
+          "carbs": "18g",
+          "fat": "15g",
+          "fiber": "5g",
+          "sugar": "5g",
+          "sodium": "700mg"
+        }
+      },
+      "item030": {
+        "title": "Masoor Dal and Vegetable Soup (Clear Shorba)",
+        "description": "A thin, clear soup made from red lentils (masoor dal), carrot, and celery, spiced very lightly with black pepper and salt. **Significance:** This is the ultimate light, low-calorie, high-protein, and easy-to-digest meal, ideal for pre/post-illness recovery or a very light, late dinner. Zero added fat.",
+        "keywords": [
+          "veg",
+          "vegan",
+          "low_fat",
+          "easy_digest",
+          "soup",
+          "dinner"
+        ],
+        "allergens": [
+          "none"
+        ],
+        "goodForDiseases": [
+          "digestive_issues",
+          "weight_loss"
+        ],
+        "badForDiseases": [
+          "none"
+        ],
+        "healthBenefit": "Very low in calories and fat, high in protein and hydrating, aiding recovery.",
+        "category": "dinner",
+        "imagePlaceholder": "assets/food/placeholder.jpg",
+        "ingredients": [
+          "1/3 cup masoor dal (red lentils), washed",
+          "1/2 cup diced carrot",
+          "1 stalk celery, chopped",
+          "4 cups water",
+          "1/2 teaspoon black pepper powder",
+          "Salt to taste",
+          "1 teaspoon lemon juice (for serving)"
+        ],
+        "instructions": [
+          "Combine washed dal, diced carrot, celery, water, and salt in a pot.",
+          "Bring the mixture to a boil over high heat.",
+          "Reduce heat to low, cover the pot, and simmer for 30-40 minutes until the dal is completely broken down and the vegetables are very soft.",
+          "Use an immersion blender or regular blender to partially blend the soup for a slightly thicker consistency (optional for a clearer soup).",
+          "Strain the soup through a fine-mesh sieve if a perfectly clear broth is desired (optional).",
+          "Return to the pot, reheat gently, and stir in black pepper powder.",
+          "Serve hot with a squeeze of fresh lemon juice."
+        ],
+        "nutrition": {
+          "calories": "190 kcal",
+          "protein": "12g",
+          "carbs": "35g",
+          "fat": "1g",
+          "fiber": "8g",
+          "sugar": "4g",
+          "sodium": "250mg"
+        }
+      },
+      "item032": {
+        "title": "Chicken and Vegetable Skewers (Tandoori Style)",
+        "description": "Lean chicken breast marinated in yogurt, lemon juice, and tandoori spices, skewered with chunks of onion, bell pepper, and zucchini, then grilled or baked. **Significance:** This is an exceptionally high-protein, low-carb meal, perfect for muscle building and weight loss. The cooking method (grilling/baking) avoids the high fat absorbed by frying.",
+        "keywords": [
+          "non_veg",
+          "high_protein",
+          "low_carb",
+          "muscle_building",
+          "skinny_fat_friendly"
+        ],
+        "allergens": [
+          "dairy"
+        ],
+        "goodForDiseases": [
+          "muscle_building",
+          "weight_loss"
+        ],
+        "badForDiseases": [
+          "lactose_intolerance"
+        ],
+        "healthBenefit": "Lean chicken breast is one of the purest forms of protein (approx. 30g protein per 100g cooked).",
+        "category": "dinner",
+        "imagePlaceholder": "assets/food/placeholder.jpg",
+        "ingredients": [
+          "300g boneless, skinless chicken breast, cubed",
+          "1/2 cup plain yogurt (for marinade)",
+          "1 tablespoon lemon juice",
+          "2 tablespoons tandoori masala",
+          "1 teaspoon ginger-garlic paste",
+          "1/2 teaspoon salt",
+          "1/2 cup chopped vegetables (onion, bell pepper, zucchini)",
+          "Wooden skewers (soaked in water)"
+        ],
+        "instructions": [
+          "In a bowl, combine yogurt, lemon juice, tandoori masala, ginger-garlic paste, and salt.",
+          "Add the cubed chicken to the marinade, ensuring it's fully coated. Cover and refrigerate for at least 4 hours (or overnight).",
+          "Thread the marinated chicken pieces onto the soaked skewers, alternating with chunks of onion, bell pepper, and zucchini.",
+          "Preheat oven to 200°C (400°F) or preheat an outdoor grill.",
+          "Arrange skewers on a baking tray lined with foil or directly on the grill grates.",
+          "Bake for 20-25 minutes, turning halfway, until the chicken is cooked through and slightly charred.",
+          "If grilling, cook for 5-7 minutes per side.",
+          "Serve hot, perhaps with a side salad or mint chutney."
+        ],
+        "nutrition": {
+          "calories": "380 kcal (300g chicken + veg)",
+          "protein": "45g",
+          "carbs": "15g",
+          "fat": "16g",
+          "fiber": "3g",
+          "sugar": "6g",
+          "sodium": "600mg"
+        }
+      },
+      "item035": {
+        "title": "Quick Egg Curry (Low Oil) with 1 Roti",
+        "description": "Hard-boiled eggs simmered in a light, tomato-onion gravy, prepared using minimal oil. Served with one whole wheat roti. **Significance:** A quick, post-workout or light dinner option providing high-quality protein from eggs and complex carbs from the roti. Keeping oil low ensures the fat content remains moderate.",
+        "keywords": [
+          "non_veg",
+          "high_protein",
+          "low_fat",
+          "dinner",
+          "roti"
+        ],
+        "allergens": [
+          "eggs"
+        ],
+        "goodForDiseases": [
+          "muscle_building"
+        ],
+        "badForDiseases": [
+          "high_cholesterol",
+          "egg_allergy"
+        ],
+        "healthBenefit": "Two eggs provide approximately 12g of protein and essential choline for brain health.",
+        "category": "dinner",
+        "imagePlaceholder": "assets/food/placeholder.jpg",
+        "ingredients": [
+          "3 hard-boiled eggs, slit",
+          "1/2 onion, pureed",
+          "1 cup tomato puree",
+          "1 teaspoon coriander powder",
+          "1/2 teaspoon turmeric powder",
+          "1 teaspoon oil",
+          "Salt and chili powder to taste",
+          "1 whole wheat roti"
+        ],
+        "instructions": [
+          "Lightly fry the slit hard-boiled eggs in a few drops of oil until pale golden. Remove and set aside.",
+          "In the same pan, add the remaining oil. Add onion puree and cook until golden brown (5 minutes).",
+          "Stir in coriander powder, turmeric, salt, and chili powder. Cook for 30 seconds.",
+          "Add tomato puree and cook until the oil separates (4 minutes).",
+          "Add 1/2 cup of water, bring to a simmer, and let the gravy thicken slightly.",
+          "Gently add the fried eggs to the gravy. Simmer for 3 minutes.",
+          "Prepare one whole wheat roti on a dry tawa.",
+          "Serve the egg curry hot with the roti."
+        ],
+        "nutrition": {
+          "calories": "380 kcal (Curry + Roti)",
+          "protein": "22g",
+          "carbs": "40g",
+          "fat": "14g",
+          "fiber": "4g",
+          "sugar": "6g",
+          "sodium": "500mg"
+        }
+      },
+      "item036": {
+        "title": "Palak Dal (Spinach Lentil Soup)",
+        "description": "A simple, nutritious soup/dal made by cooking Toor or Masoor lentils with spinach, seasoned only with salt and pepper. **Significance:** This is a very low-fat, high-fiber, and high-protein combination, making it excellent for weight loss and improving iron levels (anemia). It is also inherently easy to digest.",
+        "keywords": [
+          "veg",
+          "vegan",
+          "high_fiber",
+          "low_fat",
+          "soup",
+          "anemia"
+        ],
+        "allergens": [
+          "none"
+        ],
+        "goodForDiseases": [
+          "anemia",
+          "weight_loss",
+          "digestive_issues"
+        ],
+        "badForDiseases": [
+          "none"
+        ],
+        "healthBenefit": "Provides significant dietary fiber (approx. 10g per serving) for gut health and satiety.",
+        "category": "dinner",
+        "imagePlaceholder": "assets/food/placeholder.jpg",
+        "ingredients": [
+          "1 cup Toor Dal (split pigeon peas), washed",
+          "2 cups fresh spinach, chopped",
+          "5 cups water",
+          "1/2 teaspoon turmeric powder",
+          "Salt to taste",
+          "For Tempering (Optional): 1/2 tsp cumin seeds, 1 tsp ghee/oil"
+        ],
+        "instructions": [
+          "Combine washed dal, water, and turmeric in a pressure cooker.",
+          "Cook until the dal is very soft (about 4 whistles). Let the pressure release naturally.",
+          "Whisk the cooked dal well until smooth.",
+          "Add the chopped spinach and salt. Simmer until the spinach is fully wilted and incorporated (about 5-7 minutes).",
+          "For Tempering: Heat ghee/oil in a small pan. Add cumin seeds and let them splutter. Pour over the dal.",
+          "Stir well and serve hot."
+        ],
+        "nutrition": {
+          "calories": "280 kcal",
+          "protein": "16g",
+          "carbs": "40g",
+          "fat": "5g",
+          "fiber": "11g",
+          "sugar": "3g",
+          "sodium": "300mg"
+        }
+      },
+      "item038": {
+        "title": "Vegetable Khichdi with Minimal Ghee",
+        "description": "A classic, balanced one-pot meal of rice and lentils cooked soft with ample vegetables (carrots, beans, cauliflower), tempered with minimal ghee for flavor. **Significance:** Provides complete protein, good fiber, and is extremely easy on the digestive system, making it ideal for detoxification or recovery. Portion control is key for managing carbohydrate load.",
+        "keywords": [
+          "veg",
+          "easy_digest",
+          "rice",
+          "dinner",
+          "skinny_fat_friendly"
+        ],
+        "allergens": [
+          "none"
+        ],
+        "goodForDiseases": [
+          "digestive_issues",
+          "thyroid",
+          "weight_loss"
+        ],
+        "badForDiseases": [
+          "none"
+        ],
+        "healthBenefit": "A low-fat preparation of Khichdi provides balanced energy and nutrients.",
+        "category": "dinner",
+        "imagePlaceholder": "assets/food/placeholder.jpg",
+        "ingredients": [
+          "1/4 cup white rice",
+          "1/4 cup moong dal",
+          "1 cup mixed vegetables (cubed)",
+          "1 teaspoon ghee (for tempering)",
+          "1/2 teaspoon cumin seeds",
+          "1/2 teaspoon turmeric powder",
+          "Salt to taste",
+          "3 cups water"
+        ],
+        "instructions": [
+          "Wash and soak rice and dal together for 15 minutes. Dice vegetables uniformly.",
+          "Heat ghee in a pressure cooker. Add cumin seeds and let them splutter.",
+          "Add turmeric powder and mix well.",
+          "Add the soaked rice and dal mixture. Sauté gently for 1 minute.",
+          "Add the vegetables and salt. Mix lightly.",
+          "Add 3 cups of water. Cover and pressure cook for 4 whistles on medium heat.",
+          "Allow the pressure to release naturally. The Khichdi should be soft and porridge-like.",
+          "Serve hot."
+        ],
+        "nutrition": {
+          "calories": "290 kcal",
+          "protein": "10g",
+          "carbs": "50g",
+          "fat": "6g",
+          "fiber": "5g",
+          "sugar": "2g",
+          "sodium": "320mg"
+        }
+      },
+      "item040": {
+        "title": "Simple Sprout & Vegetable Stir-fry (Quick & Light)",
+        "description": "A quick, lightly seasoned stir-fry of sprouted moong beans with crisp vegetables like cabbage and bell peppers, seasoned with soy sauce and ginger. **Significance:** A fast, vegan, high-protein, low-carb dish that retains the crunch and nutrients of the vegetables. Excellent for a quick, guilt-free dinner.",
+        "keywords": [
+          "veg",
+          "vegan",
+          "high_protein",
+          "low_carb",
+          "easy_digest",
+          "dinner"
+        ],
+        "allergens": [
+          "soy"
+        ],
+        "goodForDiseases": [
+          "weight_loss",
+          "muscle_building",
+          "diabetes"
+        ],
+        "badForDiseases": [
+          "none"
+        ],
+        "healthBenefit": "High protein and fiber from sprouts with very few simple carbs.",
+        "category": "dinner",
+        "imagePlaceholder": "assets/food/placeholder.jpg",
+        "ingredients": [
+          "1 cup sprouted moong beans",
+          "1 cup shredded cabbage",
+          "1/2 cup sliced bell pepper",
+          "1 teaspoon oil",
+          "1 teaspoon ginger, minced",
+          "1 tablespoon low-sodium soy sauce",
+          "Pinch of black pepper"
+        ],
+        "instructions": [
+          "Heat oil in a wok or large pan over high heat.",
+          "Add minced ginger and stir-fry for 20 seconds.",
+          "Add cabbage and bell pepper. Stir-fry rapidly for 3 minutes until crisp-tender.",
+          "Add the sprouted moong beans. Mix well.",
+          "Pour in soy sauce and black pepper. Toss everything quickly for 1 minute to coat evenly.",
+          "Serve immediately while hot and crunchy."
+        ],
+        "nutrition": {
+          "calories": "280 kcal",
+          "protein": "15g",
+          "carbs": "35g",
+          "fat": "9g",
+          "fiber": "10g",
+          "sugar": "5g",
+          "sodium": "600mg"
+        }
+      },
+      "item047": {
+        "title": "Moong Dal Cheela with Vegetable Filling",
+        "description": "Savory crepes made from ground moong dal, stuffed with a mix of sautéed, finely chopped vegetables (onion, carrot, capsicum). **Significance:** High in easily digestible protein and fiber, making it a filling, gluten-free, and vegan-friendly option for a medium-sized dinner or breakfast.",
+        "keywords": [
+          "veg",
+          "vegan",
+          "gluten_free",
+          "high_fiber",
+          "dinner"
+        ],
+        "allergens": [
+          "none"
+        ],
+        "goodForDiseases": [
+          "diabetes",
+          "weight_loss",
+          "digestive_issues"
+        ],
+        "badForDiseases": [
+          "none"
+        ],
+        "healthBenefit": "Moong dal is known for its high bioavailability of protein and being easy on the stomach.",
+        "category": "dinner",
+        "imagePlaceholder": "assets/food/placeholder.jpg",
+        "ingredients": [
+          "1 cup yellow moong dal (soaked 4 hours)",
+          "1/2 cup mixed finely chopped vegetables",
+          "1/2 teaspoon ginger paste",
+          "1/2 teaspoon cumin seeds",
+          "Salt to taste",
+          "Water for batter",
+          "2 teaspoons oil (for cooking)"
+        ],
+        "instructions": [
+          "Drain the soaked moong dal and grind with ginger and a little water to a smooth, thick batter.",
+          "Mix in cumin seeds and salt.",
+          "For the filling: Lightly sauté chopped vegetables and salt in 1/2 tsp oil for 3 minutes until tender-crisp. Set aside.",
+          "Heat a non-stick tawa. Pour a ladleful of batter and spread thinly.",
+          "Cook until set, drizzle a few drops of oil around the edges.",
+          "Place a spoonful of vegetable filling on one half, and fold/roll the cheela.",
+          "Cook for another minute until lightly browned.",
+          "Repeat for all batter. Serve hot."
+        ],
+        "nutrition": {
+          "calories": "310 kcal (2 medium cheelas)",
+          "protein": "18g",
+          "carbs": "40g",
+          "fat": "8g",
+          "fiber": "9g",
+          "sugar": "4g",
+          "sodium": "400mg"
+        }
+      }
+    }
+  }
+}

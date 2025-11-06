@@ -460,8 +460,10 @@ enum LogLevel {
   error(4),
   fatal(5);
 
-  const LogLevel(this.index);
-  final int index;
+  const LogLevel(this._value);
+  final int _value;
+  
+  int get value => _value;
 }
 
 /// Log entry class

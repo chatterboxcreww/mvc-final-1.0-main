@@ -93,10 +93,6 @@ class LevelCirclePainter extends CustomPainter {
         center.dy - _textPainter.height / 2,
       ),
     );
-      textAlign: TextAlign.center,
-    );
-    textPainter.layout();
-    textPainter.paint(
   }
 
   @override

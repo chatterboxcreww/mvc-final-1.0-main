@@ -20,9 +20,9 @@ class GradientBackground extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final defaultColors = [
-      Theme.of(context).colorScheme.primaryContainer.withValues(alpha: 0.1),
-      Theme.of(context).colorScheme.secondaryContainer.withValues(alpha: 0.05),
-      Theme.of(context).colorScheme.tertiaryContainer.withValues(alpha: 0.03),
+      Theme.of(context).colorScheme.primaryContainer.withOpacity(0.1),
+      Theme.of(context).colorScheme.secondaryContainer.withOpacity(0.05),
+      Theme.of(context).colorScheme.tertiaryContainer.withOpacity(0.03),
     ];
 
     final gradientColors = colors ?? defaultColors;
@@ -68,7 +68,7 @@ class HealthGradientCard extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
     final defaultGradient = [
       colorScheme.surface,
-      colorScheme.surfaceContainer.withValues(alpha: 0.8),
+      colorScheme.surfaceContainer.withOpacity(0.8),
     ];
 
     return Container(
@@ -82,13 +82,13 @@ class HealthGradientCard extends StatelessWidget {
         boxShadow: elevated
             ? [
                 BoxShadow(
-                  color: colorScheme.shadow.withValues(alpha: 0.1),
+                  color: colorScheme.shadow.withOpacity(0.1),
                   blurRadius: 20,
                   offset: const Offset(0, 8),
                   spreadRadius: 0,
                 ),
                 BoxShadow(
-                  color: colorScheme.primary.withValues(alpha: 0.05),
+                  color: colorScheme.primary.withOpacity(0.05),
                   blurRadius: 40,
                   offset: const Offset(0, 16),
                   spreadRadius: 0,
@@ -96,7 +96,7 @@ class HealthGradientCard extends StatelessWidget {
               ]
             : null,
         border: Border.all(
-          color: colorScheme.outline.withValues(alpha: 0.08),
+          color: colorScheme.outline.withOpacity(0.08),
           width: 1,
         ),
       ),
@@ -142,6 +142,7 @@ class ModernButton extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
 
     return Container(
+      width: double.infinity,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(borderRadius),
         gradient: isSecondary
@@ -149,18 +150,18 @@ class ModernButton extends StatelessWidget {
             : LinearGradient(
                 colors: [
                   colorScheme.primary,
-                  colorScheme.primary.withValues(alpha: 0.8),
+                  colorScheme.primary.withOpacity(0.8),
                 ],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
         border: isSecondary
-            ? Border.all(color: colorScheme.outline.withValues(alpha: 0.3))
+            ? Border.all(color: colorScheme.outline.withOpacity(0.3))
             : null,
         boxShadow: !isSecondary
             ? [
                 BoxShadow(
-                  color: colorScheme.primary.withValues(alpha: 0.3),
+                  color: colorScheme.primary.withOpacity(0.3),
                   blurRadius: 16,
                   offset: const Offset(0, 8),
                 ),

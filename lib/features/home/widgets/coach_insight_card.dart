@@ -1,5 +1,7 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import '../../../core/models/coach_insight.dart';
+import '../../../shared/widgets/glass_container.dart';
 
 class CoachInsightCard extends StatelessWidget {
   final String insight;
@@ -12,17 +14,16 @@ class CoachInsightCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    return Card(
-      elevation: 2,
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+    return GlassCard(
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(12),
           gradient: LinearGradient(
             colors: [
-              Color.fromRGBO(_getInsightColor(CoachInsightType.general).red, _getInsightColor(CoachInsightType.general).green, _getInsightColor(CoachInsightType.general).blue, 0.1),
-              colorScheme.surface,
+              _getInsightColor(CoachInsightType.general).withOpacity(isDark ? 0.15 : 0.1),
+              _getInsightColor(CoachInsightType.general).withOpacity(isDark ? 0.05 : 0.03),
             ],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
@@ -38,7 +39,7 @@ class CoachInsightCard extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: Color.fromRGBO(_getInsightColor(CoachInsightType.general).red, _getInsightColor(CoachInsightType.general).green, _getInsightColor(CoachInsightType.general).blue, 0.2),
+                      color: _getInsightColor(CoachInsightType.general).withOpacity(isDark ? 0.3 : 0.2),
                       shape: BoxShape.circle,
                     ),
                     child: Icon(
@@ -70,7 +71,7 @@ class CoachInsightCard extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
-                      color: Color.fromRGBO(_getInsightColor(CoachInsightType.general).red, _getInsightColor(CoachInsightType.general).green, _getInsightColor(CoachInsightType.general).blue, 0.1),
+                      color: _getInsightColor(CoachInsightType.general).withOpacity(isDark ? 0.2 : 0.1),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Text(

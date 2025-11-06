@@ -5,10 +5,13 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:intl/intl.dart';
+import 'dart:ui';
 
 import '../../../core/models/daily_step_data.dart';
 import '../../../core/providers/step_counter_provider.dart';
 import '../../../core/providers/user_data_provider.dart';
+import '../../../shared/widgets/glass_container.dart';
+import '../../../shared/widgets/glass_background.dart';
 
 class StepHistoryScreen extends StatefulWidget {
   const StepHistoryScreen({super.key});
@@ -17,18 +20,24 @@ class StepHistoryScreen extends StatefulWidget {
   State<StepHistoryScreen> createState() => _StepHistoryScreenState();
 }
 
-class _StepHistoryScreenState extends State<StepHistoryScreen> with SingleTickerProviderStateMixin {
+class _StepHistoryScreenState extends State<StepHistoryScreen> with TickerProviderStateMixin {
   late TabController _tabController;
+  late AnimationController _bgController;
   
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
+    _bgController = AnimationController(
+      duration: const Duration(seconds: 20),
+      vsync: this,
+    )..repeat();
   }
 
   @override
   void dispose() {
     _tabController.dispose();
+    _bgController.dispose();
     super.dispose();
   }
 
@@ -37,23 +46,63 @@ class _StepHistoryScreenState extends State<StepHistoryScreen> with SingleTicker
     final stepProvider = context.watch<StepCounterProvider>();
     final userProvider = context.watch<UserDataProvider>();
     final stepData = stepProvider.weeklyStepData;
+    final colorScheme = Theme.of(context).colorScheme;
     
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Step History'),
-        bottom: TabBar(
-          controller: _tabController,
-          tabs: const [
-            Tab(text: 'Chart', icon: Icon(Icons.bar_chart)),
-            Tab(text: 'Details', icon: Icon(Icons.list)),
-          ],
+      extendBodyBehindAppBar: true,
+      appBar: GlassAppBar(
+        title: 'Step History',
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_rounded),
+          onPressed: () => Navigator.of(context).pop(),
         ),
       ),
-      body: TabBarView(
-        controller: _tabController,
+      body: Stack(
         children: [
-          _buildChartTab(stepData, userProvider.userData.dailyStepGoal ?? 10000),
-          _buildDetailsTab(stepData, userProvider.userData.dailyStepGoal ?? 10000),
+          Positioned.fill(
+            child: CustomPaint(
+              painter: GlassBackgroundPainter(
+                animation: _bgController,
+                colorScheme: colorScheme,
+              ),
+            ),
+          ),
+          SafeArea(
+            child: Column(
+              children: [
+                const SizedBox(height: 16),
+                GlassContainer(
+                  margin: const EdgeInsets.symmetric(horizontal: 16),
+                  padding: EdgeInsets.zero,
+                  child: TabBar(
+                    controller: _tabController,
+                    tabs: const [
+                      Tab(text: 'Chart', icon: Icon(Icons.bar_chart)),
+                      Tab(text: 'Details', icon: Icon(Icons.list)),
+                    ],
+                    indicator: BoxDecoration(
+                      borderRadius: BorderRadius.circular(12),
+                      gradient: LinearGradient(
+                        colors: [
+                          colorScheme.primary.withOpacity(0.3),
+                          colorScheme.primary.withOpacity(0.2),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                Expanded(
+                  child: TabBarView(
+                    controller: _tabController,
+                    children: [
+                      _buildChartTab(stepData, userProvider.userData.dailyStepGoal ?? 10000),
+                      _buildDetailsTab(stepData, userProvider.userData.dailyStepGoal ?? 10000),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
         ],
       ),
     );

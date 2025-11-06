@@ -1,11 +1,13 @@
 // F:\latestmvc\latestmvc\mvc-final-1.0-main\lib\features\home\widgets\daily_checkin_card.dart
 
 // lib/features/home/widgets/daily_checkin_card.dart
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../core/models/daily_checkin_data.dart';
 import '../../../core/providers/trends_provider.dart';
 import '../../../core/services/daily_sync_service.dart';
+import '../../../shared/widgets/glass_container.dart';
 
 class DailyCheckinCard extends StatefulWidget {
   const DailyCheckinCard({super.key});
@@ -79,15 +81,33 @@ class _DailyCheckinCardState extends State<DailyCheckinCard> {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    return Card(
-      color: colorScheme.surfaceContainerHighest,
-      child: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Text("Daily Check-in", style: textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
+    return GlassCard(
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(12),
+          gradient: LinearGradient(
+            colors: [
+              colorScheme.primaryContainer.withOpacity(isDark ? 0.2 : 0.15),
+              colorScheme.primaryContainer.withOpacity(isDark ? 0.1 : 0.05),
+            ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Row(
+                children: [
+                  Icon(Icons.check_circle_outline, color: colorScheme.primary, size: 24),
+                  const SizedBox(width: 8),
+                  Text("Daily Check-in", style: textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
+                ],
+              ),
             
             // Show different content based on checkin status
             if (_hasCheckedInToday) ...[
@@ -175,7 +195,8 @@ class _DailyCheckinCardState extends State<DailyCheckinCard> {
                 },
               ),
             ],
-          ],
+            ],
+          ),
         ),
       ),
     );

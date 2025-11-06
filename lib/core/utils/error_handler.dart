@@ -1,5 +1,6 @@
 // lib/core/utils/error_handler.dart
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import '../logging/app_logger.dart';
 

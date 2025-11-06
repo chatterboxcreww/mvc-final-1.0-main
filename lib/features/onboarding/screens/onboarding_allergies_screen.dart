@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 
 import '../../../core/models/user_data.dart';
 import '../../../core/providers/user_data_provider.dart';
+import '../../../shared/widgets/glass_container.dart';
 import '../widgets/onboarding_progress_indicator.dart';
 import 'onboarding_beverage_preferences_screen.dart';
 
@@ -83,8 +84,8 @@ class _OnboardingAllergiesScreenState extends State<OnboardingAllergiesScreen> {
       return;
     }
     
-    // Update user data with error handling
-    bool success = await userDataProvider.updateUserData(updatedData);
+    // Update user data with error handling and immediate Firebase sync
+    bool success = await userDataProvider.updateUserData(updatedData, isOnboarding: true);
     
     if (mounted) {
       setState(() {
@@ -259,11 +260,7 @@ class _OnboardingAllergiesScreenState extends State<OnboardingAllergiesScreen> {
                             begin: const Offset(1, 0),
                             end: Offset.zero,
                           ).animate(animation),
-                          child: Card(
-                            margin: const EdgeInsets.symmetric(vertical: 4),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
+                          child: GlassCard(
                             child: ListTile(
                               leading: Icon(Icons.warning_amber_rounded, color: colorScheme.error),
                               title: Text(_allergies[index], style: TextStyle(color: colorScheme.onSurface)),

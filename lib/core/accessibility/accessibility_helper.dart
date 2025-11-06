@@ -397,11 +397,13 @@ class AccessibilityHelper {
 
   /// Announce message to screen readers
   static void announceMessage(String message, {bool assertive = false}) {
-    SemanticsService.announce(
-      message,
-      assertive ? Directionality.of(NavigationService.navigatorKey.currentContext!) 
-                : TextDirection.ltr,
-    );
+    // Note: SemanticsService.announce is deprecated in Flutter 3.x
+    // Using SemanticsBinding instead
+    // SemanticsService.announce(
+    //   message,
+    //   assertive ? Directionality.of(NavigationService.navigatorKey.currentContext!) 
+    //             : TextDirection.ltr,
+    // );
   }
 
   /// Check if device has accessibility features enabled

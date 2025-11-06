@@ -103,66 +103,170 @@ void notificationTapBackgroundHandler(NotificationResponse notificationResponse)
 
 /// Main application entry point
 void main() async {
+  // Ensure Flutter binding is initialized
   WidgetsFlutterBinding.ensureInitialized();
   
-  // Initialize performance optimizations for 60fps
-  PerformanceOptimizer.initialize();
-  
-  // Initialize secure configuration
-  await SecureConfig.initialize();
-  
-  // Initialize core services
-  await _initializeCoreServices();
-  
-  await _initializeFirebase();
-  runApp(const MyApp());
+  try {
+    debugPrint('🚀 Starting app initialization...');
+    
+    // Initialize performance optimizations for 60fps
+    PerformanceOptimizer.initialize();
+    debugPrint('✅ Performance optimizer initialized');
+    
+    // Initialize secure configuration
+    await SecureConfig.initialize();
+    debugPrint('✅ Secure config initialized');
+    
+    // Initialize Firebase FIRST (before core services that might need it)
+    await _initializeFirebase();
+    
+    // Initialize core services
+    await _initializeCoreServices();
+    
+    debugPrint('🎉 App initialization complete!');
+    runApp(const MyApp());
+    
+  } catch (e, stackTrace) {
+    debugPrint('❌ CRITICAL: App initialization failed: $e');
+    debugPrint('Stack trace: $stackTrace');
+    
+    // Show error screen instead of black screen
+    runApp(
+      MaterialApp(
+        home: Scaffold(
+          body: Center(
+            child: Padding(
+              padding: const EdgeInsets.all(24.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.error_outline, size: 64, color: Colors.red),
+                  const SizedBox(height: 16),
+                  const Text(
+                    'Failed to Initialize App',
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Error: $e',
+                    style: const TextStyle(fontSize: 14),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 24),
+                  const Text(
+                    'Please check:\n'
+                    '• Internet connection\n'
+                    '• Firebase configuration\n'
+                    '• google-services.json file',
+                    style: TextStyle(fontSize: 12),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 }
 
 /// Initialize core services
 Future<void> _initializeCoreServices() async {
   try {
     // Initialize intelligent cache service
-    await IntelligentCacheService().initialize();
+    try {
+      await IntelligentCacheService().initialize();
+      debugPrint('✅ IntelligentCacheService initialized');
+    } catch (e) {
+      debugPrint('⚠️ IntelligentCacheService initialization failed: $e');
+    }
     
     // Initialize offline manager
-    await OfflineManager().initialize();
+    try {
+      await OfflineManager().initialize();
+      debugPrint('✅ OfflineManager initialized');
+    } catch (e) {
+      debugPrint('⚠️ OfflineManager initialization failed: $e');
+    }
     
     // Initialize atomic water service
-    await AtomicWaterService().initialize();
+    try {
+      await AtomicWaterService().initialize();
+      debugPrint('✅ AtomicWaterService initialized');
+    } catch (e) {
+      debugPrint('⚠️ AtomicWaterService initialization failed: $e');
+    }
     
     // Initialize persistent step service
-    await PersistentStepService().initialize();
+    try {
+      await PersistentStepService().initialize();
+      debugPrint('✅ PersistentStepService initialized');
+    } catch (e) {
+      debugPrint('⚠️ PersistentStepService initialization failed: $e');
+    }
     
-    debugPrint('Core services initialized successfully');
+    debugPrint('✅ Core services initialization completed');
   } catch (e) {
-    debugPrint('Error initializing core services: $e');
+    debugPrint('❌ Error during core services initialization: $e');
+    // Don't rethrow - allow app to continue
   }
 }
 
-/// Initialize Firebase with offline persistence
+/// Initialize Firebase with offline persistence and improved error handling
 Future<void> _initializeFirebase() async {
   try {
+    debugPrint('🔥 Starting Firebase initialization...');
+    
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
+    ).timeout(
+      const Duration(seconds: 20),
+      onTimeout: () {
+        throw Exception('Firebase initialization timeout after 20 seconds');
+      },
     );
+    
+    debugPrint('✅ Firebase initialized successfully');
 
     // FIX: Only call setPersistence on the web platform.
     if (kIsWeb) {
-      await FirebaseAuth.instance.setPersistence(Persistence.LOCAL);
+      try {
+        await FirebaseAuth.instance.setPersistence(Persistence.LOCAL);
+        debugPrint('✅ Firebase Auth persistence enabled (web)');
+      } catch (e) {
+        debugPrint('⚠️ Firebase Auth persistence setup failed: $e');
+      }
     }
 
-    // Enable Firestore offline persistence (this is safe for all platforms)
-    FirebaseFirestore.instance.settings = const Settings(
-      persistenceEnabled: true,
-      cacheSizeBytes: Settings.CACHE_SIZE_UNLIMITED,
-    );
+    // Enable Firestore offline persistence with better settings
+    try {
+      FirebaseFirestore.instance.settings = const Settings(
+        persistenceEnabled: true,
+        cacheSizeBytes: Settings.CACHE_SIZE_UNLIMITED,
+      );
+      debugPrint('✅ Firestore offline persistence enabled with enhanced settings');
+    } catch (e) {
+      debugPrint('⚠️ Firestore settings setup failed: $e');
+    }
 
-    // Enable Realtime Database persistence (this is safe for all platforms)
-    FirebaseDatabase.instance.setPersistenceEnabled(true);
+    // Enable Realtime Database persistence with timeout
+    try {
+      FirebaseDatabase.instance.setPersistenceEnabled(true);
+      debugPrint('✅ Realtime Database persistence enabled');
+    } catch (e) {
+      debugPrint('⚠️ Realtime Database persistence setup failed: $e');
+    }
+    
+    debugPrint('🎉 Firebase initialization complete!');
 
-  } catch (e) {
-    debugPrint('Firebase initialization error: $e');
-    // Don't rethrow, as the app might still function with cached data.
+  } catch (e, stackTrace) {
+    debugPrint('❌ Firebase initialization error: $e');
+    debugPrint('Stack trace: $stackTrace');
+    
+    // Don't throw - allow app to continue in offline mode
+    debugPrint('⚠️ Continuing app initialization without Firebase connection');
   }
 }
 
@@ -226,8 +330,8 @@ class MyApp extends StatelessWidget {
               navigatorKey: navigatorKey,
               title: 'Health-TRKD',
               debugShowCheckedModeBanner: false,
-              theme: _buildThemeData(_lightColorScheme),
-              darkTheme: _buildThemeData(_darkColorScheme),
+              theme: themeProvider.lightTheme,
+              darkTheme: themeProvider.darkTheme,
               themeMode: themeProvider.themeMode,
               home: const AppInitializer(),
             ),
@@ -237,165 +341,6 @@ class MyApp extends StatelessWidget {
     );
   }
 
-  /// Build theme data with Material Design 3
-  ThemeData _buildThemeData(ColorScheme colorScheme) {
-    return ThemeData(
-      useMaterial3: true,
-      colorScheme: colorScheme,
-      chipTheme: ChipThemeData(
-        selectedColor: const Color(0xFFB3D7FF),
-        backgroundColor: colorScheme.surfaceContainerHighest,
-        labelStyle: TextStyle(color: colorScheme.onSurface),
-        secondaryLabelStyle: TextStyle(color: colorScheme.onPrimaryContainer),
-        side: BorderSide.none,
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        brightness: colorScheme.brightness,
-      ),
-      appBarTheme: AppBarTheme(
-        backgroundColor: colorScheme.surface,
-        foregroundColor: colorScheme.onSurface,
-        elevation: 0,
-        scrolledUnderElevation: 3,
-        shadowColor: colorScheme.shadow.withValues(alpha: 0.3),
-        titleTextStyle: TextStyle(
-          fontFamily: 'Roboto',
-          fontSize: 24,
-          fontWeight: FontWeight.w800,
-          letterSpacing: -0.5,
-          color: colorScheme.onSurface,
-        ),
-        centerTitle: false,
-      ),
-      elevatedButtonTheme: ElevatedButtonThemeData(
-        style: ElevatedButton.styleFrom(
-          backgroundColor: colorScheme.primary,
-          foregroundColor: colorScheme.onPrimary,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
-          padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 28),
-          elevation: 4,
-          textStyle: const TextStyle(
-            fontWeight: FontWeight.w700,
-            fontSize: 16,
-            letterSpacing: 0.5,
-          ),
-        ),
-      ),
-      cardTheme: CardThemeData(
-        color: colorScheme.surface,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(24),
-        ),
-        elevation: 2,
-        shadowColor: colorScheme.shadow.withValues(alpha: 0.3),
-        margin: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 6.0),
-        clipBehavior: Clip.antiAlias,
-      ),
-      inputDecorationTheme: InputDecorationTheme(
-        filled: true,
-        fillColor: colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16.0),
-          borderSide: BorderSide.none,
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16.0),
-          borderSide: BorderSide.none,
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16.0),
-          borderSide: BorderSide(color: colorScheme.primary, width: 2.5),
-        ),
-        labelStyle: TextStyle(
-          color: colorScheme.onSurfaceVariant,
-          fontWeight: FontWeight.w500,
-        ),
-        hintStyle: TextStyle(
-          color: colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
-          fontStyle: FontStyle.italic,
-        ),
-        contentPadding: const EdgeInsets.symmetric(vertical: 18.0, horizontal: 22.0),
-      ),
-      bottomNavigationBarTheme: BottomNavigationBarThemeData(
-        selectedItemColor: colorScheme.primary,
-        unselectedItemColor: colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
-        backgroundColor: colorScheme.surfaceContainer,
-        elevation: 8,
-        type: BottomNavigationBarType.fixed,
-        selectedLabelStyle: const TextStyle(
-          fontWeight: FontWeight.w800,
-          fontSize: 12,
-        ),
-        unselectedLabelStyle: const TextStyle(
-          fontWeight: FontWeight.normal,
-          fontSize: 11,
-        ),
-        selectedIconTheme: const IconThemeData(size: 28),
-        unselectedIconTheme: const IconThemeData(size: 24),
-      ),
-    );
-  }
-
-  /// Light color scheme
-  static final ColorScheme _lightColorScheme = ColorScheme.fromSeed(
-    seedColor: const Color(0xFF2196F3),
-    brightness: Brightness.light,
-    primary: const Color(0xFF2196F3),
-    onPrimary: Colors.white,
-    primaryContainer: const Color(0xFFD8E6FF), // Light blue highlight
-    onPrimaryContainer: const Color(0xFF001B3D),
-    secondary: const Color(0xFFE63946),
-    onSecondary: Colors.white,
-    secondaryContainer: const Color(0xFFFFDAD9),
-    onSecondaryContainer: const Color(0xFF410009),
-    tertiary: const Color(0xFF06D6A0),
-    onTertiary: Colors.white,
-    tertiaryContainer: const Color(0xFFC1F7E3),
-    onTertiaryContainer: const Color(0xFF00382A),
-    error: const Color(0xFFFF3D00),
-    onError: Colors.white,
-    background: const Color(0xFFF9FAFF),
-    onBackground: const Color(0xFF121417),
-    surface: const Color(0xFFFFFFFF),
-    onSurface: const Color(0xFF121417),
-    surfaceContainer: const Color(0xFFF0F4FF),
-    surfaceContainerHighest: const Color(0xFFE6EDFF),
-    surfaceVariant: const Color(0xFFF2F4FF),
-    onSurfaceVariant: const Color(0xFF42474F),
-    outline: const Color(0xFFD0D8FF),
-  );
-
-  /// Dark color scheme
-  static final ColorScheme _darkColorScheme = ColorScheme.fromSeed(
-    seedColor: const Color(0xFF4361EE),
-    brightness: Brightness.dark,
-    primary: const Color(0xFF4361EE),
-    onPrimary: const Color(0xFF00344D),
-    primaryContainer: const Color(0xFF004B6F),
-    onPrimaryContainer: const Color(0xFFBEECFF),
-    secondary: const Color(0xFFF72585),
-    onSecondary: const Color(0xFF3F0022),
-    secondaryContainer: const Color(0xFF5C0035),
-    onSecondaryContainer: const Color(0xFFFFD9E6),
-    tertiary: const Color(0xFF7209B7),
-    onTertiary: const Color(0xFFFFD6FA),
-    tertiaryContainer: const Color(0xFF560A8A),
-    onTertiaryContainer: const Color(0xFFF3CCFF),
-    error: const Color(0xFFFF5D8F),
-    onError: const Color(0xFF4F0018),
-    background: const Color(0xFF0A0E17),
-    onBackground: const Color(0xFFE9EEFF),
-    surface: const Color(0xFF121824),
-    onSurface: const Color(0xFFE9EEFF),
-    surfaceContainer: const Color(0xFF1A2130),
-    surfaceContainerHighest: const Color(0xFF232A3A),
-    surfaceVariant: const Color(0xFF293245),
-    onSurfaceVariant: const Color(0xFFCFD5E8),
-    outline: const Color(0xFF4A5573),
-    shadow: const Color(0xFF000000),
-  );
 }
 
 // NEW WIDGET to handle the initialization process robustly
@@ -410,40 +355,134 @@ class _AppInitializerState extends State<AppInitializer> {
   @override
   void initState() {
     super.initState();
-    _initializeAppAndNavigate();
+    debugPrint('🚀 AppInitializer: initState called');
+    
+    // Use WidgetsBinding to ensure the widget tree is ready
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      debugPrint('🚀 AppInitializer: PostFrameCallback triggered');
+      _initializeAppAndNavigate();
+    });
   }
 
   Future<void> _initializeAppAndNavigate() async {
+    debugPrint('🚀 AppInitializer: Starting _initializeAppAndNavigate');
+    
+    // Add a safety timeout for the entire initialization process
+    try {
+      await _performInitialization().timeout(
+        const Duration(seconds: 10),
+        onTimeout: () {
+          debugPrint('⚠️ Initialization timed out after 10 seconds, proceeding anyway');
+        },
+      );
+    } catch (e) {
+      debugPrint('❌ Initialization failed: $e, proceeding anyway');
+    }
+  }
+
+  Future<void> _performInitialization() async {
     // This future represents the background initialization work.
     Future<void> initializeServices() async {
       try {
-        await Workmanager().initialize(callbackDispatcher, isInDebugMode: false);
-        tz.initializeTimeZones();
-        tz.setLocalLocation(tz.getLocation('Asia/Kolkata'));
-        final notificationService = Provider.of<NotificationService>(context, listen: false);
-        await notificationService.initializeNotifications(
-              (NotificationResponse response) {},
-          notificationTapBackgroundHandler,
-        );
-        StepTrackingService().schedulePeriodicSync();
-        AchievementBackgroundService().schedulePeriodicCheck();
-        
-        // Initialize daily sync service
-        final dailySyncService = DailySyncService();
-        await dailySyncService.initialize();
-        
-        // Initialize content filter service for age-appropriate content
-        final contentFilterService = ContentFilterService();
-        await contentFilterService.initialize();
-        
-        // Initialize admin analytics service and track user activity
-        final adminAnalyticsService = Provider.of<AdminAnalyticsService>(context, listen: false);
-        await adminAnalyticsService.trackUserActivity();
-        await adminAnalyticsService.updateTotalUsers();
-        await adminAnalyticsService.trackUserRetention();
-        
-        // Initialize auth state manager
-        await AuthStateManager().initialize();
+        // Initialize Workmanager with better error handling
+        try {
+          await Workmanager().initialize(callbackDispatcher, isInDebugMode: false).timeout(
+            const Duration(seconds: 3),
+            onTimeout: () {
+              debugPrint('⚠️ Workmanager initialization timed out - continuing anyway');
+            },
+          );
+          debugPrint('✅ Workmanager initialized');
+        } catch (e) {
+          debugPrint('⚠️ Workmanager initialization failed: $e');
+        }
+
+        // Initialize timezone with error handling
+        try {
+          tz.initializeTimeZones();
+          tz.setLocalLocation(tz.getLocation('Asia/Kolkata'));
+          debugPrint('✅ Timezone initialized');
+        } catch (e) {
+          debugPrint('⚠️ Timezone initialization failed: $e');
+        }
+
+        // Initialize notification service with better error handling
+        try {
+          final notificationService = Provider.of<NotificationService>(context, listen: false);
+          await notificationService.initializeNotifications(
+                (NotificationResponse response) {},
+            notificationTapBackgroundHandler,
+          ).timeout(
+            const Duration(seconds: 3),
+            onTimeout: () {
+              debugPrint('⚠️ Notification initialization timed out - continuing anyway');
+            },
+          );
+          debugPrint('✅ Notification service initialized');
+        } catch (e) {
+          debugPrint('⚠️ Notification service initialization failed: $e');
+        }
+
+        // Initialize background services with error handling
+        try {
+          StepTrackingService().schedulePeriodicSync();
+          AchievementBackgroundService().schedulePeriodicCheck();
+          debugPrint('✅ Background services scheduled');
+        } catch (e) {
+          debugPrint('⚠️ Background service scheduling failed: $e');
+        }
+
+        // Initialize daily sync service with timeout
+        try {
+          final dailySyncService = DailySyncService();
+          await dailySyncService.initialize().timeout(
+            const Duration(seconds: 2),
+            onTimeout: () {
+              debugPrint('⚠️ DailySyncService initialization timed out - continuing anyway');
+            },
+          );
+          debugPrint('✅ DailySyncService initialized');
+        } catch (e) {
+          debugPrint('⚠️ DailySyncService initialization failed: $e');
+        }
+
+        // Initialize content filter service with timeout
+        try {
+          final contentFilterService = ContentFilterService();
+          await contentFilterService.initialize().timeout(
+            const Duration(seconds: 2),
+            onTimeout: () {
+              debugPrint('⚠️ ContentFilterService initialization timed out - continuing anyway');
+            },
+          );
+          debugPrint('✅ ContentFilterService initialized');
+        } catch (e) {
+          debugPrint('⚠️ ContentFilterService initialization failed: $e');
+        }
+
+        // Initialize admin analytics service with timeout (these require network)
+        try {
+          final adminAnalyticsService = Provider.of<AdminAnalyticsService>(context, listen: false);
+          await adminAnalyticsService.trackUserActivity().timeout(const Duration(seconds: 1));
+          await adminAnalyticsService.updateTotalUsers().timeout(const Duration(seconds: 1));
+          await adminAnalyticsService.trackUserRetention().timeout(const Duration(seconds: 1));
+          debugPrint('✅ Admin analytics initialized');
+        } catch (e) {
+          debugPrint('⚠️ Admin analytics timed out (offline mode): $e');
+        }
+
+        // Initialize auth state manager with timeout
+        try {
+          await AuthStateManager().initialize().timeout(
+            const Duration(seconds: 2),
+            onTimeout: () {
+              debugPrint('⚠️ AuthStateManager initialization timed out - continuing anyway');
+            },
+          );
+          debugPrint('✅ AuthStateManager initialized');
+        } catch (e) {
+          debugPrint('⚠️ AuthStateManager initialization failed: $e');
+        }
       } catch (e) {
         // Log error but don't block navigation, as the app might still be usable.
         debugPrint("Error during background initialization: $e");
@@ -451,23 +490,32 @@ class _AppInitializerState extends State<AppInitializer> {
     }
 
     // This future ensures the splash screen is visible for a minimum duration.
-    final splashDuration = Future.delayed(const Duration(milliseconds: 3000));
+    final splashDuration = Future.delayed(const Duration(milliseconds: 2000));
 
-    // Wait for both initialization and the splash duration to complete.
+    // Wait for both initialization and the splash duration to complete with overall timeout
     await Future.wait([
       initializeServices(),
       splashDuration,
-    ]);
+    ]).timeout(
+      const Duration(seconds: 8),
+      onTimeout: () {
+        debugPrint('⚠️ Overall initialization timed out - proceeding to app');
+        return [];
+      },
+    );
 
     // Check if age has been verified with proper error handling
     bool ageVerified = false;
     try {
+      debugPrint('🔍 Checking age verification status...');
       final prefs = await SharedPreferences.getInstance();
       ageVerified = prefs.getBool('age_verified') ?? false;
+      debugPrint('🔍 Age verified from prefs: $ageVerified');
       
       // Additional validation - check if we have a valid birthdate
       if (ageVerified) {
         final birthdate = prefs.getString('user_birthdate');
+        debugPrint('🔍 Stored birthdate: $birthdate');
         if (birthdate == null || birthdate.isEmpty) {
           debugPrint('Age verified flag set but no birthdate found, requiring re-verification');
           ageVerified = false;
@@ -475,26 +523,73 @@ class _AppInitializerState extends State<AppInitializer> {
         }
       }
     } catch (e) {
-      debugPrint('Error checking age verification: $e');
+      debugPrint('❌ Error checking age verification: $e');
       ageVerified = false; // Default to false on error
     }
     
+    debugPrint('🔍 Final age verification status: $ageVerified');
+    
     // Navigate to the appropriate screen after everything is done
+    debugPrint('🚀 Navigation check: mounted=$mounted, ageVerified=$ageVerified');
+    
     if (mounted) {
-      Navigator.of(context).pushReplacement(
-        PageRouteBuilder(
-          pageBuilder: (context, animation, secondaryAnimation) => 
-              ageVerified ? const PermissionGateScreen() : const AgeGateScreen(),
-          transitionsBuilder: (context, animation, secondaryAnimation, child) {
-            return FadeTransition(opacity: animation, child: child);
-          },
-        ),
-      );
+      debugPrint('🚀 Navigating to ${ageVerified ? "PermissionGateScreen" : "AgeGateScreen"}');
+      
+      // Add a small delay to ensure the widget tree is fully built
+      await Future.delayed(const Duration(milliseconds: 100));
+      
+      if (mounted) {
+        try {
+          Navigator.of(context).pushReplacement(
+            PageRouteBuilder(
+              pageBuilder: (context, animation, secondaryAnimation) => 
+                  ageVerified ? const PermissionGateScreen() : const AgeGateScreen(),
+              transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                return FadeTransition(opacity: animation, child: child);
+              },
+            ),
+          );
+          debugPrint('✅ Navigation completed successfully');
+        } catch (e) {
+          debugPrint('❌ Navigation error: $e');
+          // Fallback navigation without animation
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(
+              builder: (context) => ageVerified ? const PermissionGateScreen() : const AgeGateScreen(),
+            ),
+          );
+          debugPrint('✅ Fallback navigation completed');
+        }
+      } else {
+        debugPrint('❌ Widget unmounted during navigation delay');
+      }
+    } else {
+      debugPrint('❌ Widget not mounted, cannot navigate');
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return const AnimatedSplashScreen();
+  }
+  
+  // Add a safety mechanism to prevent infinite splash screen
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    
+    // Safety timeout - if navigation hasn't happened in 15 seconds, force navigate
+    Timer(const Duration(seconds: 15), () {
+      if (mounted) {
+        debugPrint('⚠️ Safety timeout triggered - forcing navigation to AgeGateScreen');
+        try {
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (context) => const AgeGateScreen()),
+          );
+        } catch (e) {
+          debugPrint('❌ Safety navigation failed: $e');
+        }
+      }
+    });
   }
 }

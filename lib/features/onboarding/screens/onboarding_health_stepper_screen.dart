@@ -36,6 +36,7 @@ class _OnboardingHealthStepperScreenState
         isSkinnyFat: _isSkinnyFat,
         hasProteinDeficiency: _hasProteinDeficiency,
       ),
+      isOnboarding: true, // Immediate Firebase sync during onboarding
     );
 
     if (!mounted) return;

@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../core/providers/achievement_provider.dart';
+import '../../../../shared/widgets/glass_container.dart';
 import '../../../profile/screens/achievements_screen.dart';
 
 class AchievementsCard extends StatelessWidget {
@@ -19,36 +20,32 @@ class AchievementsCard extends StatelessWidget {
         final achievementProgress = totalCount > 0 ? unlockedCount / totalCount : 0.0;
         final colorScheme = Theme.of(context).colorScheme;
         
-        return Card(
-          child: InkWell(
-            onTap: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => const AchievementsScreen()),
-              );
-            },
-            borderRadius: BorderRadius.circular(12),
-            child: Padding(
-              padding: const EdgeInsets.all(20.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+        return GlassCard(
+          onTap: () {
+            Navigator.of(context).push(
+              MaterialPageRoute(builder: (_) => const AchievementsScreen()),
+            );
+          },
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
                 children: [
-                  Row(
-                    children: [
-                      Icon(Icons.emoji_events_rounded, 
-                           color: Colors.amber, size: 24),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Text(
-                          'Achievements',
-                          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
+                  Icon(Icons.emoji_events_rounded, 
+                       color: Colors.amber, size: 24),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      'Achievements',
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.bold,
                       ),
-                      Icon(Icons.arrow_forward_ios_rounded,
-                           color: colorScheme.onSurfaceVariant, size: 16),
-                    ],
+                    ),
                   ),
+                  Icon(Icons.arrow_forward_ios_rounded,
+                       color: colorScheme.onSurfaceVariant, size: 16),
+                ],
+              ),
                   const SizedBox(height: 16),
                   
                   // Achievement stats
@@ -109,8 +106,6 @@ class AchievementsCard extends StatelessWidget {
                   ),
                 ],
               ),
-            ),
-          ),
         );
       },
     );

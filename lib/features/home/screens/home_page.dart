@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import 'dart:math' as math;
+import 'dart:ui';
 
 import '../../../core/providers/user_data_provider.dart';
 import '../../../core/providers/step_counter_provider.dart';
@@ -8,6 +11,8 @@ import '../../../core/providers/achievement_provider.dart';
 import '../../../core/services/step_tracking_service.dart';
 import '../../../core/services/auth_service.dart';
 import '../../../shared/widgets/gradient_background.dart';
+import '../../../shared/widgets/glass_container.dart';
+import '../../../shared/widgets/glass_background.dart';
 import '../../../shared/widgets/fluid_page_transitions.dart';
 import '../widgets/step_tracker_card.dart';
 import '../widgets/water_tracker_card.dart';
@@ -29,8 +34,15 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin, WidgetsBindingObserver {
+class _HomePageState extends State<HomePage> with TickerProviderStateMixin, WidgetsBindingObserver {
   late TabController _tabController;
+  late AnimationController _floatingController;
+  late AnimationController _pulseController;
+  late AnimationController _slideController;
+  late Animation<double> _floatingAnimation;
+  late Animation<double> _pulseAnimation;
+  late Animation<Offset> _slideAnimation;
+  
   int _currentIndex = 0;
   final StepTrackingService _stepTrackingService = StepTrackingService();
   final AuthService _authService = AuthService();
@@ -44,12 +56,18 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   @override
   void initState() {
     super.initState();
+    // Set full screen immersive mode
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+    
+    _initializeAnimations();
     _tabController = TabController(length: 4, vsync: this);
     _tabController.addListener(() {
       if (mounted) {
         setState(() {
           _currentIndex = _tabController.index;
         });
+        // Add haptic feedback on tab change
+        HapticFeedback.selectionClick();
       }
     });
 
@@ -62,11 +80,57 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     });
   }
 
+  void _initializeAnimations() {
+    _floatingController = AnimationController(
+      duration: const Duration(milliseconds: 3000),
+      vsync: this,
+    );
+    _pulseController = AnimationController(
+      duration: const Duration(milliseconds: 2000),
+      vsync: this,
+    );
+    _slideController = AnimationController(
+      duration: const Duration(milliseconds: 800),
+      vsync: this,
+    );
+
+    _floatingAnimation = Tween<double>(
+      begin: -5.0,
+      end: 5.0,
+    ).animate(CurvedAnimation(
+      parent: _floatingController,
+      curve: Curves.easeInOut,
+    ));
+
+    _pulseAnimation = Tween<double>(
+      begin: 1.0,
+      end: 1.02,
+    ).animate(CurvedAnimation(
+      parent: _pulseController,
+      curve: Curves.easeInOut,
+    ));
+
+    _slideAnimation = Tween<Offset>(
+      begin: const Offset(0, 0.1),
+      end: Offset.zero,
+    ).animate(CurvedAnimation(
+      parent: _slideController,
+      curve: Curves.easeOut,
+    ));
+
+    _floatingController.repeat(reverse: true);
+    _pulseController.repeat(reverse: true);
+    _slideController.forward();
+  }
+
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     _tabController.removeListener(() {});
     _tabController.dispose();
+    _floatingController.dispose();
+    _pulseController.dispose();
+    _slideController.dispose();
     super.dispose();
   }
 
@@ -138,22 +202,44 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
       builder: (context, userProvider, child) {
         return Stack(
           children: [
+            // Animated Background
+            AnimatedBuilder(
+              animation: _floatingController,
+              builder: (context, child) {
+                return CustomPaint(
+                  painter: HomeBackgroundPainter(
+                    animation: _floatingController,
+                    colorScheme: Theme.of(context).colorScheme,
+                  ),
+                  size: Size.infinite,
+                );
+              },
+            ),
+            
+            // Main Content
             Scaffold(
               extendBody: true,
-              appBar: _currentIndex == 0 ? _buildHomeAppBar(context, userProvider) : null,
-              body: GradientBackground(
+              extendBodyBehindAppBar: true,
+              backgroundColor: Colors.transparent,
+              appBar: _currentIndex == 0 ? _buildEnhancedHomeAppBar(context, userProvider) : null,
+              body: SlideTransition(
+                position: _slideAnimation,
                 child: TabBarView(
                   controller: _tabController,
-                  children: const [
-                    _HomeTab(),
-                    _FeedTab(),
-                    _ProgressTab(),
-                    _TrendsTab(),
+                  children: [
+                    _HomeTab(
+                      floatingAnimation: _floatingAnimation,
+                      pulseAnimation: _pulseAnimation,
+                    ),
+                    const _FeedTab(),
+                    const _ProgressTab(),
+                    const _TrendsTab(),
                   ],
                 ),
               ),
-              bottomNavigationBar: _buildBottomNavigationBar(context),
+              bottomNavigationBar: _buildEnhancedBottomNavigationBar(context),
             ),
+            
             // XP notification overlay
             const XpNotificationOverlay(),
           ],
@@ -162,7 +248,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     );
   }
 
-  PreferredSizeWidget _buildHomeAppBar(BuildContext context, UserDataProvider userProvider) {
+  PreferredSizeWidget _buildEnhancedHomeAppBar(BuildContext context, UserDataProvider userProvider) {
     final userData = userProvider.userData;
     final colorScheme = Theme.of(context).colorScheme;
     final screenWidth = MediaQuery.of(context).size.width;
@@ -170,94 +256,223 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
 
     return AppBar(
       elevation: 0,
-      backgroundColor: colorScheme.surface,
+      backgroundColor: Colors.transparent,
       surfaceTintColor: Colors.transparent,
-      toolbarHeight: isSmallScreen ? 70 : 80,
-      title: Padding(
-        padding: EdgeInsets.only(top: isSmallScreen ? 4.0 : 8.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Hello, ${userData.name ?? 'User'}! 👋',
-              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                fontWeight: FontWeight.w800,
-                color: colorScheme.onSurface,
-                letterSpacing: -0.5,
-                fontSize: isSmallScreen ? 18 : null,
-              ),
-              overflow: TextOverflow.ellipsis,
-            ),
-            SizedBox(height: isSmallScreen ? 2 : 4),
-            Text(
-              'Let\'s track your health today',
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: colorScheme.onSurfaceVariant,
-                fontWeight: FontWeight.w500,
-                fontSize: isSmallScreen ? 12 : null,
-              ),
-            ),
-          ],
+      toolbarHeight: isSmallScreen ? 80 : 90,
+      flexibleSpace: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              colorScheme.primaryContainer.withOpacity(0.8),
+              colorScheme.secondaryContainer.withOpacity(0.6),
+              Colors.transparent,
+            ],
+            stops: const [0.0, 0.7, 1.0],
+          ),
         ),
       ),
-      actions: [
-        // Notification bell with conditional indicator
-        Stack(
-          children: [
-            IconButton(
-              icon: Icon(
-                Icons.notifications_outlined,
-                color: colorScheme.onSurfaceVariant,
+      title: AnimatedBuilder(
+        animation: _floatingAnimation,
+        builder: (context, child) {
+          return Transform.translate(
+            offset: Offset(0, _floatingAnimation.value * 0.3),
+            child: Padding(
+              padding: EdgeInsets.only(
+                top: MediaQuery.of(context).padding.top + (isSmallScreen ? 8.0 : 12.0),
               ),
-              onPressed: () => _showNotificationsDialog(context),
-            ),
-            // Only show red dot if there are actual new notifications
-            if (_hasNewNotifications()) 
-              Positioned(
-                right: 8,
-                top: 8,
-                child: Container(
-                  width: 12,
-                  height: 12,
-                  decoration: BoxDecoration(
-                    color: colorScheme.error,
-                    shape: BoxShape.circle,
-                    border: Border.all(
-                      color: colorScheme.surface,
-                      width: 2,
+              child: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [
+                          colorScheme.primary,
+                          colorScheme.secondary,
+                        ],
+                      ),
+                      borderRadius: BorderRadius.circular(12),
+                      boxShadow: [
+                        BoxShadow(
+                          color: colorScheme.primary.withOpacity(0.3),
+                          blurRadius: 8,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: Icon(
+                      Icons.waving_hand_rounded,
+                      color: colorScheme.onPrimary,
+                      size: isSmallScreen ? 20 : 24,
                     ),
                   ),
-                ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Hello, ${userData.name ?? 'User'}!',
+                          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                            fontWeight: FontWeight.w800,
+                            color: colorScheme.onSurface,
+                            letterSpacing: -0.5,
+                            fontSize: isSmallScreen ? 18 : 22,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        SizedBox(height: isSmallScreen ? 2 : 4),
+                        Text(
+                          'Let\'s track your health today',
+                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            color: colorScheme.onSurfaceVariant,
+                            fontWeight: FontWeight.w600,
+                            fontSize: isSmallScreen ? 12 : 14,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
-          ],
+            ),
+          );
+        },
+      ),
+      actions: [
+        // Enhanced notification bell
+        Padding(
+          padding: EdgeInsets.only(
+            top: MediaQuery.of(context).padding.top + 8,
+            right: 8,
+          ),
+          child: AnimatedBuilder(
+            animation: _pulseAnimation,
+            builder: (context, child) {
+              return Transform.scale(
+                scale: _hasNewNotifications() ? _pulseAnimation.value : 1.0,
+                child: Stack(
+                  children: [
+                    Container(
+                      decoration: BoxDecoration(
+                        color: colorScheme.surface.withOpacity(0.9),
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: [
+                          BoxShadow(
+                            color: colorScheme.shadow.withOpacity(0.1),
+                            blurRadius: 8,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: IconButton(
+                        icon: Icon(
+                          _hasNewNotifications() 
+                              ? Icons.notifications_active_rounded
+                              : Icons.notifications_outlined,
+                          color: _hasNewNotifications() 
+                              ? colorScheme.primary
+                              : colorScheme.onSurfaceVariant,
+                        ),
+                        onPressed: () {
+                          HapticFeedback.lightImpact();
+                          _showEnhancedNotificationsDialog(context);
+                        },
+                      ),
+                    ),
+                    // Animated notification indicator
+                    if (_hasNewNotifications()) 
+                      Positioned(
+                        right: 8,
+                        top: 8,
+                        child: Container(
+                          width: 12,
+                          height: 12,
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: [
+                                colorScheme.error,
+                                colorScheme.error.withOpacity(0.8),
+                              ],
+                            ),
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: colorScheme.surface,
+                              width: 2,
+                            ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: colorScheme.error.withOpacity(0.3),
+                                blurRadius: 4,
+                                offset: const Offset(0, 1),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+              );
+            },
+          ),
         ),
+        
         // Enhanced profile avatar
         Padding(
-          padding: const EdgeInsets.only(right: 16.0),
+          padding: EdgeInsets.only(
+            top: MediaQuery.of(context).padding.top + 8,
+            right: 16.0,
+          ),
           child: GestureDetector(
-            onTap: () => _showProfileMenu(context),
-            child: Container(
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: Border.all(
-                  color: colorScheme.primary.withValues(alpha: 0.3),
-                  width: 2,
-                ),
-              ),
-              child: CircleAvatar(
-                radius: 20,
-                backgroundColor: colorScheme.primaryContainer,
-                backgroundImage: userData.profilePicturePath != null
-                    ? NetworkImage(userData.profilePicturePath!)
-                    : null,
-                child: userData.profilePicturePath == null
-                    ? Icon(
-                        Icons.person_rounded,
-                        color: colorScheme.onPrimaryContainer,
-                        size: 24,
-                      )
-                    : null,
-              ),
+            onTap: () {
+              HapticFeedback.lightImpact();
+              _showEnhancedProfileMenu(context);
+            },
+            child: AnimatedBuilder(
+              animation: _pulseAnimation,
+              builder: (context, child) {
+                return Transform.scale(
+                  scale: _pulseAnimation.value,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      gradient: LinearGradient(
+                        colors: [
+                          colorScheme.primary.withOpacity(0.3),
+                          colorScheme.secondary.withOpacity(0.2),
+                        ],
+                      ),
+                      border: Border.all(
+                        color: colorScheme.primary.withOpacity(0.5),
+                        width: 2,
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: colorScheme.primary.withOpacity(0.2),
+                          blurRadius: 8,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: CircleAvatar(
+                      radius: 22,
+                      backgroundColor: colorScheme.primaryContainer,
+                      backgroundImage: userData.profilePicturePath != null
+                          ? NetworkImage(userData.profilePicturePath!)
+                          : null,
+                      child: userData.profilePicturePath == null
+                          ? Icon(
+                              Icons.person_rounded,
+                              color: colorScheme.onPrimaryContainer,
+                              size: 26,
+                            )
+                          : null,
+                    ),
+                  ),
+                );
+              },
             ),
           ),
         ),
@@ -265,68 +480,63 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     );
   }
 
-  Widget _buildBottomNavigationBar(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.08),
-            blurRadius: 20,
-            offset: const Offset(0, -4),
-            spreadRadius: 0,
-          ),
-        ],
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      child: ClipRRect(
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-        child: BottomNavigationBar(
-          currentIndex: _currentIndex,
-          onTap: (index) {
-            _tabController.animateTo(index);
-          },
-          type: BottomNavigationBarType.fixed,
-          elevation: 0,
-          backgroundColor: Colors.transparent,
-          selectedItemColor: Theme.of(context).colorScheme.primary,
-          unselectedItemColor: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.6),
-          selectedLabelStyle: const TextStyle(
-            fontWeight: FontWeight.w700,
-            fontSize: 12,
-          ),
-          unselectedLabelStyle: const TextStyle(
-            fontWeight: FontWeight.w500,
-            fontSize: 11,
-          ),
-          items: const [
-            BottomNavigationBarItem(
-              icon: Icon(Icons.home_outlined),
-              activeIcon: Icon(Icons.home_rounded),
-              label: 'Home',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.feed_outlined),
-              activeIcon: Icon(Icons.feed_rounded),
-              label: 'Feed',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.task_alt_outlined),
-              activeIcon: Icon(Icons.task_alt_rounded),
-              label: 'Progress',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.analytics_outlined),
-              activeIcon: Icon(Icons.analytics_rounded),
-              label: 'Trends',
-            ),
-          ],
-        ),
-      ),
+  Widget _buildEnhancedBottomNavigationBar(BuildContext context) {
+    return GlassBottomNavigationBar(
+      currentIndex: _currentIndex,
+      onTap: (index) {
+        _tabController.animateTo(index);
+        HapticFeedback.selectionClick();
+      },
+      items: [
+        _buildNavItem(Icons.home_outlined, Icons.home_rounded, 'Home', 0),
+        _buildNavItem(Icons.restaurant_rounded, Icons.restaurant, 'Feed', 1),
+        _buildNavItem(Icons.task_alt_outlined, Icons.task_alt_rounded, 'Progress', 2),
+        _buildNavItem(Icons.analytics_outlined, Icons.analytics_rounded, 'Trends', 3),
+      ],
     );
   }
 
-  void _showNotificationsDialog(BuildContext context) {
+  BottomNavigationBarItem _buildNavItem(IconData icon, IconData activeIcon, String label, int index) {
+    final isSelected = _currentIndex == index;
+    
+    return BottomNavigationBarItem(
+      icon: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          color: isSelected 
+              ? Theme.of(context).colorScheme.primaryContainer.withOpacity(0.3)
+              : Colors.transparent,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Icon(icon),
+      ),
+      activeIcon: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              Theme.of(context).colorScheme.primaryContainer.withOpacity(0.5),
+              Theme.of(context).colorScheme.primaryContainer.withOpacity(0.3),
+            ],
+          ),
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: Theme.of(context).colorScheme.primary.withOpacity(0.2),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Icon(activeIcon),
+      ),
+      label: label,
+    );
+  }
+
+  void _showEnhancedNotificationsDialog(BuildContext context) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -364,7 +574,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                     final notification = _notifications[index];
                     final isRead = notification['isRead'] ?? false;
                     return Card(
-                      color: isRead ? null : Theme.of(context).colorScheme.primaryContainer.withValues(alpha: 0.3),
+                      color: isRead ? null : Theme.of(context).colorScheme.primaryContainer.withOpacity(0.3),
                       child: ListTile(
                         leading: Icon(
                           notification['icon'] ?? Icons.notifications,
@@ -401,7 +611,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     );
   }
 
-  void _showProfileMenu(BuildContext context) {
+  void _showEnhancedProfileMenu(BuildContext context) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -412,7 +622,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
           borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.1),
+              color: Colors.black.withOpacity(0.1),
               blurRadius: 20,
               offset: const Offset(0, -4),
             ),
@@ -427,7 +637,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
               width: 40,
               height: 4,
               decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.4),
+                color: Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.4),
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
@@ -500,13 +710,13 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
-        color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+        color: Theme.of(context).colorScheme.surfaceContainerHighest.withOpacity(0.3),
       ),
       child: ListTile(
         leading: Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
+            color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
             borderRadius: BorderRadius.circular(12),
           ),
           child: Icon(
@@ -540,99 +750,174 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
 }
 
 class _HomeTab extends StatelessWidget {
-  const _HomeTab();
+  final Animation<double> floatingAnimation;
+  final Animation<double> pulseAnimation;
+  
+  const _HomeTab({
+    required this.floatingAnimation,
+    required this.pulseAnimation,
+  });
 
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     final horizontalPadding = screenWidth * 0.04;
     
+    final colorScheme = Theme.of(context).colorScheme;
+    final isSmallScreen = screenWidth < 360;
+    
     return SingleChildScrollView(
-      physics: const AlwaysScrollableScrollPhysics(),
-      padding: EdgeInsets.symmetric(horizontal: horizontalPadding, vertical: 16.0),
-      child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            // Welcome message
-            HealthGradientCard(
-              gradientColors: [
-                Theme.of(context).colorScheme.primaryContainer,
-                Theme.of(context).colorScheme.primaryContainer.withValues(alpha: 0.7),
-              ],
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    "Today's Progress",
-                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                      fontWeight: FontWeight.w800,
-                      color: Theme.of(context).colorScheme.onPrimaryContainer,
-                      fontSize: screenWidth < 360 ? 18 : null,
-                    ),
-                  ),
-                  SizedBox(height: screenWidth < 360 ? 6 : 8),
-                  Text(
-                    "Keep up the great work! Every step counts towards your health goals.",
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: Theme.of(context).colorScheme.onPrimaryContainer.withValues(alpha: 0.8),
-                      fontSize: screenWidth < 360 ? 13 : null,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            SizedBox(height: screenWidth < 360 ? 16 : 20),
-
-            // Main tracking cards
-            const StepTrackerCard(),
-            const SizedBox(height: 16),
-            const WaterTrackerCard(),
-            const SizedBox(height: 24),
-
-            // Progress and achievements section
-            Text(
-              'Your Progress',
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 12),
-            const ExperienceCard(),
-            const SizedBox(height: 16),
-            const AchievementsCard(),
-            const SizedBox(height: 20),
-            
-            const SizedBox(height: 100), // Space for bottom nav
-          ],
-        ),
-    );
-  }
-
-  Widget _buildActionCard(BuildContext context, String title, IconData icon, VoidCallback onTap) {
-    return Card(
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(12),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
+      physics: const BouncingScrollPhysics(),
+      padding: EdgeInsets.only(
+        left: horizontalPadding,
+        right: horizontalPadding,
+        top: 120, // Account for enhanced app bar
+        bottom: 120, // Account for floating bottom nav
+      ),
+      child: AnimatedBuilder(
+        animation: floatingAnimation,
+        builder: (context, child) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Icon(
-                icon,
-                color: Theme.of(context).colorScheme.primary,
-                size: 32,
-              ),
-              const SizedBox(height: 8),
-              Text(
-                title,
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  fontWeight: FontWeight.w500,
+              // Enhanced Welcome Card
+              Transform.translate(
+                offset: Offset(0, floatingAnimation.value * 0.5),
+                child: Container(
+                  padding: const EdgeInsets.all(24),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [
+                        colorScheme.primaryContainer.withOpacity(0.8),
+                        colorScheme.secondaryContainer.withOpacity(0.6),
+                        colorScheme.tertiaryContainer.withOpacity(0.4),
+                      ],
+                    ),
+                    borderRadius: BorderRadius.circular(24),
+                    border: Border.all(
+                      color: colorScheme.outline.withOpacity(0.1),
+                      width: 1,
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: colorScheme.primary.withOpacity(0.1),
+                        blurRadius: 20,
+                        offset: const Offset(0, 8),
+                      ),
+                    ],
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [
+                              colorScheme.primary,
+                              colorScheme.secondary,
+                            ],
+                          ),
+                          borderRadius: BorderRadius.circular(16),
+                          boxShadow: [
+                            BoxShadow(
+                              color: colorScheme.primary.withOpacity(0.3),
+                              blurRadius: 8,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: Icon(
+                          Icons.trending_up_rounded,
+                          color: colorScheme.onPrimary,
+                          size: isSmallScreen ? 24 : 28,
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              "Today's Progress",
+                              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                                fontWeight: FontWeight.w800,
+                                color: colorScheme.onPrimaryContainer,
+                                fontSize: isSmallScreen ? 18 : 22,
+                              ),
+                            ),
+                            SizedBox(height: isSmallScreen ? 4 : 6),
+                            Text(
+                              "Keep up the great work! Every step counts towards your health goals.",
+                              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                color: colorScheme.onPrimaryContainer.withOpacity(0.8),
+                                fontSize: isSmallScreen ? 13 : 14,
+                                height: 1.4,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-                textAlign: TextAlign.center,
               ),
+              
+              SizedBox(height: isSmallScreen ? 20 : 24),
+
+              // Animated Main tracking cards
+              AnimatedBuilder(
+                animation: pulseAnimation,
+                builder: (context, child) {
+                  return Transform.scale(
+                    scale: pulseAnimation.value,
+                    child: const StepTrackerCard(),
+                  );
+                },
+              ),
+              const SizedBox(height: 16),
+              const WaterTrackerCard(),
+              const SizedBox(height: 32),
+
+              // Progress section header
+              Transform.translate(
+                offset: Offset(0, floatingAnimation.value * 0.3),
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: colorScheme.primary.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Icon(
+                        Icons.emoji_events_rounded,
+                        color: colorScheme.primary,
+                        size: 20,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Text(
+                      'Your Progress',
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.w800,
+                        color: colorScheme.onSurface,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16),
+              
+              // Progress cards
+              const ExperienceCard(),
+              const SizedBox(height: 16),
+              const AchievementsCard(),
+              const SizedBox(height: 32),
             ],
-          ),
-        ),
+          );
+        },
       ),
     );
   }
@@ -662,5 +947,181 @@ class _TrendsTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const TrendsPage();
+  }
+}
+
+// Custom Painter for Animated Background
+class HomeBackgroundPainter extends CustomPainter {
+  final Animation<double> animation;
+  final ColorScheme colorScheme;
+
+  HomeBackgroundPainter({
+    required this.animation,
+    required this.colorScheme,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    // Create subtle gradient background
+    final gradient = LinearGradient(
+      begin: Alignment.topLeft,
+      end: Alignment.bottomRight,
+      colors: [
+        colorScheme.surface,
+        colorScheme.surfaceContainer.withOpacity(0.5),
+        colorScheme.surfaceContainerHighest.withOpacity(0.3),
+      ],
+      stops: const [0.0, 0.6, 1.0],
+    );
+
+    final backgroundPaint = Paint()
+      ..shader = gradient.createShader(
+        Rect.fromLTWH(0, 0, size.width, size.height),
+      );
+
+    canvas.drawRect(
+      Rect.fromLTWH(0, 0, size.width, size.height),
+      backgroundPaint,
+    );
+
+    // Draw floating health-themed elements
+    final shapePaint = Paint()
+      ..color = colorScheme.primary.withOpacity(0.03)
+      ..style = PaintingStyle.fill;
+
+    final progress = animation.value;
+    
+    // Animated health elements
+    _drawHealthElements(canvas, size, shapePaint, progress);
+  }
+
+  void _drawHealthElements(Canvas canvas, Size size, Paint paint, double progress) {
+    // Floating hearts (for health)
+    for (int i = 0; i < 3; i++) {
+      final heartX = size.width * (0.2 + i * 0.3) + math.sin(progress * 2 * math.pi + i) * 20;
+      final heartY = size.height * (0.1 + i * 0.2) + math.cos(progress * 2 * math.pi + i) * 15;
+      
+      _drawHeart(canvas, Offset(heartX, heartY), 15, paint);
+    }
+
+    // Floating step icons
+    for (int i = 0; i < 4; i++) {
+      final stepX = size.width * (0.1 + i * 0.25) + math.cos(progress * 2 * math.pi + i * 0.5) * 15;
+      final stepY = size.height * (0.6 + i * 0.1) + math.sin(progress * 2 * math.pi + i * 0.5) * 10;
+      
+      _drawFootprint(canvas, Offset(stepX, stepY), 12, paint);
+    }
+
+    // Floating water drops
+    for (int i = 0; i < 5; i++) {
+      final dropX = size.width * (0.15 + i * 0.15) + math.sin(progress * 2 * math.pi + i * 0.8) * 12;
+      final dropY = size.height * (0.8 + i * 0.05) + math.cos(progress * 2 * math.pi + i * 0.8) * 8;
+      
+      _drawWaterDrop(canvas, Offset(dropX, dropY), 8, paint);
+    }
+
+    // Decorative circles
+    for (int i = 0; i < 6; i++) {
+      final circleX = size.width * (0.05 + i * 0.18) + math.sin(progress * 2 * math.pi + i * 0.3) * 8;
+      final circleY = size.height * (0.05 + i * 0.15) + math.cos(progress * 2 * math.pi + i * 0.3) * 6;
+      
+      canvas.drawCircle(Offset(circleX, circleY), 3, paint);
+    }
+  }
+
+  void _drawHeart(Canvas canvas, Offset center, double size, Paint paint) {
+    final path = Path();
+    path.moveTo(center.dx, center.dy + size * 0.3);
+    path.cubicTo(
+      center.dx - size * 0.5, center.dy - size * 0.1,
+      center.dx - size * 0.5, center.dy + size * 0.3,
+      center.dx, center.dy + size * 0.7,
+    );
+    path.cubicTo(
+      center.dx + size * 0.5, center.dy + size * 0.3,
+      center.dx + size * 0.5, center.dy - size * 0.1,
+      center.dx, center.dy + size * 0.3,
+    );
+    canvas.drawPath(path, paint);
+  }
+
+  void _drawFootprint(Canvas canvas, Offset center, double size, Paint paint) {
+    // Main foot
+    canvas.drawOval(
+      Rect.fromCenter(center: center, width: size * 0.6, height: size),
+      paint,
+    );
+    
+    // Toes
+    for (int i = 0; i < 5; i++) {
+      final toeX = center.dx - size * 0.2 + i * size * 0.1;
+      final toeY = center.dy - size * 0.4;
+      canvas.drawCircle(Offset(toeX, toeY), size * 0.08, paint);
+    }
+  }
+
+  void _drawWaterDrop(Canvas canvas, Offset center, double size, Paint paint) {
+    final path = Path();
+    path.moveTo(center.dx, center.dy - size);
+    path.quadraticBezierTo(
+      center.dx + size * 0.5, center.dy - size * 0.5,
+      center.dx + size * 0.5, center.dy,
+    );
+    path.quadraticBezierTo(
+      center.dx + size * 0.5, center.dy + size * 0.5,
+      center.dx, center.dy + size * 0.5,
+    );
+    path.quadraticBezierTo(
+      center.dx - size * 0.5, center.dy + size * 0.5,
+      center.dx - size * 0.5, center.dy,
+    );
+    path.quadraticBezierTo(
+      center.dx - size * 0.5, center.dy - size * 0.5,
+      center.dx, center.dy - size,
+    );
+    final paint = Paint()
+      ..color = Colors.white.withOpacity(0.1)
+      ..style = PaintingStyle.fill;
+    canvas.drawPath(path, paint);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
+}
+
+// Enhanced Gradient Card Widget
+class HealthGradientCard extends StatelessWidget {
+  final Widget child;
+  final List<Color> gradientColors;
+  final EdgeInsets? padding;
+
+  const HealthGradientCard({
+    super.key,
+    required this.child,
+    required this.gradientColors,
+    this.padding,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: padding ?? const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: gradientColors,
+        ),
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: gradientColors.first.withOpacity(0.2),
+            blurRadius: 15,
+            offset: const Offset(0, 5),
+          ),
+        ],
+      ),
+      child: child,
+    );
   }
 }

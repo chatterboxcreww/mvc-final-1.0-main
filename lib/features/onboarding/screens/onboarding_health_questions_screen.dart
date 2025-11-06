@@ -241,7 +241,7 @@ class _OnboardingDiabetesQuestionScreenState
     Provider.of<UserDataProvider>(context, listen: false);
     final updatedData = UserData.fromJson(userDataProvider.userData.toJson())
       ..hasDiabetes = _hasDiabetes;
-    await userDataProvider.updateUserData(updatedData);
+    await userDataProvider.updateUserData(updatedData, isOnboarding: true);
 
     if (mounted) {
       final nextRoute = MaterialPageRoute(
@@ -301,7 +301,7 @@ class _OnboardingSkinnyFatQuestionScreenState
     Provider.of<UserDataProvider>(context, listen: false);
     final updatedData = UserData.fromJson(userDataProvider.userData.toJson())
       ..isSkinnyFat = _isSkinnyFat;
-    await userDataProvider.updateUserData(updatedData);
+    await userDataProvider.updateUserData(updatedData, isOnboarding: true);
 
     if (mounted) {
       final nextRoute = MaterialPageRoute(
@@ -364,7 +364,7 @@ class _OnboardingProteinDeficiencyQuestionScreenState
     Provider.of<UserDataProvider>(context, listen: false);
     final updatedData = UserData.fromJson(userDataProvider.userData.toJson())
       ..hasProteinDeficiency = _hasProteinDeficiency;
-    await userDataProvider.updateUserData(updatedData);
+    await userDataProvider.updateUserData(updatedData, isOnboarding: true);
 
     if (mounted) {
       final nextRoute = MaterialPageRoute(

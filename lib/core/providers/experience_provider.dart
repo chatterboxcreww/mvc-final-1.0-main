@@ -20,6 +20,7 @@ class ExperienceProvider with ChangeNotifier {
   // Level-up Notification System
   int? _newlyAchievedLevel;
   DateTime? _levelUpTime;
+  bool _leveledUp = false;
 
   // Provider references
   AchievementProvider? _achievementProvider;
@@ -101,6 +102,7 @@ class ExperienceProvider with ChangeNotifier {
   // Level-up notification getters
   int? get newlyAchievedLevel => _newlyAchievedLevel;
   DateTime? get levelUpTime => _levelUpTime;
+  bool get leveledUp => _leveledUp;
   
   // Check if there's a recent level-up to show
   bool get hasNewLevelUp {

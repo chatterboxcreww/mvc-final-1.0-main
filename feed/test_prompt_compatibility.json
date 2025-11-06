@@ -1,0 +1,45 @@
+{
+  "item001": {
+    "title": "Moong Dal Cheela",
+    "description": "Protein-packed savory pancakes made from ground moong dal with onions, tomatoes, and spices. Significance: Excellent plant-based protein source with all essential amino acids. Supports muscle building, weight loss, and provides sustained energy throughout the morning.",
+    "keywords": ["veg", "high_protein", "gluten_free", "breakfast", "weight_loss"],
+    "allergens": ["none"],
+    "goodForDiseases": ["diabetes", "obesity", "protein_deficiency"],
+    "badForDiseases": [],
+    "healthBenefit": "High in protein (24g per 100g), low glycemic index, rich in folate and iron.",
+    "category": "breakfast",
+    "imagePlaceholder": "assets/food/moong_cheela.jpg",
+    "ingredients": [
+      "1 cup moong dal (soaked)",
+      "1/4 cup water",
+      "1 small onion, finely chopped",
+      "1 tomato, finely chopped",
+      "2 green chilies, chopped",
+      "1/2 teaspoon cumin seeds",
+      "1/4 teaspoon turmeric powder",
+      "Salt to taste",
+      "2 tablespoons oil for cooking",
+      "Fresh coriander leaves, chopped"
+    ],
+    "instructions": [
+      "Drain the soaked moong dal and grind it with water to make a smooth batter",
+      "Transfer the batter to a bowl and add salt, turmeric powder, and cumin seeds",
+      "Mix in the chopped onions, tomatoes, green chilies, and coriander leaves",
+      "Heat a non-stick pan over medium heat and lightly grease it with oil",
+      "Pour a ladleful of batter onto the pan and spread it in a circular motion",
+      "Cook for 2-3 minutes until the bottom turns golden brown",
+      "Flip the cheela and cook the other side for another 2 minutes",
+      "Remove from pan and serve hot with green chutney or yogurt"
+    ],
+    "nutrition": {
+      "calories": "180 kcal",
+      "protein": "12g",
+      "carbs": "22g",
+      "fat": "5g",
+      "fiber": "6g",
+      "sugar": "2g",
+      "sodium": "150mg",
+      "iron": "3mg"
+    }
+  }
+}

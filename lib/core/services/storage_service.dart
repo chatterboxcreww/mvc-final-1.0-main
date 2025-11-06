@@ -21,6 +21,7 @@ class StorageService {
   static const String _weeklyStepDataKey = 'weekly_step_data';
   static const String _checkinHistoryKey = 'checkin_history';
   static const String _lastDataSyncKey = 'last_data_sync';
+  static const String _demoModeKey = 'demo_mode';
 
   // Singleton pattern for better performance
   static final StorageService _instance = StorageService._internal();
@@ -399,6 +400,28 @@ class StorageService {
       print('Error loading critical user data: $e');
     }
     return null;
+  }
+
+  /// Set demo mode flag
+  Future<void> setDemoMode(bool isDemoMode) async {
+    try {
+      final prefs = await _prefs;
+      await prefs.setBool(_demoModeKey, isDemoMode);
+      debugPrint('StorageService: Demo mode set to: $isDemoMode');
+    } catch (e) {
+      debugPrint('Error setting demo mode: $e');
+    }
+  }
+
+  /// Check if app is in demo mode
+  Future<bool> isDemoMode() async {
+    try {
+      final prefs = await _prefs;
+      return prefs.getBool(_demoModeKey) ?? false;
+    } catch (e) {
+      debugPrint('Error checking demo mode: $e');
+      return false;
+    }
   }
 }
 

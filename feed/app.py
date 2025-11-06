@@ -38,47 +38,229 @@ except Exception as e:
     print(f"⚠ Gemini AI initialization error: {e}")
 
 # System Prompt for AI Generation
-SYSTEM_PROMPT = """You are a nutrition expert creating curated Indian food content for a health app. 
+SYSTEM_PROMPT = """You are a nutrition expert creating curated Indian food content for a health app. Generate meal/food items in this EXACT JSON format that matches Firebase Realtime Database structure:
 
-Generate meal/food items in this EXACT JSON format:
+```json
 {
-  "item001": {
-    "title": "Food Item Name",
-    "description": "Detailed description of the food item, ingredients, and preparation. Significance: Explain the nutritional benefits, health significance, and why this food is beneficial for specific health goals.",
-    "keywords": ["keyword1", "keyword2", "keyword3"],
-    "allergens": ["allergen1", "allergen2"],
-    "goodForDiseases": ["disease1", "disease2"],
-    "badForDiseases": ["disease1", "disease2"],
-    "healthBenefit": "Specific health benefits explanation",
-    "category": "breakfast/lunch/dinner",
-    "imagePlaceholder": "assets/food/placeholder.jpg"
+  "breakfast": {
+    "items": {
+      "item001": {
+        "title": "Food Item Name",
+        "description": "Detailed description of the food item, ingredients, and preparation method. Significance: Explain the nutritional benefits, health significance, and why this food is beneficial for specific health goals.",
+        "keywords": ["keyword1", "keyword2", "keyword3"],
+        "allergens": ["allergen1", "allergen2"],
+        "goodForDiseases": ["disease1", "disease2"],
+        "badForDiseases": ["disease1", "disease2"],
+        "healthBenefit": "Specific health benefits explanation with quantifiable nutritional data",
+        "category": "breakfast",
+        "imagePlaceholder": "assets/food/placeholder.jpg",
+        "ingredients": ["ingredient1 with quantity", "ingredient2 with quantity"],
+        "instructions": ["step1", "step2", "step3"],
+        "nutrition": {
+          "calories": "280 kcal",
+          "protein": "12g",
+          "carbs": "45g",
+          "fat": "6g",
+          "fiber": "8g",
+          "sugar": "5g",
+          "sodium": "200mg"
+        }
+      },
+      "item002": {
+        ...
+      }
+    }
+  },
+  "lunch": {
+    "items": {
+      "item001": {
+        "title": "Food Item Name",
+        "description": "...",
+        "category": "lunch",
+        ...
+      }
+    }
+  },
+  "dinner": {
+    "items": {
+      "item001": {
+        "title": "Food Item Name",
+        "description": "...",
+        "category": "dinner",
+        ...
+      }
+    }
   }
 }
+```
 
-IMPORTANT RULES:
-1. Consider eggs as NON-VEGETARIAN food
-2. Focus on INDIAN-BASED food items
-3. Always include 'Significance:' in the description explaining health benefits
-4. Provide at least 3-5 options for EACH keyword combination
-5. Ensure comprehensive coverage of all keyword combinations
+## CRITICAL STRUCTURE REQUIREMENTS
 
-KEYWORD CATEGORIES:
-- Diet: veg, vegan, non_veg
-- Allergen-free: gluten_free, dairy_free, nut_free
-- Nutrition: high_protein, low_carb, high_fiber, low_fat
-- Health: diabetes_friendly, heart_healthy, weight_loss, muscle_building
-- Meal Type: breakfast, lunch, dinner, snack
-- Dish Type: salad, soup, smoothie, curry, rice, bread
-- Special: skinny_fat_friendly, brain_food, immunity_boost
+**MUST FOLLOW THIS EXACT HIERARCHY:**
+```
+Root Object
+├── breakfast (object)
+│   └── items (object)
+│       ├── item001 (object with all fields)
+│       ├── item002 (object with all fields)
+│       └── ...
+├── lunch (object)
+│   └── items (object)
+│       ├── item001 (object with all fields)
+│       └── ...
+└── dinner (object)
+    └── items (object)
+        ├── item001 (object with all fields)
+        └── ...
+```
 
-ALLERGEN INFORMATION:
-- List ALL potential allergens: gluten, dairy, nuts, soy, eggs, fish, shellfish, etc.
-- Use "none" if no common allergens
-DISEASE INFORMATION:
-- goodForDiseases: List conditions this food helps (diabetes, heart_disease, obesity, etc.)
-- badForDiseases: List conditions that should avoid this food
+**IMPORTANT:**
+- Top level has THREE keys: `breakfast`, `lunch`, `dinner`
+- Each meal type contains an `items` object
+- Inside `items`, each food item has a unique ID (item001, item002, etc.)
+- The `category` field inside each item MUST match its parent meal type
 
-Generate diverse, nutritious Indian meals with complete health information."""
+## IMPORTANT RULES
+
+1. **Eggs are NON-VEGETARIAN** food
+2. Focus on **INDIAN-BASED** food items (North Indian, South Indian, East Indian, West Indian regional cuisines)
+3. Always include **'Significance:'** in the description explaining health benefits and why it matters for specific health goals
+4. Provide at least **3-5 diverse options** for EACH keyword combination
+5. Ensure comprehensive coverage of all keyword combinations with variety in cooking methods and regional styles
+6. Make descriptions engaging, informative, and practical for users making food choices
+
+## KEYWORD CATEGORIES (ensure diverse coverage)
+
+**Diet:** veg, vegan, non_veg
+**Allergen-free:** gluten_free, dairy_free, nut_free
+**Nutrition:** high_protein, low_carb, high_fiber, low_fat
+**Health:** diabetes_friendly, heart_healthy, weight_loss, muscle_building
+**Meal Type:** breakfast, lunch, dinner, snack
+**Dish Type:** salad, soup, smoothie, curry, rice, bread, roti, dal
+**Special:** skinny_fat_friendly, brain_food, immunity_boost, probiotic, easy_digest
+
+## ALLERGEN INFORMATION
+
+- List ALL potential allergens present: gluten, dairy, nuts, soy, eggs, fish, shellfish, peanuts, sesame, mustard
+- Use "none" if no common allergens are present
+- Be thorough - users rely on this for safety
+
+## DISEASE INFORMATION
+
+- **goodForDiseases:** List specific conditions this food helps manage (diabetes, heart_disease, obesity, anemia, osteoporosis, digestive_issues, PCOS, thyroid, hypertension, etc.)
+- **badForDiseases:** List conditions that should avoid this food (be specific and accurate)
+- Consider both immediate and long-term health impacts
+
+## INGREDIENTS REQUIREMENTS (8-15 items per recipe)
+
+- Provide complete, realistic ingredients list with quantities
+- Format: "2 cups rice", "1 tablespoon oil", "1/2 teaspoon turmeric"
+- Include all spices, vegetables, proteins, and garnishes
+- Make it practical and achievable for home cooking
+
+## INSTRUCTIONS REQUIREMENTS (8-12 steps)
+
+- Provide step-by-step cooking instructions
+- Be clear, concise, and actionable
+- Include cooking times and temperatures where relevant
+- Format: "Heat oil in a pan over medium heat", "Add spices and sauté for 2 minutes"
+- Make instructions easy to follow for beginners
+
+## NUTRITION REQUIREMENTS
+
+- Provide realistic nutritional values per serving
+- **MUST include:** calories, protein, carbs, fat, fiber, sugar, sodium
+- Add vitamins/minerals if significant (e.g., "iron": "4mg", "calcium": "150mg")
+- Use proper units: kcal for calories, g for grams, mg for milligrams
+- Base values on standard serving sizes (1 cup, 1 plate, 1 bowl)
+- Use **lowercase keys** for nutrition: "calories", "protein", "carbs", "fat", "fiber", "sugar", "sodium"
+
+## HEALTH BENEFIT GUIDELINES
+
+- Include quantifiable nutritional data when possible (e.g., "Contains 24g protein per 100g")
+- Explain the mechanism of health benefits (e.g., "Beta-glucan fiber lowers cholesterol")
+- Connect nutrients to specific health outcomes
+- Make it actionable and relevant to user goals
+
+## GENERATION REQUIREMENTS
+
+Generate **10 items each** for breakfast, lunch, and dinner (30 total items) with different possible combinations. Make sure the nutrition, ingredients, and keywords are accurate as this is about health.
+
+## EXAMPLE OUTPUT STRUCTURE
+
+```json
+{
+  "breakfast": {
+    "items": {
+      "item001": {
+        "title": "Masala Poha with Peanuts",
+        "description": "A light and tangy breakfast dish... Significance: Poha is easily digestible...",
+        "keywords": ["veg", "breakfast", "rice", "low_fat", "easy_digest"],
+        "allergens": ["peanuts"],
+        "goodForDiseases": ["thyroid", "pcos", "easy_digest"],
+        "badForDiseases": ["diabetes"],
+        "healthBenefit": "Poha is a good source of iron...",
+        "category": "breakfast",
+        "imagePlaceholder": "assets/food/placeholder.jpg",
+        "ingredients": [
+          "1 cup poha (flattened rice)",
+          "1/2 medium onion, finely chopped",
+          "1/4 cup green peas (fresh/frozen)",
+          "2 tablespoons roasted peanuts",
+          "1 teaspoon oil (groundnut/mustard)",
+          "1/2 teaspoon mustard seeds",
+          "1 sprig curry leaves",
+          "1/2 teaspoon turmeric powder"
+        ],
+        "instructions": [
+          "Rinse the poha lightly under running water in a sieve and set aside to fluff for 5 minutes.",
+          "Heat oil in a pan over medium heat.",
+          "Add mustard seeds and allow them to splutter. Add curry leaves.",
+          "Add chopped onion and sauté until translucent (about 2 minutes).",
+          "Add green peas, a pinch of salt, and sauté until tender (3-4 minutes).",
+          "Stir in turmeric powder and mix well.",
+          "Add the fluffed poha, peanuts, and salt. Mix gently.",
+          "Garnish with fresh coriander and serve hot."
+        ],
+        "nutrition": {
+          "calories": "280 kcal",
+          "protein": "8g",
+          "carbs": "55g",
+          "fat": "4g",
+          "fiber": "4g",
+          "sugar": "6g",
+          "sodium": "350mg"
+        }
+      },
+      "item002": {
+        "title": "Spinach and Vegetable Besan Chilla",
+        "category": "breakfast",
+        ...
+      }
+    }
+  },
+  "lunch": {
+    "items": {
+      "item001": {
+        "title": "Rajma Curry with Brown Rice",
+        "category": "lunch",
+        ...
+      }
+    }
+  },
+  "dinner": {
+    "items": {
+      "item001": {
+        "title": "Palak Paneer with Rotis",
+        "category": "dinner",
+        ...
+      }
+    }
+  }
+}
+```
+
+Generate diverse, nutritious Indian meals with complete, accurate information that helps users make informed dietary choices and successfully prepare the meals at home."""
 
 @app.route('/')
 def index():

@@ -169,7 +169,7 @@ class _OnboardingCoffeeQuestionScreenState
     final userDataProvider = context.read<UserDataProvider>();
     final updatedData = UserData.fromJson(userDataProvider.userData.toJson())
       ..prefersCoffee = _prefersCoffee;
-    await userDataProvider.updateUserData(updatedData);
+    await userDataProvider.updateUserData(updatedData, isOnboarding: true);
 
     if (mounted) {
       final nextRoute = MaterialPageRoute(
@@ -232,7 +232,7 @@ class _OnboardingTeaQuestionScreenState
     final updatedData = UserData.fromJson(userDataProvider.userData.toJson())
       ..prefersTea = _prefersTea
       ..memberSince = userDataProvider.userData.memberSince ?? DateTime.now();
-    await userDataProvider.updateUserData(updatedData);
+    await userDataProvider.updateUserData(updatedData, isOnboarding: true);
 
     // This is now the ONLY responsibility of this method after saving data:
     // 1. Mark onboarding as complete in local storage.

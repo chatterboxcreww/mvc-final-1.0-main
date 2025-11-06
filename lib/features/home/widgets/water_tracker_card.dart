@@ -3,6 +3,7 @@
 // lib/features/home/widgets/water_tracker_card.dart
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'dart:ui';
 
 import '../../../core/providers/trends_provider.dart';
 import '../../../core/providers/user_data_provider.dart';
@@ -13,6 +14,7 @@ import '../../../core/providers/step_counter_provider.dart';
 import '../../../core/services/daily_sync_service.dart';
 import '../../../core/services/admin_analytics_service.dart';
 import '../../../core/services/atomic_water_service.dart';
+import '../../../shared/widgets/glass_container.dart';
 import 'custom_water_glass.dart';
 
 class WaterTrackerCard extends StatefulWidget {
@@ -111,32 +113,8 @@ class _WaterTrackerCardState extends State<WaterTrackerCard> {
         final colorScheme = Theme.of(context).colorScheme;
         final textTheme = Theme.of(context).textTheme;
 
-        return Card(
-          elevation: 8,
-          color: colorScheme.surface,
-          shadowColor: Color.fromRGBO(colorScheme.shadow.red, colorScheme.shadow.green, colorScheme.shadow.blue, 0.3),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(24),
-            side: BorderSide(
-              color: Color.fromRGBO(colorScheme.outline.red, colorScheme.outline.green, colorScheme.outline.blue, 0.1),
-              width: 1,
-            ),
-          ),
-          clipBehavior: Clip.antiAlias,
-          child: Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  colorScheme.primaryContainer.withOpacity(0.3),
-                  colorScheme.surface,
-                ],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(20.0),
-              child: Column(
+        return GlassCard(
+          child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
@@ -279,12 +257,17 @@ class _WaterTrackerCardState extends State<WaterTrackerCard> {
                   const SizedBox(height: 12),
                   
                   // Hydration tip
-                  Container(
+                  GlassContainer(
                     padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: colorScheme.primaryContainer,
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: colorScheme.primary.withOpacity(0.2)),
+                    borderRadius: 12,
+                    opacity: 0.05,
+                    gradientColors: [
+                      colorScheme.primary.withOpacity(0.15),
+                      colorScheme.primary.withOpacity(0.05),
+                    ],
+                    border: Border.all(
+                      color: colorScheme.primary.withOpacity(0.2),
+                      width: 1,
                     ),
                     child: Row(
                       children: [
@@ -304,8 +287,6 @@ class _WaterTrackerCardState extends State<WaterTrackerCard> {
                   ),
                 ],
               ),
-            ),
-          ),
         );
       },
     );

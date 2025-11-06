@@ -18,6 +18,7 @@ import '../../../core/providers/user_data_provider.dart';
 import '../../../core/providers/achievement_provider.dart'; // Added import
 import '../../../core/providers/comment_provider.dart'; // Added import
 import '../../../shared/widgets/animated_list_item.dart';
+import '../../../shared/widgets/glass_container.dart';
 import 'coach_insight_card.dart';
 import 'daily_checkin_card.dart';
 import 'leaderboard_card.dart';
@@ -63,10 +64,22 @@ class _FeedSectionState extends State<FeedSection> {
     
     return RefreshIndicator(
       onRefresh: () async {
-        await context.read<CuratedContentProvider>().refreshFeed();
-        if (mounted) {
-          final stepHistory = context.read<StepCounterProvider>().weeklyStepData;
-          context.read<TrendsProvider>().generateCoachInsight(stepHistory);
+        try {
+          await context.read<CuratedContentProvider>().refreshFeed();
+          if (mounted) {
+            final stepHistory = context.read<StepCounterProvider>().weeklyStepData;
+            context.read<TrendsProvider>().generateCoachInsight(stepHistory);
+          }
+        } catch (e) {
+          print('Error refreshing feed: $e');
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Failed to refresh feed. Please try again.'),
+                backgroundColor: Theme.of(context).colorScheme.error,
+              ),
+            );
+          }
         }
       },
       child: ListView(
@@ -138,37 +151,75 @@ class _FeedSectionState extends State<FeedSection> {
         physics: const NeverScrollableScrollPhysics(),
         itemCount: content.length,
         itemBuilder: (context, index) {
-          return AnimatedListItem(
-            index: index,
-            child: _buildCuratedCard(context, content[index]),
-          );
+          try {
+            return AnimatedListItem(
+              index: index,
+              child: _buildCuratedCard(context, content[index]),
+            );
+          } catch (e) {
+            print('Error building curated card at index $index: $e');
+            return GlassCard(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Row(
+                  children: [
+                    Icon(Icons.error_outline, color: Theme.of(context).colorScheme.error),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        'Unable to load this item',
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          }
         },
       );
     } else {
       final int currentHour = DateTime.now().hour;
       String message;
+      IconData icon;
+      
       if (!provider.isContentAvailable) {
         message = "Today's feed is being prepared...\nPull down to refresh.";
+        icon = Icons.refresh;
       } else if (currentHour >= 4 && currentHour < 11) {
-        message =
-        "No breakfast items match your profile today. Check back after 11 AM for lunch!";
+        message = "No breakfast items match your profile today.\nCheck back after 11 AM for lunch!";
+        icon = Icons.free_breakfast_outlined;
       } else if (currentHour >= 11 && currentHour < 17) {
-        message =
-        "No lunch items match your profile right now. Check back after 5 PM for dinner!";
+        message = "No lunch items match your profile right now.\nCheck back after 5 PM for dinner!";
+        icon = Icons.lunch_dining_outlined;
       } else {
-        message =
-        "That's all for today! A fresh feed will be ready for you tomorrow morning.";
+        message = "That's all for today!\nA fresh feed will be ready for you tomorrow morning.";
+        icon = Icons.dinner_dining_outlined;
       }
+      
       return Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 40.0),
         child: Center(
-          child: Text(
-            message,
-            textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-              fontStyle: FontStyle.italic,
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
-            ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                icon,
+                size: 48,
+                color: Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.6),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                message,
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  fontStyle: FontStyle.italic,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+              ),
+            ],
           ),
         ),
       );
@@ -177,13 +228,37 @@ class _FeedSectionState extends State<FeedSection> {
 
   Widget _buildCuratedCard(BuildContext context, CuratedContentItem item) {
     final colorScheme = Theme.of(context).colorScheme;
+    
+    // Validate item data
+    if (item.title.isEmpty) {
+      return GlassCard(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Row(
+            children: [
+              Icon(Icons.error_outline, color: colorScheme.error),
+              const SizedBox(width: 8),
+              Text(
+                'Invalid recipe data',
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: colorScheme.onSurfaceVariant,
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+    
     return Consumer<ActivityProvider>(
       builder: (context, provider, child) {
         final bool isAdded =
         provider.containsActivity(label: item.title, type: 'CuratedIdea');
         IconData leadingIconData;
 
-        if (item.category.toLowerCase().contains('food')) {
+        if (item.category.toLowerCase().contains('food') || 
+            item.category.toLowerCase().contains('coffee') ||
+            item.category.toLowerCase().contains('tea')) {
           leadingIconData = Icons.restaurant_menu_outlined;
         } else if (item.category.toLowerCase().contains('exercise')) {
           leadingIconData = Icons.fitness_center_outlined;
@@ -191,7 +266,7 @@ class _FeedSectionState extends State<FeedSection> {
           leadingIconData = Icons.lightbulb_outline;
         }
 
-        return Card(
+        return GlassCard(
           child: ExpansionTile(
             key: PageStorageKey(item.id),
             leading: item.imagePlaceholder != null &&
@@ -306,15 +381,24 @@ class _FeedSectionState extends State<FeedSection> {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton.icon(
-                  onPressed: () {
-                    // Use post-frame callback to avoid setState during build
-                    WidgetsBinding.instance.addPostFrameCallback((_) {
-                      Navigator.of(context).push(
+                  onPressed: () async {
+                    try {
+                      await Navigator.of(context).push(
                         MaterialPageRoute(
                           builder: (context) => RecipeDetailScreen(recipe: item),
                         ),
                       );
-                    });
+                    } catch (e) {
+                      print('Error navigating to recipe details: $e');
+                      if (mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Unable to load recipe details'),
+                            backgroundColor: Theme.of(context).colorScheme.error,
+                          ),
+                        );
+                      }
+                    }
                   },
                   icon: Icon(Icons.restaurant_menu, size: 18),
                   label: Text('More Details'),
@@ -442,8 +526,7 @@ class _FeedSectionState extends State<FeedSection> {
 
   Widget _buildExpansionTile(BuildContext context, String title,
       List<String> advicePoints, IconData icon, Color iconColor) {
-    return Card(
-      elevation: 2,
+    return GlassCard(
       child: ExpansionTile(
         key: PageStorageKey(title),
         leading: Container(
@@ -562,8 +645,7 @@ class _FeedSectionState extends State<FeedSection> {
       },
     };
 
-    return Card(
-      elevation: 2,
+    return GlassCard(
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -766,8 +848,7 @@ class _FeedSectionState extends State<FeedSection> {
       },
     };
 
-    return Card(
-      elevation: 2,
+    return GlassCard(
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(

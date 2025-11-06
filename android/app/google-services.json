@@ -31,6 +31,14 @@
           }
         },
         {
+          "client_id": "437403925289-t9cmgq527kjns1cmassa3l9kjtrha7o9.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.healthapp.mvc",
+            "certificate_hash": "dba754ca3d7c89527ea4fbb482a0388f83e4327c"
+          }
+        },
+        {
           "client_id": "437403925289-vggornuate398jpft1qtg331ua6hjb0e.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {

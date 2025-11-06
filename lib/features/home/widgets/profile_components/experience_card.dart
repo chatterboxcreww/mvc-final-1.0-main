@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../core/providers/experience_provider.dart';
+import '../../../../shared/widgets/glass_container.dart';
 
 class ExperienceCard extends StatelessWidget {
   const ExperienceCard({super.key});
@@ -16,25 +17,23 @@ class ExperienceCard extends StatelessWidget {
         final xpProgress = experienceProvider.xp / experienceProvider.xpForNextLevel;
         final colorScheme = Theme.of(context).colorScheme;
         
-        return Card(
-          child: Padding(
-            padding: const EdgeInsets.all(20.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Icon(Icons.trending_up_rounded, 
-                         color: colorScheme.primary, size: 24),
-                    const SizedBox(width: 12),
-                    Text(
-                      'Experience & Progress',
-                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
+        return GlassCard(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Icon(Icons.trending_up_rounded, 
+                       color: colorScheme.primary, size: 24),
+                  const SizedBox(width: 12),
+                  Text(
+                    'Experience & Progress',
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
                     ),
-                  ],
-                ),
+                  ),
+                ],
+              ),
                 const SizedBox(height: 16),
                 
                 // Level and XP info
@@ -95,7 +94,6 @@ class ExperienceCard extends StatelessWidget {
                 ),
               ],
             ),
-          ),
         );
       },
     );

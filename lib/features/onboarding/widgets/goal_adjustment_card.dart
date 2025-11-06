@@ -12,6 +12,7 @@ class GoalAdjustmentCard extends StatelessWidget {
   final IconData icon;
   final Color color;
   final ValueChanged<int> onChanged;
+  final VoidCallback? onInfoTap;
 
   const GoalAdjustmentCard({
     super.key,
@@ -25,6 +26,7 @@ class GoalAdjustmentCard extends StatelessWidget {
     required this.icon,
     required this.color,
     required this.onChanged,
+    this.onInfoTap,
   });
 
   @override
@@ -35,11 +37,11 @@ class GoalAdjustmentCard extends StatelessWidget {
         color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.1),
+          color: Theme.of(context).colorScheme.outline.withOpacity(0.1),
         ),
         boxShadow: [
           BoxShadow(
-            color: Theme.of(context).colorScheme.shadow.withValues(alpha: 0.05),
+            color: Theme.of(context).colorScheme.shadow.withOpacity(0.05),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -53,7 +55,7 @@ class GoalAdjustmentCard extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: color.withValues(alpha: 0.1),
+                  color: color.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Icon(
@@ -67,11 +69,33 @@ class GoalAdjustmentCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      title,
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w700,
-                      ),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            title,
+                            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ),
+                        if (onInfoTap != null)
+                          GestureDetector(
+                            onTap: onInfoTap,
+                            child: Container(
+                              padding: const EdgeInsets.all(4),
+                              decoration: BoxDecoration(
+                                color: color.withOpacity(0.2),
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(
+                                Icons.info_outline,
+                                color: color,
+                                size: 16,
+                              ),
+                            ),
+                          ),
+                      ],
                     ),
                     Text(
                       description,
@@ -114,9 +138,9 @@ class GoalAdjustmentCard extends StatelessWidget {
           SliderTheme(
             data: SliderTheme.of(context).copyWith(
               activeTrackColor: color,
-              inactiveTrackColor: color.withValues(alpha: 0.2),
+              inactiveTrackColor: color.withOpacity(0.2),
               thumbColor: color,
-              overlayColor: color.withValues(alpha: 0.2),
+              overlayColor: color.withOpacity(0.2),
               trackHeight: 6,
               thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 12),
             ),
@@ -176,10 +200,10 @@ class HealthMetricCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.1),
+        color: color.withOpacity(0.1),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: color.withValues(alpha: 0.2),
+          color: color.withOpacity(0.2),
         ),
       ),
       child: Column(
@@ -218,7 +242,7 @@ class HealthMetricCard extends StatelessWidget {
                 Text(
                   unit,
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: color.withValues(alpha: 0.8),
+                    color: color.withOpacity(0.8),
                   ),
                 ),
               ],
