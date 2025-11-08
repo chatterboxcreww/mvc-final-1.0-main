@@ -11,10 +11,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  flutter_local_notifications: ^17.2.2
-  timezone: ^0.9.4
   permission_handler: ^11.3.1
-  shared_preferences: ^2.2.3
+  shared_preferences: ^2.5.3
   provider: ^6.1.2     # Add this
   uuid: ^4.3.3
   image_picker: ^1.1.2
@@ -25,11 +23,10 @@ dependencies:
   firebase_storage: ^11.7.2
   firebase_database: ^10.5.7
   google_sign_in: ^6.2.1
-  awesome_notifications: ^0.10.1
   url_launcher: ^6.3.1
   tdesign_flutter: ^0.2.2
   pedometer: ^4.1.1
-  fl_chart: ^1.0.0
+  fl_chart: ^0.69.0
   flutter_svg: ^2.2.0
   intl: ^0.20.2
   profanity_filter: ^2.0.0
@@ -41,14 +38,14 @@ dependencies:
   share_plus: ^9.0.0  # For sharing files
   flutter_secure_storage: ^9.2.2  # For secure configuration storage
   crypto: ^3.0.3  # For encryption and hashing
+  flutter_local_notifications: ^19.5.0
+  timezone: ^0.10.1
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^5.0.0 # Keeping your lints
   mockito: ^5.0.0 # Added for testing
   build_runner: ^2.4.9 # For code generation
-  integration_test:
-    sdk: flutter
   flutter_launcher_icons: ^0.13.1
 
 

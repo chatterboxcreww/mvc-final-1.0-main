@@ -8,6 +8,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:pedometer/pedometer.dart';
 import 'package:workmanager/workmanager.dart';
 import 'package:flutter/services.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'notification_service.dart';
 
 class StepTrackingConstants {
   static const syncTaskName = 'sync_steps_background';
@@ -71,9 +73,35 @@ class StepTrackingService {
     // Set up enhanced communication channel with Kotlin service
     _setupStepCountChannel();
     
+    // Start fallback pedometer listener
+    _startPedometerFallback();
+    
     // Start health monitoring and periodic sync
     _startHealthMonitoring();
     _startPeriodicSync();
+  }
+  
+  // Fallback to pedometer package when native service fails
+  void _startPedometerFallback() {
+    try {
+      _sub = Pedometer.stepCountStream.listen(
+        (StepCount event) {
+          final steps = event.steps;
+          print('StepTrackingService: Pedometer update: $steps steps');
+          _handleStepCountUpdate(steps);
+        },
+        onError: (error) {
+          print('StepTrackingService: Pedometer error: $error');
+          if (error is PlatformException && error.code == '1') {
+            _stepDetectionAvailable = false;
+            print('StepTrackingService: Step detection not available on this device');
+          }
+        },
+      );
+      print('StepTrackingService: Pedometer fallback started');
+    } catch (e) {
+      print('StepTrackingService: Failed to start pedometer fallback: $e');
+    }
   }
 
   Future<void> _startBackgroundService() async {
@@ -208,6 +236,9 @@ class StepTrackingService {
             print('StepTrackingService: Error in callback: $e');
           }
         }
+        
+        // Update persistent notification
+        _updatePersistentNotification(stepCount);
         
         // Auto-sync to Firebase periodically
         _scheduleSyncIfNeeded();
@@ -446,6 +477,23 @@ class StepTrackingService {
     }
   }
 
+  // Update persistent notification with current step count
+  Future<void> _updatePersistentNotification(int stepCount) async {
+    try {
+      // Get step goal from SharedPreferences
+      final prefs = await SharedPreferences.getInstance();
+      final stepGoal = prefs.getInt('daily_step_goal') ?? 10000;
+      
+      // Update the persistent notification
+      await NotificationService().showPersistentStepNotification(
+        currentSteps: stepCount,
+        goalSteps: stepGoal,
+      );
+    } catch (e) {
+      print('StepTrackingService: Failed to update persistent notification: $e');
+    }
+  }
+
   void dispose() {
     print('StepTrackingService: Disposing service and cleaning up resources');
     
@@ -458,6 +506,9 @@ class StepTrackingService {
     
     // Stop background service
     stopBackgroundService();
+    
+    // Cancel persistent notification
+    NotificationService().cancelPersistentStepNotification();
     
     // Clear all callbacks
     _stepCountCallbacks.clear();

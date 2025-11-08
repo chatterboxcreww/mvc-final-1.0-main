@@ -91,8 +91,7 @@ class _EditLifestyleDialogState extends State<EditLifestyleDialog> {
 
     await userDataProvider.updateUserData(updatedData);
 
-    final notificationService =
-    NotificationService(flutterLocalNotificationsPlugin);
+    final notificationService = NotificationService();
     
     final success = await NotificationManager.updateNotifications(
       context,

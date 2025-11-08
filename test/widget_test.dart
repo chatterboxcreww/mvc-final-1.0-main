@@ -9,7 +9,6 @@
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart'; // Import provider
-import 'package:flutter_local_notifications/flutter_local_notifications.dart'; // Added import
 
 import 'package:mvc/main.dart';
 import 'package:mvc/core/providers/theme_provider.dart'; // Import ThemeProvider
@@ -24,20 +23,6 @@ import 'package:mvc/core/providers/experience_provider.dart'; // Import Experien
 import 'package:mvc/core/providers/achievement_provider.dart'; // Import AchievementProvider
 import 'package:mvc/core/services/notification_service.dart'; // Import NotificationService
 import 'package:mvc/core/services/adaptive_notification_service.dart'; // Import AdaptiveNotificationService
-
-import 'package:mockito/mockito.dart'; // Import mockito
-
-// Mock classes for flutter_local_notifications
-class MockFlutterLocalNotificationsPlugin extends Mock implements FlutterLocalNotificationsPlugin {}
-class MockAndroidFlutterLocalNotificationsPlugin extends Mock implements AndroidFlutterLocalNotificationsPlugin {}
-class MockIOSFlutterLocalNotificationsPlugin extends Mock implements IOSFlutterLocalNotificationsPlugin {}
-class MockNotificationDetails extends Mock implements NotificationDetails {}
-class MockAndroidNotificationDetails extends Mock implements AndroidNotificationDetails {}
-class MockDarwinNotificationDetails extends Mock implements DarwinNotificationDetails {}
-class MockInitializationSettings extends Mock implements InitializationSettings {}
-
-// Mock the global instance
-MockFlutterLocalNotificationsPlugin mockFlutterLocalNotificationsPlugin = MockFlutterLocalNotificationsPlugin();
 
 void main() {
   testWidgets('App starts without ProviderNotFoundException', (WidgetTester tester) async {
@@ -63,8 +48,8 @@ void main() {
           ChangeNotifierProvider(create: (_) => CommentProvider()),
           ChangeNotifierProvider(create: (_) => ExperienceProvider()),
           ChangeNotifierProvider(create: (_) => AchievementProvider()),
-          Provider.value(value: NotificationService(mockFlutterLocalNotificationsPlugin)),
-          Provider(create: (_) => AdaptiveNotificationService(NotificationService(mockFlutterLocalNotificationsPlugin))),
+          Provider(create: (_) => NotificationService()),
+          Provider(create: (_) => AdaptiveNotificationService(NotificationService())),
         ],
         child: const MyApp(),
       ),

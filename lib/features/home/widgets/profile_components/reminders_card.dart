@@ -25,7 +25,7 @@ class RemindersCard extends StatelessWidget {
     final userDataProvider = Provider.of<UserDataProvider>(context);
     final activityProvider = Provider.of<ActivityProvider>(context);
     final userData = userDataProvider.userData;
-    final notificationService = NotificationService(flutterLocalNotificationsPlugin);
+    final notificationService = NotificationService();
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
 
     return Card(
@@ -247,7 +247,7 @@ class RemindersCard extends StatelessWidget {
         break;
     }
 
-    final notificationService = NotificationService(flutterLocalNotificationsPlugin);
+    final notificationService = NotificationService();
 
     if (newValue) {
       if (timeDependent) {
@@ -358,8 +358,7 @@ class RemindersCard extends StatelessWidget {
                       ),
                       TextButton(
                         onPressed: () async {
-                          await NotificationService(
-                                  flutterLocalNotificationsPlugin)
+                          await NotificationService()
                               .cancelNotification(
                                   activity.id.hashCode % 2147483647);
                           activityProvider.deleteActivity(activity.id);
@@ -387,8 +386,7 @@ class RemindersCard extends StatelessWidget {
     final TextEditingController labelController = TextEditingController();
     TimeOfDay? selectedTime;
     NotificationRecurrence selectedRecurrence = NotificationRecurrence.daily;
-    final NotificationService notificationService =
-        NotificationService(flutterLocalNotificationsPlugin);
+    final NotificationService notificationService = NotificationService();
     final activityProvider = Provider.of<ActivityProvider>(profileContext, listen: false);
     final ColorScheme colorScheme = Theme.of(profileContext).colorScheme;
 

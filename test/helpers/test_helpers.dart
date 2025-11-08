@@ -5,7 +5,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'package:mockito/mockito.dart';
 import 'package:mockito/annotations.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 import 'package:mvc/core/providers/theme_provider.dart';
 import 'package:mvc/core/providers/user_data_provider.dart';
@@ -25,7 +24,6 @@ import 'package:mvc/core/models/achievement.dart';
 
 // Generate mocks
 @GenerateMocks([
-  FlutterLocalNotificationsPlugin,
   UserDataProvider,
   StepCounterProvider,
   ActivityProvider,
@@ -41,7 +39,6 @@ import 'test_helpers.mocks.dart';
 
 /// Test helpers for creating consistent test environments
 class TestHelpers {
-  static late MockFlutterLocalNotificationsPlugin mockNotificationsPlugin;
   static late MockUserDataProvider mockUserDataProvider;
   static late MockStepCounterProvider mockStepCounterProvider;
   static late MockActivityProvider mockActivityProvider;
@@ -55,7 +52,6 @@ class TestHelpers {
 
   /// Initialize all mocks with default behavior
   static void initializeMocks() {
-    mockNotificationsPlugin = MockFlutterLocalNotificationsPlugin();
     mockUserDataProvider = MockUserDataProvider();
     mockStepCounterProvider = MockStepCounterProvider();
     mockActivityProvider = MockActivityProvider();
@@ -157,7 +153,7 @@ class TestHelpers {
           create: (_) => useMocks ? mockTrendsProvider : TrendsProvider(),
         ),
         Provider<NotificationService>(
-          create: (_) => useMocks ? mockNotificationService : NotificationService(mockNotificationsPlugin),
+          create: (_) => useMocks ? mockNotificationService : NotificationService(),
         ),
         ProxyProvider<NotificationService, AdaptiveNotificationService>(
           update: (_, notificationService, __) => AdaptiveNotificationService(notificationService),

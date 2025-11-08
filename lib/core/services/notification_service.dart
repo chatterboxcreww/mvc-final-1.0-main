@@ -1,22 +1,16 @@
-// F:\latestmvc\latestmvc\mvc-final-1.0-main\lib\core\services\notification_service.dart
-
 // lib/core/services/notification_service.dart
-// f:\latestmvc\latestmvc\mvc-final-1.0-main\lib\core\services\notification_service.dart
+// Full notification service implementation with proper persistence
 
-import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:timezone/timezone.dart' as tz;
-import 'package:permission_handler/permission_handler.dart';
-
+import 'package:timezone/data/latest.dart' as tz;
 import '../models/app_enums.dart';
 import '../models/user_data.dart';
-import 'storage_service.dart';
 
-final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
-
-// Notification IDs
-// Notification IDs <-- ADD THIS SECTION
+// Notification IDs (kept for compatibility)
 const int MORNING_WALK_NOTIFICATION_ID = 1000;
 const int SLEEP_NOTIFICATION_ID = 1001;
 const int PRE_SLEEP_NOTIFICATION_ID = 1003;
@@ -29,266 +23,337 @@ const int TEA_REMINDER_NOTIFICATION_ID = 3003;
 const int DINNER_FEED_NOTIFICATION_ID = 3004;
 const int ACHIEVEMENT_NOTIFICATION_BASE_ID = 4000;
 
-@pragma('vm:entry-point')
-void notificationTapBackgroundHandler(NotificationResponse notificationResponse) {
-  debugPrint('Background notification tapped: ${notificationResponse.payload}');
-  
-  // Handle different notification types based on payload
-  try {
-    if (notificationResponse.payload != null) {
-      final payload = notificationResponse.payload!;
-      
-      // Handle achievement notifications
-      if (payload.contains('achievement')) {
-        debugPrint('Achievement notification tapped in background');
-        // Could store this for when app comes back to foreground
-      }
-      
-      // Handle reminder notifications
-      else if (payload.contains('water_reminder')) {
-        debugPrint('Water reminder notification tapped in background');
-        // Could increment some background counter
-      }
-      
-      // Handle sleep/wakeup notifications
-      else if (payload.contains('sleep') || payload.contains('wakeup')) {
-        debugPrint('Sleep-related notification tapped in background');
-        // Could log sleep interaction time
-      }
-      
-      // Default handling
-      else {
-        debugPrint('Generic notification tapped in background: $payload');
-      }
-    }
-  } catch (e) {
-    debugPrint('Error handling background notification tap: $e');
-  }
-}
-
 class NotificationService {
-  final FlutterLocalNotificationsPlugin _flutterLocalNotificationsPlugin;
-  final GlobalKey<ScaffoldMessengerState>? _scaffoldMessengerKey;
+  static final NotificationService _instance = NotificationService._internal();
+  factory NotificationService() => _instance;
+  NotificationService._internal() {
+    _flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+  }
 
-  NotificationService(this._flutterLocalNotificationsPlugin, [this._scaffoldMessengerKey]);
+  late FlutterLocalNotificationsPlugin _flutterLocalNotificationsPlugin;
+  bool _isInitialized = false;
+
+  // Notification settings persistence keys
+  static const String _waterRemindersEnabledKey = 'water_reminders_enabled';
+  static const String _stepGoalRemindersEnabledKey = 'step_goal_reminders_enabled';
+  static const String _moodCheckInsEnabledKey = 'mood_checkins_enabled';
+  static const String _weeklyReportsEnabledKey = 'weekly_reports_enabled';
+  static const String _achievementNotificationsEnabledKey = 'achievement_notifications_enabled';
+  static const String _levelUpNotificationsEnabledKey = 'level_up_notifications_enabled';
+  
+  // Legacy keys for backward compatibility
+  static const String _legacyWaterRemindersKey = 'water_reminders';
+  static const String _legacyStepGoalRemindersKey = 'step_goal_reminders';
+  static const String _legacyMoodCheckInsKey = 'mood_check_ins';
+  static const String _legacyWeeklyReportsKey = 'weekly_reports';
+  static const String _legacyAchievementNotificationsKey = 'achievement_notifications';
+  static const String _legacyLevelUpNotificationsKey = 'level_up_notifications';
 
   Future<void> initializeNotifications(
-      Function(NotificationResponse) onDidReceiveNotificationResponse,
-      Function(NotificationResponse) onDidReceiveBackgroundNotificationResponse,
-      ) async {
-    const AndroidInitializationSettings initializationSettingsAndroid =
-    AndroidInitializationSettings('@mipmap/ic_launcher');
+    Function(NotificationResponse) onDidReceiveNotificationResponse,
+    void Function(NotificationResponse) onDidReceiveBackgroundNotificationResponse,
+  ) async {
+    if (_isInitialized) {
+      debugPrint('⚠️ Notification service already initialized');
+      return;
+    }
 
-    const DarwinInitializationSettings initializationSettingsIOS = DarwinInitializationSettings(
-      requestAlertPermission: false,
-      requestBadgePermission: false,
-      requestSoundPermission: false,
-    );
+    try {
+      // Initialize timezone database
+      tz.initializeTimeZones();
+      
+      // Get device's timezone offset
+      final deviceOffset = DateTime.now().timeZoneOffset;
+      final deviceOffsetHours = deviceOffset.inHours;
+      final deviceOffsetMinutes = deviceOffset.inMinutes % 60;
+      
+      debugPrint('📍 Device timezone offset: ${deviceOffsetHours >= 0 ? '+' : ''}$deviceOffsetHours:${deviceOffsetMinutes.abs().toString().padLeft(2, '0')}');
+      
+      // Common timezone mappings for major regions
+      final timezoneMap = {
+        '+5:30': 'Asia/Kolkata',      // India
+        '+8:00': 'Asia/Singapore',     // Singapore, Malaysia
+        '+0:00': 'Europe/London',      // UK
+        '-5:00': 'America/New_York',   // US East
+        '-8:00': 'America/Los_Angeles', // US West
+        '+1:00': 'Europe/Paris',       // Central Europe
+        '+9:00': 'Asia/Tokyo',         // Japan
+        '+10:00': 'Australia/Sydney',  // Australia East
+      };
+      
+      // Create offset string
+      final offsetString = '${deviceOffsetHours >= 0 ? '+' : ''}$deviceOffsetHours:${deviceOffsetMinutes.abs().toString().padLeft(2, '0')}';
+      
+      // Try to get timezone from map first
+      String? timezoneName = timezoneMap[offsetString];
+      
+      // If not in map, search through all timezones
+      if (timezoneName == null) {
+        debugPrint('⚠️ Timezone not in common map, searching database...');
+        final locations = tz.timeZoneDatabase.locations;
+        
+        for (final locationName in locations.keys) {
+          try {
+            final loc = tz.getLocation(locationName);
+            final now = tz.TZDateTime.now(loc);
+            
+            // Check if offset matches (within 1 minute tolerance)
+            if ((now.timeZoneOffset.inMinutes - deviceOffset.inMinutes).abs() <= 1) {
+              // Prefer major city names
+              if (locationName.contains('/')) {
+                timezoneName = locationName;
+                break;
+              }
+            }
+          } catch (e) {
+            // Skip invalid locations
+            continue;
+          }
+        }
+      }
+      
+      // Set the timezone
+      if (timezoneName != null) {
+        try {
+          final location = tz.getLocation(timezoneName);
+          tz.setLocalLocation(location);
+          debugPrint('✅ Timezone set to: ${location.name}');
+        } catch (e) {
+          debugPrint('❌ Failed to set timezone: $e');
+        }
+      } else {
+        debugPrint('⚠️ Could not determine timezone, using UTC');
+      }
+      
+      // Verify the timezone is correct
+      final now = tz.TZDateTime.now(tz.local);
+      final deviceNow = DateTime.now();
+      
+      debugPrint('📍 App timezone: ${tz.local.name}');
+      debugPrint('📍 App time: ${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}');
+      debugPrint('📍 Device time: ${deviceNow.hour.toString().padLeft(2, '0')}:${deviceNow.minute.toString().padLeft(2, '0')}');
+      
+      // Check if times match
+      if ((now.hour != deviceNow.hour) || (now.minute != deviceNow.minute)) {
+        debugPrint('⚠️ WARNING: App time and device time do not match!');
+        debugPrint('⚠️ This will cause notifications to fire at wrong times!');
+      } else {
+        debugPrint('✅ Timezone correctly synchronized with device');
+      }
 
-    const InitializationSettings initializationSettings = InitializationSettings(
-      android: initializationSettingsAndroid,
-      iOS: initializationSettingsIOS,
-    );
+      // Initialize plugin with proper error handling
+      const AndroidInitializationSettings initializationSettingsAndroid =
+          AndroidInitializationSettings('@mipmap/ic_launcher');
 
-    await _flutterLocalNotificationsPlugin.initialize(
-      initializationSettings,
-      onDidReceiveNotificationResponse: onDidReceiveNotificationResponse,
-      onDidReceiveBackgroundNotificationResponse: onDidReceiveBackgroundNotificationResponse,
-    );
+      const DarwinInitializationSettings initializationSettingsIOS =
+          DarwinInitializationSettings(
+            requestAlertPermission: true,
+            requestBadgePermission: true,
+            requestSoundPermission: true,
+          );
+
+      const InitializationSettings initializationSettings = InitializationSettings(
+        android: initializationSettingsAndroid,
+        iOS: initializationSettingsIOS,
+      );
+
+      final initializeResult = await _flutterLocalNotificationsPlugin.initialize(
+        initializationSettings,
+        onDidReceiveNotificationResponse: (NotificationResponse payload) {
+          debugPrint('Notification tapped with payload: ${payload.payload}');
+          onDidReceiveNotificationResponse(payload);
+        },
+        onDidReceiveBackgroundNotificationResponse: onDidReceiveBackgroundNotificationResponse,
+      );
+
+      if (initializeResult != null && initializeResult == false) {
+        debugPrint('⚠️ Notification initialization returned false');
+      }
+
+      // Request permissions
+      final permissionsGranted = await _requestPermissions();
+      debugPrint('📋 Notification permissions granted: $permissionsGranted');
+
+      _isInitialized = true;
+      debugPrint('✅ Notification service initialized successfully');
+    } catch (e) {
+      debugPrint('❌ Failed to initialize notifications: $e');
+      _isInitialized = false; // Ensure we can try again later
+    }
+  }
+
+  Future<bool> _requestPermissions() async {
+    try {
+      final AndroidFlutterLocalNotificationsPlugin? androidPlugin =
+          _flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<
+              AndroidFlutterLocalNotificationsPlugin>();
+
+      if (androidPlugin != null) {
+        // Request notification permission
+        final bool? notificationGranted = await androidPlugin.requestNotificationsPermission();
+        debugPrint('📋 Notification permission: ${notificationGranted ?? false}');
+        
+        // Request exact alarm permission (Android 12+)
+        final bool? exactAlarmGranted = await androidPlugin.requestExactAlarmsPermission();
+        debugPrint('📋 Exact alarm permission: ${exactAlarmGranted ?? false}');
+        
+        // Check if exact alarms are allowed
+        final bool? canScheduleExactAlarms = await androidPlugin.canScheduleExactNotifications();
+        debugPrint('📋 Can schedule exact alarms: ${canScheduleExactAlarms ?? false}');
+        
+        if (canScheduleExactAlarms == false) {
+          debugPrint('⚠️ WARNING: Exact alarms not allowed! Notifications may not fire on time.');
+          debugPrint('⚠️ User needs to enable "Alarms & reminders" permission in app settings.');
+        }
+        
+        return (notificationGranted ?? false) && (canScheduleExactAlarms ?? false);
+      }
+
+      return true; // iOS permissions handled in initialization
+    } catch (e) {
+      debugPrint('Error requesting notification permissions: $e');
+      return false;
+    }
   }
 
   Future<bool> requestPermissions() async {
-    try {
-      if (Platform.isIOS) {
-        final IOSFlutterLocalNotificationsPlugin? iosImplementation =
-        _flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<IOSFlutterLocalNotificationsPlugin>();
-        
-        if (iosImplementation == null) {
-          debugPrint("[NotificationService] iOS implementation not available");
-          return false;
-        }
-        
-        final bool? granted = await iosImplementation.requestPermissions(
-          alert: true,
-          badge: true,
-          sound: true,
-        );
-        
-        final bool isGranted = granted ?? false;
-        debugPrint("[NotificationService] iOS Notification Permission granted: $isGranted");
-        return isGranted;
-        
-      } else if (Platform.isAndroid) {
-        // Check standard notification permission
-        PermissionStatus notificationStatus = await Permission.notification.status;
-        debugPrint("[NotificationService] Initial notification permission: $notificationStatus");
-
-        if (!notificationStatus.isGranted) {
-          notificationStatus = await Permission.notification.request();
-          debugPrint("[NotificationService] Notification permission after request: $notificationStatus");
-        }
-
-        final bool notificationGranted = notificationStatus.isGranted;
-        if (!notificationGranted) {
-          debugPrint("[NotificationService] Standard notification permission denied");
-          return false;
-        }
-
-        // Check exact alarm permission for Android 12+
-        PermissionStatus exactAlarmStatus = await Permission.scheduleExactAlarm.status;
-        debugPrint("[NotificationService] Initial exact alarm permission: $exactAlarmStatus");
-
-        bool exactAlarmGranted = exactAlarmStatus.isGranted;
-        
-        if (!exactAlarmGranted) {
-          final AndroidFlutterLocalNotificationsPlugin? androidImplementation =
-          _flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
-
-          if (androidImplementation != null) {
-            try {
-              await androidImplementation.requestExactAlarmsPermission();
-              await Future.delayed(const Duration(seconds: 1));
-              exactAlarmStatus = await Permission.scheduleExactAlarm.status;
-              exactAlarmGranted = exactAlarmStatus.isGranted;
-            } catch (e) {
-              debugPrint("[NotificationService] Error requesting exact alarm permission: $e");
-            }
-          }
-        }
-
-        final bool allGranted = notificationGranted && exactAlarmGranted;
-        debugPrint("[NotificationService] Final permissions - Notifications: $notificationGranted, ExactAlarms: $exactAlarmGranted");
-        return allGranted;
-      }
-      
-      return false;
-    } catch (e) {
-      debugPrint("[NotificationService] Error requesting permissions: $e");
-      return false;
-    }
-  }
-
-  Future<bool> _scheduleNotificationInternal({
-    required int id,
-    required String title,
-    required String body,
-    required tz.TZDateTime scheduledDate,
-    required String? payload,
-    required String channelId,
-    required String channelName,
-    required String channelDescription,
-    DateTimeComponents? matchDateTimeComponents,
-  }) async {
-    try {
-      await _flutterLocalNotificationsPlugin.zonedSchedule(
-        id,
-        title,
-        body,
-        scheduledDate,
-        NotificationDetails(
-          android: AndroidNotificationDetails(
-            channelId,
-            channelName,
-            channelDescription: channelDescription,
-            importance: Importance.max,
-            priority: Priority.high,
-            showWhen: true,
-            enableVibration: true,
-            playSound: true,
-            icon: '@mipmap/ic_launcher',
-          ),
-          iOS: const DarwinNotificationDetails(
-            presentAlert: true,
-            presentBadge: true,
-            presentSound: true,
-          ),
-        ),
-        androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-        uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime,
-        payload: payload,
-        matchDateTimeComponents: matchDateTimeComponents,
-      );
-      print('Successfully scheduled notification (ID:$id) for ${scheduledDate.toLocal()}: $title');
-      return true;
-    } on Exception catch (e) {
-      debugPrint('Error during _scheduleNotificationInternal (ID:$id): $e');
-      if (Platform.isAndroid && e.toString().toLowerCase().contains("exact alarm permission")) {
-        print("Scheduling failed specifically due to missing exact alarm permission. User needs to grant it in system settings.");
-      }
-      return false;
-    }
+    return await _requestPermissions();
   }
 
   Future<bool> scheduleNotification(
-      BuildContext context,
-      String notificationTitle,
-      String notificationBody,
-      TimeOfDay time,
-      String? payload, {
-        int? id,
-        NotificationRecurrence recurrence = NotificationRecurrence.once,
-      }) async {
-    final tz.Location location = tz.local;
-    final tz.TZDateTime now = tz.TZDateTime.now(location);
-    tz.TZDateTime scheduledDate = tz.TZDateTime(
-      location,
-      now.year,
-      now.month,
-      now.day,
-      time.hour,
-      time.minute,
-    );
-
-    final int notificationId = id ?? await StorageService().getNextCustomNotificationId();
-    String channelId, channelName, channelDescription;
-    DateTimeComponents? matchComponents;
-
-    if (recurrence == NotificationRecurrence.daily) {
-      channelId = 'daily_custom_reminders_trkd';
-      channelName = 'Daily Custom Reminders';
-      channelDescription = 'Your daily custom reminders.';
-      matchComponents = DateTimeComponents.time;
-      if (scheduledDate.isBefore(now)) {
-        scheduledDate = scheduledDate.add(const Duration(days: 1));
-      }
-    } else {
-      channelId = 'one_time_custom_reminders_trkd';
-      channelName = 'One-Time Custom Reminders';
-      channelDescription = 'Your one-time custom reminders.';
-      matchComponents = null;
-      if (scheduledDate.isBefore(now)) {
-        scheduledDate = scheduledDate.add(const Duration(days: 1));
-      }
+    BuildContext? context,
+    String notificationTitle,
+    String notificationBody,
+    TimeOfDay scheduledTime,
+    String payload, {
+    NotificationRecurrence recurrence = NotificationRecurrence.once,
+    int? customId,
+  }) async {
+    if (!_isInitialized) {
+      debugPrint('Notification service not initialized');
+      return false;
     }
 
-    return _scheduleNotificationInternal(
-      id: notificationId,
-      title: notificationTitle,
-      body: notificationBody,
-      scheduledDate: scheduledDate,
-      payload: payload,
-      channelId: channelId,
-      channelName: channelName,
-      channelDescription: channelDescription,
-      matchDateTimeComponents: matchComponents,
-    );
+    try {
+      final int notificationId = customId ?? DateTime.now().millisecondsSinceEpoch ~/ 1000;
+
+      final tz.TZDateTime scheduledDate = _nextInstanceOfTime(scheduledTime);
+
+      const AndroidNotificationDetails androidPlatformChannelSpecifics =
+          AndroidNotificationDetails(
+            'scheduled_channel',
+            'Scheduled Notifications',
+            channelDescription: 'Notifications scheduled by the app',
+            importance: Importance.max,
+            priority: Priority.high,
+            showWhen: true,
+          );
+
+      const DarwinNotificationDetails iOSPlatformChannelSpecifics =
+          DarwinNotificationDetails();
+
+      const NotificationDetails platformChannelSpecifics = NotificationDetails(
+        android: androidPlatformChannelSpecifics,
+        iOS: iOSPlatformChannelSpecifics,
+      );
+
+      // For Android, use exact scheduling to ensure notifications fire precisely
+      await _flutterLocalNotificationsPlugin.zonedSchedule(
+        notificationId,
+        notificationTitle,
+        notificationBody,
+        scheduledDate,
+        platformChannelSpecifics,
+        androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+        matchDateTimeComponents: recurrence == NotificationRecurrence.daily
+            ? DateTimeComponents.time
+            : null,
+        payload: payload,
+      );
+
+      // Format the scheduled date/time for better readability
+      final formattedDate = '${scheduledDate.year}-${scheduledDate.month.toString().padLeft(2, '0')}-${scheduledDate.day.toString().padLeft(2, '0')}';
+      final formattedTime = '${scheduledDate.hour.toString().padLeft(2, '0')}:${scheduledDate.minute.toString().padLeft(2, '0')}:${scheduledDate.second.toString().padLeft(2, '0')}';
+      
+      debugPrint('✅ Notification scheduled: $notificationTitle');
+      debugPrint('   ⏰ Input time: ${scheduledTime.hour}:${scheduledTime.minute.toString().padLeft(2, '0')}');
+      debugPrint('   📅 Will fire on: $formattedDate at $formattedTime');
+      debugPrint('   🆔 Notification ID: $notificationId');
+      debugPrint('   🔁 Recurrence: $recurrence');
+      debugPrint('   🌍 Timezone: ${tz.local.name}');
+      
+      // Show current time for comparison
+      final now = tz.TZDateTime.now(tz.local);
+      final nowFormatted = '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')} ${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}:${now.second.toString().padLeft(2, '0')}';
+      debugPrint('   🕐 Current time: $nowFormatted');
+      
+      // Calculate time until notification
+      final duration = scheduledDate.difference(now);
+      if (duration.inMinutes < 60) {
+        debugPrint('   ⏳ Will fire in: ${duration.inMinutes} minutes');
+      } else if (duration.inHours < 24) {
+        debugPrint('   ⏳ Will fire in: ${duration.inHours} hours ${duration.inMinutes % 60} minutes');
+      } else {
+        debugPrint('   ⏳ Will fire in: ${duration.inDays} days ${duration.inHours % 24} hours');
+      }
+      
+      // Verify the notification was actually scheduled
+      final pendingNotifications = await _flutterLocalNotificationsPlugin.pendingNotificationRequests();
+      debugPrint('   📋 Total pending notifications in system: ${pendingNotifications.length}');
+      
+      return true;
+    } catch (e) {
+      debugPrint('❌ Failed to schedule notification: $e');
+      debugPrint('   Stack trace: ${StackTrace.current}');
+      return false;
+    }
   }
 
-  Future<bool> _scheduleRecurringDailyNotification({
-    required BuildContext context,
+  Future<bool> scheduleNotificationWithId({
     required int id,
     required String title,
     required String body,
-    required TimeOfDay time,
-    required String? payload,
-    String channelId = 'recurring_notifications_health_trkd',
-    String channelName = 'Daily Health Reminders',
-    String channelDescription = 'Channel for daily health and activity reminders',
+    required TimeOfDay scheduledTime,
+    required String payload,
+    NotificationRecurrence recurrence = NotificationRecurrence.once,
   }) async {
-    final tz.Location location = tz.local;
-    final tz.TZDateTime now = tz.TZDateTime.now(location);
+    return await scheduleNotification(
+      null, // context not needed for this method
+      title,
+      body,
+      scheduledTime,
+      payload,
+      recurrence: recurrence,
+      customId: id,
+    );
+  }
+
+  Future<void> cancelNotification(int id) async {
+    if (!_isInitialized) return;
+
+    try {
+      await _flutterLocalNotificationsPlugin.cancel(id);
+      debugPrint('✅ Notification cancelled: $id');
+    } catch (e) {
+      debugPrint('❌ Failed to cancel notification $id: $e');
+    }
+  }
+
+  Future<void> cancelAllNotifications() async {
+    if (!_isInitialized) return;
+
+    try {
+      await _flutterLocalNotificationsPlugin.cancelAll();
+      debugPrint('✅ All notifications cancelled');
+    } catch (e) {
+      debugPrint('❌ Failed to cancel all notifications: $e');
+    }
+  }
+
+  tz.TZDateTime _nextInstanceOfTime(TimeOfDay time) {
+    final tz.TZDateTime now = tz.TZDateTime.now(tz.local);
     tz.TZDateTime scheduledDate = tz.TZDateTime(
-      location,
+      tz.local,
       now.year,
       now.month,
       now.day,
@@ -300,303 +365,669 @@ class NotificationService {
       scheduledDate = scheduledDate.add(const Duration(days: 1));
     }
 
-    return _scheduleNotificationInternal(
-      id: id,
-      title: title,
-      body: body,
-      scheduledDate: scheduledDate,
-      payload: payload,
-      channelId: channelId,
-      channelName: channelName,
-      channelDescription: channelDescription,
-      matchDateTimeComponents: DateTimeComponents.time,
-    );
+    debugPrint('📅 Scheduling notification for: ${scheduledDate.toString()} (${tz.local.name})');
+    return scheduledDate;
+  }
+  
+  // Get current timezone information
+  String getCurrentTimezone() {
+    return tz.local.name;
+  }
+  
+  // Get current time in local timezone
+  DateTime getCurrentLocalTime() {
+    return tz.TZDateTime.now(tz.local);
   }
 
-  Future<void> cancelNotification(int id) async {
-    await _flutterLocalNotificationsPlugin.cancel(id);
-    print('Cancelled notification with ID: $id');
-  }
-
-  Future<void> cancelAllNotifications() async {
-    await _flutterLocalNotificationsPlugin.cancelAll();
-    print('Cancelled ALL notifications');
-  }
-
-  // --- Predefined App Reminders ---
-  Future<bool> scheduleMorningWalkReminder({ required BuildContext context, required UserData userData, }) async {
-    if (userData.wakeupTime == null) return false;
-    final wakeUpTime = userData.wakeupTime!;
-    int walkTimeMinute = wakeUpTime.minute + 15;
-    int walkTimeHour = wakeUpTime.hour;
-    if (walkTimeMinute >= 60) {
-      walkTimeHour = (wakeUpTime.hour + (walkTimeMinute ~/ 60)) % 24;
-      walkTimeMinute = walkTimeMinute % 60;
+  // Additional methods used by the app
+  Future<bool> scheduleMorningWalkReminder({
+    required BuildContext context,
+    required UserData userData,
+  }) async {
+    if (!_isInitialized || !await _isNotificationEnabled('morningWalkReminderEnabled')) {
+      return false;
     }
-    TimeOfDay walkTime = TimeOfDay(hour: walkTimeHour, minute: walkTimeMinute);
-    await cancelMorningWalkReminder();
-    return _scheduleRecurringDailyNotification(
-      context: context,
-      id: MORNING_WALK_NOTIFICATION_ID,
-      title: '🚶 Morning Walk Reminder',
-      body: 'Time for your healthy morning walk!',
-      time: walkTime,
-      payload: 'morning_walk_reminder',
-      channelId: 'morning_walk_channel_trkd',
-      channelName: 'Morning Walk Reminders',
-      channelDescription: 'Reminders for daily morning walk',
-    );
+
+    try {
+      const TimeOfDay morningTime = TimeOfDay(hour: 7, minute: 0);
+      return await scheduleNotification(
+        context,
+        'Morning Walk Reminder',
+        'Time for your morning walk! Start your day with some exercise.',
+        morningTime,
+        'morning_walk',
+        recurrence: NotificationRecurrence.daily,
+        customId: MORNING_WALK_NOTIFICATION_ID,
+      );
+    } catch (e) {
+      debugPrint('Error scheduling morning walk reminder: $e');
+      return false;
+    }
   }
 
   Future<void> cancelMorningWalkReminder() async {
     await cancelNotification(MORNING_WALK_NOTIFICATION_ID);
   }
 
-  Future<bool> scheduleWaterReminders({ required BuildContext context, required UserData userData, }) async {
-    if (userData.wakeupTime == null || userData.sleepTime == null) return false;
-    await cancelWaterReminders();
-
-    final tz.Location location = tz.local;
-    final TimeOfDay wakeUpTime = userData.wakeupTime!;
-    final TimeOfDay sleepTime = userData.sleepTime!;
-
-    tz.TZDateTime currentDay = tz.TZDateTime.now(location);
-    tz.TZDateTime wakeUpDateTime = tz.TZDateTime(location, currentDay.year,
-        currentDay.month, currentDay.day, wakeUpTime.hour, wakeUpTime.minute);
-    tz.TZDateTime firstReminderTime = wakeUpDateTime.add(const Duration(hours: 2));
-    tz.TZDateTime sleepDateTimeUser = tz.TZDateTime(location, currentDay.year,
-        currentDay.month, currentDay.day, sleepTime.hour, sleepTime.minute);
-
-    if (sleepDateTimeUser.isBefore(wakeUpDateTime)) {
-      sleepDateTimeUser = sleepDateTimeUser.add(const Duration(days: 1));
+  Future<bool> scheduleWaterReminders({
+    required BuildContext context,
+    required UserData userData,
+  }) async {
+    if (!_isInitialized || !await _isNotificationEnabled(_waterRemindersEnabledKey)) {
+      return false;
     }
 
-    int notificationCount = 0;
-    bool anyScheduled = false;
-    tz.TZDateTime scheduledReminderTime = firstReminderTime;
+    try {
+      // Schedule water reminders every 2 hours from 8 AM to 8 PM
+      final List<TimeOfDay> waterTimes = [
+        const TimeOfDay(hour: 8, minute: 0),
+        const TimeOfDay(hour: 10, minute: 0),
+        const TimeOfDay(hour: 12, minute: 0),
+        const TimeOfDay(hour: 14, minute: 0),
+        const TimeOfDay(hour: 16, minute: 0),
+        const TimeOfDay(hour: 18, minute: 0),
+        const TimeOfDay(hour: 20, minute: 0),
+      ];
 
-    while (scheduledReminderTime.isBefore(sleepDateTimeUser.subtract(const Duration(minutes: 30))) && notificationCount < 12) {
-      final success = await _scheduleRecurringDailyNotification(
-        context: context,
-        id: WATER_REMINDER_BASE_ID + notificationCount,
-        title: '💧 Hydration Reminder',
-        body: 'Stay hydrated! Time for some water.',
-        time: TimeOfDay(hour: scheduledReminderTime.hour, minute: scheduledReminderTime.minute),
-        payload: 'water_reminder_${notificationCount + 1}',
-        channelId: 'water_reminders_channel_trkd',
-        channelName: 'Water Reminders',
-        channelDescription: 'Periodic reminders to drink water.',
-      );
-      if (success) anyScheduled = true;
-      notificationCount++;
-      scheduledReminderTime = scheduledReminderTime.add(const Duration(hours: 2));
+      bool allScheduled = true;
+      for (int i = 0; i < waterTimes.length; i++) {
+        final success = await scheduleNotification(
+          context,
+          'Water Reminder',
+          'Stay hydrated! Drink a glass of water.',
+          waterTimes[i],
+          'water_reminder_$i',
+          recurrence: NotificationRecurrence.daily,
+          customId: WATER_REMINDER_BASE_ID + i,
+        );
+        if (!success) allScheduled = false;
+      }
+
+      return allScheduled;
+    } catch (e) {
+      debugPrint('Error scheduling water reminders: $e');
+      return false;
     }
-    print('Scheduled $notificationCount water reminders.');
-    return anyScheduled;
   }
 
   Future<void> cancelWaterReminders() async {
-    for (int i = 0; i < 12; i++) {
+    for (int i = 0; i < 7; i++) {
       await cancelNotification(WATER_REMINDER_BASE_ID + i);
     }
   }
 
-  Future<bool> scheduleWakeupNotification({ required BuildContext context, required UserData userData, }) async {
-    if (userData.wakeupTime == null) return false;
-    await cancelWakeupNotification();
-    return _scheduleRecurringDailyNotification(
-        context: context,
-        id: WAKEUP_NOTIFICATION_ID,
-        title: '${userData.name ?? "User"}, Good Morning! ☀️',
-        body: 'Time to rise and shine! Start your day strong.',
-        time: userData.wakeupTime!,
-        payload: 'wakeup_notification',
-        channelId: 'wakeup_channel_trkd',
-        channelName: 'Wake-up Notifications',
-        channelDescription: 'Daily wake-up calls.');
+  Future<bool> scheduleWakeupNotification({
+    required BuildContext context,
+    required UserData userData,
+  }) async {
+    if (!_isInitialized) return false;
+
+    try {
+      const TimeOfDay wakeupTime = TimeOfDay(hour: 6, minute: 30);
+      return await scheduleNotification(
+        context,
+        'Good Morning!',
+        'Rise and shine! Start your day with Health-TRKD.',
+        wakeupTime,
+        'wakeup',
+        recurrence: NotificationRecurrence.daily,
+        customId: WAKEUP_NOTIFICATION_ID,
+      );
+    } catch (e) {
+      debugPrint('Error scheduling wakeup notification: $e');
+      return false;
+    }
   }
 
   Future<void> cancelWakeupNotification() async {
     await cancelNotification(WAKEUP_NOTIFICATION_ID);
   }
 
-  Future<bool> scheduleSleepNotification({ required BuildContext context, required UserData userData,}) async {
-    if (userData.sleepTime == null) return false;
-    await cancelSleepNotification();
-    return _scheduleRecurringDailyNotification(
-        context: context,
-        id: SLEEP_NOTIFICATION_ID,
-        title: 'Good Night, ${userData.name ?? "User"}! 🌙',
-        body: 'Time to wind down. Sweet dreams!',
-        time: userData.sleepTime!,
-        payload: 'sleep_notification',
-        channelId: 'sleep_channel_trkd',
-        channelName: 'Sleep Notifications',
-        channelDescription: 'Daily reminders for bedtime.');
+  Future<bool> scheduleSleepNotification({
+    required BuildContext context,
+    required UserData userData,
+  }) async {
+    if (!_isInitialized) return false;
+
+    try {
+      const TimeOfDay sleepTime = TimeOfDay(hour: 22, minute: 0);
+      return await scheduleNotification(
+        context,
+        'Bedtime Reminder',
+        'Time to wind down and get some rest.',
+        sleepTime,
+        'sleep',
+        recurrence: NotificationRecurrence.daily,
+        customId: SLEEP_NOTIFICATION_ID,
+      );
+    } catch (e) {
+      debugPrint('Error scheduling sleep notification: $e');
+      return false;
+    }
   }
 
   Future<void> cancelSleepNotification() async {
     await cancelNotification(SLEEP_NOTIFICATION_ID);
   }
 
-  Future<bool> schedulePreSleepReminder({ required BuildContext context, required UserData userData,}) async {
-    if (userData.sleepTime == null) return false;
-    await cancelPreSleepReminder();
-    final sleepTime = userData.sleepTime!;
-    final preSleepTime = TimeOfDay(hour: sleepTime.hour, minute: sleepTime.minute - 30);
-    return _scheduleRecurringDailyNotification(
-        context: context,
-        id: PRE_SLEEP_NOTIFICATION_ID,
-        title: 'Bedtime is approaching! 🛌',
-        body: 'Wrap up your work and get ready for a good night\'s sleep.',
-        time: preSleepTime,
-        payload: 'pre_sleep_reminder',
-        channelId: 'sleep_channel_trkd',
-        channelName: 'Sleep Notifications',
-        channelDescription: 'Daily reminders for bedtime.');
-  }
+  Future<bool> scheduleCoffeeReminder({
+    required BuildContext context,
+  }) async {
+    if (!_isInitialized) return false;
 
-  Future<void> cancelPreSleepReminder() async {
-    await cancelNotification(PRE_SLEEP_NOTIFICATION_ID);
-  }
-
-  Future<bool> scheduleBreakfastFeedReminder({required BuildContext context}) async {
-    await cancelBreakfastFeedReminder();
-    return _scheduleRecurringDailyNotification(
-      context: context,
-      id: BREAKFAST_FEED_NOTIFICATION_ID,
-      title: '🍳 Breakfast Feed Updated!',
-      body: 'Check out today\'s breakfast ideas and tips in your feed.',
-      time: const TimeOfDay(hour: 7, minute: 0),
-      payload: 'breakfast_feed_update',
-      channelId: 'feed_updates_trkd',
-      channelName: 'Feed Updates',
-      channelDescription: 'Notifications for feed content updates.',
-    );
-  }
-
-  Future<void> cancelBreakfastFeedReminder() async {
-    await cancelNotification(BREAKFAST_FEED_NOTIFICATION_ID);
-  }
-
-  Future<bool> scheduleCoffeeReminder({required BuildContext context}) async {
-    await cancelCoffeeReminder();
-    return _scheduleRecurringDailyNotification(
-      context: context,
-      id: COFFEE_REMINDER_NOTIFICATION_ID,
-      title: '☕ Stay Active All Day!',
-      body: 'Have a cup of coffee to boost your energy and stay active throughout the day.',
-      time: const TimeOfDay(hour: 10, minute: 0),
-      payload: 'coffee_reminder',
-      channelId: 'beverage_reminders_trkd',
-      channelName: 'Beverage Reminders',
-      channelDescription: 'Reminders for coffee or tea based on preference.',
-    );
+    try {
+      const TimeOfDay coffeeTime = TimeOfDay(hour: 9, minute: 0);
+      return await scheduleNotification(
+        context,
+        'Coffee Break',
+        'Time for your morning coffee!',
+        coffeeTime,
+        'coffee',
+        recurrence: NotificationRecurrence.daily,
+        customId: COFFEE_REMINDER_NOTIFICATION_ID,
+      );
+    } catch (e) {
+      debugPrint('Error scheduling coffee reminder: $e');
+      return false;
+    }
   }
 
   Future<void> cancelCoffeeReminder() async {
     await cancelNotification(COFFEE_REMINDER_NOTIFICATION_ID);
   }
 
-  Future<bool> scheduleLunchFeedReminder({required BuildContext context}) async {
-    await cancelLunchFeedReminder();
-    return _scheduleRecurringDailyNotification(
-      context: context,
-      id: LUNCH_FEED_NOTIFICATION_ID,
-      title: '🥗 Lunch Feed Updated!',
-      body: 'Discover new lunch recipes and nutritional advice in your feed.',
-      time: const TimeOfDay(hour: 13, minute: 0),
-      payload: 'lunch_feed_update',
-      channelId: 'feed_updates_trkd',
-    );
-  }
+  Future<bool> scheduleTeaReminder({
+    required BuildContext context,
+  }) async {
+    if (!_isInitialized) return false;
 
-  Future<void> cancelLunchFeedReminder() async {
-    await cancelNotification(LUNCH_FEED_NOTIFICATION_ID);
-  }
-
-  Future<bool> scheduleTeaReminder({required BuildContext context}) async {
-    await cancelTeaReminder();
-    return _scheduleRecurringDailyNotification(
-      context: context,
-      id: TEA_REMINDER_NOTIFICATION_ID,
-      title: '🍵 Tea Break from Work!',
-      body: 'Take a break from work and enjoy a refreshing cup of tea.',
-      time: const TimeOfDay(hour: 15, minute: 0),
-      payload: 'tea_reminder',
-      channelId: 'beverage_reminders_trkd',
-    );
+    try {
+      const TimeOfDay teaTime = TimeOfDay(hour: 15, minute: 0);
+      return await scheduleNotification(
+        context,
+        'Tea Time',
+        'Enjoy your afternoon tea break!',
+        teaTime,
+        'tea',
+        recurrence: NotificationRecurrence.daily,
+        customId: TEA_REMINDER_NOTIFICATION_ID,
+      );
+    } catch (e) {
+      debugPrint('Error scheduling tea reminder: $e');
+      return false;
+    }
   }
 
   Future<void> cancelTeaReminder() async {
     await cancelNotification(TEA_REMINDER_NOTIFICATION_ID);
   }
 
-  Future<bool> scheduleDinnerFeedReminder({required BuildContext context}) async {
-    await cancelDinnerFeedReminder();
-    return _scheduleRecurringDailyNotification(
-      context: context,
-      id: DINNER_FEED_NOTIFICATION_ID,
-      title: '🍲 Dinner Feed Updated!',
-      body: 'Find inspiration for a healthy and delicious dinner in your feed.',
-      time: const TimeOfDay(hour: 19, minute: 0),
-      payload: 'dinner_feed_update',
-      channelId: 'feed_updates_trkd',
-    );
-  }
-
-  Future<void> cancelDinnerFeedReminder() async {
-    await cancelNotification(DINNER_FEED_NOTIFICATION_ID);
-  }
-  
-  // Show an immediate notification for achievement unlocked
   Future<void> showAchievementUnlockedNotification({
     required String achievementName,
     required String achievementDescription,
-    String? iconPath,
+    required String iconPath,
   }) async {
-    final int notificationId = ACHIEVEMENT_NOTIFICATION_BASE_ID +
-        DateTime.now().millisecondsSinceEpoch % 1000;
+    if (!_isInitialized || !await _isNotificationEnabled(_achievementNotificationsEnabledKey)) {
+      return;
+    }
+
+    try {
+      const AndroidNotificationDetails androidPlatformChannelSpecifics =
+          AndroidNotificationDetails(
+            'achievement_channel',
+            'Achievement Notifications',
+            channelDescription: 'Notifications for unlocked achievements',
+            importance: Importance.high,
+            priority: Priority.high,
+            showWhen: true,
+          );
+
+      const DarwinNotificationDetails iOSPlatformChannelSpecifics =
+          DarwinNotificationDetails();
+
+      const NotificationDetails platformChannelSpecifics = NotificationDetails(
+        android: androidPlatformChannelSpecifics,
+        iOS: iOSPlatformChannelSpecifics,
+      );
+
+      await _flutterLocalNotificationsPlugin.show(
+        ACHIEVEMENT_NOTIFICATION_BASE_ID + DateTime.now().millisecondsSinceEpoch ~/ 1000,
+        'Achievement Unlocked!',
+        '$achievementName: $achievementDescription',
+        platformChannelSpecifics,
+        payload: 'achievement',
+      );
+
+      debugPrint('✅ Achievement notification shown: $achievementName');
+    } catch (e) {
+      debugPrint('❌ Failed to show achievement notification: $e');
+    }
+  }
+
+  Future<bool> scheduleBreakfastFeedReminder({
+    required BuildContext context,
+  }) async {
+    if (!_isInitialized) return false;
+
+    try {
+      const TimeOfDay breakfastTime = TimeOfDay(hour: 8, minute: 30);
+      return await scheduleNotification(
+        context,
+        'Breakfast Time',
+        'Check out today\'s breakfast recommendations!',
+        breakfastTime,
+        'breakfast_feed',
+        recurrence: NotificationRecurrence.daily,
+        customId: BREAKFAST_FEED_NOTIFICATION_ID,
+      );
+    } catch (e) {
+      debugPrint('Error scheduling breakfast feed reminder: $e');
+      return false;
+    }
+  }
+
+  Future<bool> scheduleLunchFeedReminder({
+    required BuildContext context,
+  }) async {
+    if (!_isInitialized) return false;
+
+    try {
+      const TimeOfDay lunchTime = TimeOfDay(hour: 12, minute: 30);
+      return await scheduleNotification(
+        context,
+        'Lunch Time',
+        'Discover healthy lunch options for today!',
+        lunchTime,
+        'lunch_feed',
+        recurrence: NotificationRecurrence.daily,
+        customId: LUNCH_FEED_NOTIFICATION_ID,
+      );
+    } catch (e) {
+      debugPrint('Error scheduling lunch feed reminder: $e');
+      return false;
+    }
+  }
+
+  Future<bool> scheduleDinnerFeedReminder({
+    required BuildContext context,
+  }) async {
+    if (!_isInitialized) return false;
+
+    try {
+      const TimeOfDay dinnerTime = TimeOfDay(hour: 19, minute: 0);
+      return await scheduleNotification(
+        context,
+        'Dinner Time',
+        'Explore nutritious dinner ideas!',
+        dinnerTime,
+        'dinner_feed',
+        recurrence: NotificationRecurrence.daily,
+        customId: DINNER_FEED_NOTIFICATION_ID,
+      );
+    } catch (e) {
+      debugPrint('Error scheduling dinner feed reminder: $e');
+      return false;
+    }
+  }
+
+  // Notification settings persistence methods
+  Future<void> saveNotificationSettings({
+    required bool waterReminders,
+    required bool stepGoalReminders,
+    required bool moodCheckIns,
+    required bool weeklyReports,
+    required bool achievementNotifications,
+    required bool levelUpNotifications,
+  }) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool(_waterRemindersEnabledKey, waterReminders);
+      await prefs.setBool(_stepGoalRemindersEnabledKey, stepGoalReminders);
+      await prefs.setBool(_moodCheckInsEnabledKey, moodCheckIns);
+      await prefs.setBool(_weeklyReportsEnabledKey, weeklyReports);
+      await prefs.setBool(_achievementNotificationsEnabledKey, achievementNotifications);
+      await prefs.setBool(_levelUpNotificationsEnabledKey, levelUpNotifications);
+      debugPrint('✅ Notification settings saved');
+    } catch (e) {
+      debugPrint('❌ Failed to save notification settings: $e');
+    }
+  }
+
+  Future<Map<String, bool>> loadNotificationSettings() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      
+      // Try to get values from new keys first
+      final waterReminders = prefs.getBool(_waterRemindersEnabledKey);
+      final stepGoalReminders = prefs.getBool(_stepGoalRemindersEnabledKey);
+      final moodCheckIns = prefs.getBool(_moodCheckInsEnabledKey);
+      final weeklyReports = prefs.getBool(_weeklyReportsEnabledKey);
+      final achievementNotifications = prefs.getBool(_achievementNotificationsEnabledKey);
+      final levelUpNotifications = prefs.getBool(_levelUpNotificationsEnabledKey);
+      
+      // If any new key is null, try to get from legacy keys
+      final settings = {
+        'water_reminders_enabled': waterReminders ?? prefs.getBool(_legacyWaterRemindersKey) ?? true,
+        'step_goal_reminders_enabled': stepGoalReminders ?? prefs.getBool(_legacyStepGoalRemindersKey) ?? true,
+        'mood_checkins_enabled': moodCheckIns ?? prefs.getBool(_legacyMoodCheckInsKey) ?? true,
+        'weekly_reports_enabled': weeklyReports ?? prefs.getBool(_legacyWeeklyReportsKey) ?? true,
+        'achievement_notifications_enabled': achievementNotifications ?? prefs.getBool(_legacyAchievementNotificationsKey) ?? true,
+        'level_up_notifications_enabled': levelUpNotifications ?? prefs.getBool(_legacyLevelUpNotificationsKey) ?? true,
+      };
+      
+      // If legacy keys were used, migrate them to new keys
+      bool migrated = false;
+      if (waterReminders == null && prefs.getBool(_legacyWaterRemindersKey) != null) {
+        await prefs.setBool(_waterRemindersEnabledKey, settings['water_reminders_enabled']!);
+        migrated = true;
+      }
+      if (stepGoalReminders == null && prefs.getBool(_legacyStepGoalRemindersKey) != null) {
+        await prefs.setBool(_stepGoalRemindersEnabledKey, settings['step_goal_reminders_enabled']!);
+        migrated = true;
+      }
+      if (moodCheckIns == null && prefs.getBool(_legacyMoodCheckInsKey) != null) {
+        await prefs.setBool(_moodCheckInsEnabledKey, settings['mood_checkins_enabled']!);
+        migrated = true;
+      }
+      if (weeklyReports == null && prefs.getBool(_legacyWeeklyReportsKey) != null) {
+        await prefs.setBool(_weeklyReportsEnabledKey, settings['weekly_reports_enabled']!);
+        migrated = true;
+      }
+      if (achievementNotifications == null && prefs.getBool(_legacyAchievementNotificationsKey) != null) {
+        await prefs.setBool(_achievementNotificationsEnabledKey, settings['achievement_notifications_enabled']!);
+        migrated = true;
+      }
+      if (levelUpNotifications == null && prefs.getBool(_legacyLevelUpNotificationsKey) != null) {
+        await prefs.setBool(_levelUpNotificationsEnabledKey, settings['level_up_notifications_enabled']!);
+        migrated = true;
+      }
+      
+      if (migrated) {
+        debugPrint('✅ Migrated notification settings from legacy keys');
+      }
+      
+      return settings;
+    } catch (e) {
+      debugPrint('❌ Failed to load notification settings: $e');
+      return {
+        'water_reminders_enabled': true,
+        'step_goal_reminders_enabled': true,
+        'mood_checkins_enabled': true,
+        'weekly_reports_enabled': true,
+        'achievement_notifications_enabled': true,
+        'level_up_notifications_enabled': true,
+      };
+    }
+  }
+
+  Future<bool> _isNotificationEnabled(String key) async {
+    final settings = await loadNotificationSettings();
     
-    const AndroidNotificationDetails androidDetails = AndroidNotificationDetails(
-      'achievement_unlocked_channel_trkd',
-      'Achievement Unlocked',
-      channelDescription: 'Notifications for unlocked achievements',
-      importance: Importance.high,
-      priority: Priority.high,
-      enableVibration: true,
-      playSound: true,
-      icon: '@mipmap/ic_launcher',
-      color: Color(0xFF4CAF50), // Green color for achievements
-      largeIcon: DrawableResourceAndroidBitmap('@mipmap/ic_launcher'),
-    );
-    
-    const DarwinNotificationDetails iosDetails = DarwinNotificationDetails(
-      presentAlert: true,
-      presentBadge: true,
-      presentSound: true,
-    );
-    
-    const NotificationDetails notificationDetails = NotificationDetails(
-      android: androidDetails,
-      iOS: iosDetails,
-    );
-    
-    await _flutterLocalNotificationsPlugin.show(
-      notificationId,
-      '🏆 Achievement Unlocked!',
-      '$achievementName\n$achievementDescription',
-      notificationDetails,
-      payload: 'achievement_unlocked:$achievementName',
-    );
-    
-    // print('Showed achievement unlocked notification: $achievementName');
+    // Map specific keys to their corresponding settings
+    switch (key) {
+      case 'waterReminderEnabled':
+        return settings[_waterRemindersEnabledKey] ?? true;
+      case 'stepGoalReminderEnabled':
+        return settings[_stepGoalRemindersEnabledKey] ?? true;
+      case 'moodCheckInEnabled':
+        return settings[_moodCheckInsEnabledKey] ?? true;
+      case 'weeklyReportEnabled':
+        return settings[_weeklyReportsEnabledKey] ?? true;
+      case 'achievementNotificationEnabled':
+        return settings[_achievementNotificationsEnabledKey] ?? true;
+      case 'levelUpNotificationEnabled':
+        return settings[_levelUpNotificationsEnabledKey] ?? true;
+      case 'morningWalkReminderEnabled':
+        return settings[_waterRemindersEnabledKey] ?? true;
+      default:
+        return settings[key] ?? true;
+    }
   }
   
-  // Cancel all achievement notifications
-  Future<void> cancelAllAchievementNotifications() async {
-    for (int i = 0; i < 100; i++) {
-      await cancelNotification(ACHIEVEMENT_NOTIFICATION_BASE_ID + i);
+  // Method to reschedule all notifications when the app restarts
+  Future<void> rescheduleAllNotifications() async {
+    if (!_isInitialized) {
+      debugPrint('⚠️ Notification service not initialized, cannot reschedule');
+      return;
+    }
+    
+    try {
+      // Load notification settings
+      final settings = await loadNotificationSettings();
+      
+      debugPrint('🔄 Rescheduling all notifications based on settings: $settings');
+      
+      // Note: Actual rescheduling should happen based on user preferences
+      // This would typically be called from the adaptive notification service
+    } catch (e) {
+      debugPrint('❌ Error rescheduling notifications: $e');
+    }
+  }
+  
+  // Method to check if notifications are properly scheduled and reschedule if needed
+  Future<void> ensureNotificationsScheduled() async {
+    if (!_isInitialized) {
+      debugPrint('⚠️ Notification service not initialized, cannot ensure notifications scheduled');
+      return;
+    }
+    
+    try {
+      // Get pending notifications to see if any are already scheduled
+      final pendingNotifications = await _flutterLocalNotificationsPlugin.pendingNotificationRequests();
+      debugPrint('📋 Currently scheduled notifications: ${pendingNotifications.length}');
+      
+      // If there are no scheduled notifications, we may need to reschedule them
+      // However, we don't want to cancel existing ones unnecessarily
+      // Instead, we'll let the adaptive notification service handle this based on user settings
+      if (pendingNotifications.isEmpty) {
+        debugPrint('🔄 No notifications found, they may need to be rescheduled based on user preferences...');
+      } else {
+        debugPrint('✅ Notifications are already scheduled (${pendingNotifications.length} found)');
+      }
+    } catch (e) {
+      debugPrint('❌ Error checking scheduled notifications: $e');
+    }
+  }
+  
+  // Method to request notification permissions and handle the result
+  Future<bool> ensureNotificationPermissions() async {
+    try {
+      // Check if we have notification permissions
+      final granted = await _requestPermissions();
+      debugPrint('📋 Notification permissions granted: $granted');
+      return granted;
+    } catch (e) {
+      debugPrint('❌ Error checking notification permissions: $e');
+      return false;
+    }
+  }
+
+  // Show persistent notification for step tracking
+  Future<void> showPersistentStepNotification({
+    required int currentSteps,
+    required int goalSteps,
+  }) async {
+    if (!_isInitialized) {
+      debugPrint('⚠️ Notification service not initialized, cannot show persistent notification');
+      return;
+    }
+
+    try {
+      final progress = (currentSteps / goalSteps * 100).clamp(0, 100).toInt();
+      
+      final AndroidNotificationDetails androidPlatformChannelSpecifics =
+          AndroidNotificationDetails(
+            'step_counter_channel',
+            'Step Counter',
+            channelDescription: 'Persistent notification showing step count',
+            importance: Importance.low,
+            priority: Priority.low,
+            ongoing: true, // Makes it persistent
+            autoCancel: false,
+            showProgress: true,
+            maxProgress: 100,
+            progress: progress,
+            playSound: false,
+            enableVibration: false,
+          );
+
+      const DarwinNotificationDetails iOSPlatformChannelSpecifics =
+          DarwinNotificationDetails();
+
+      final NotificationDetails platformChannelSpecifics = NotificationDetails(
+        android: androidPlatformChannelSpecifics,
+        iOS: iOSPlatformChannelSpecifics,
+      );
+
+      await _flutterLocalNotificationsPlugin.show(
+        999, // Fixed ID for persistent notification
+        '🚶 Steps Today',
+        '$currentSteps / $goalSteps steps ($progress%)',
+        platformChannelSpecifics,
+        payload: 'step_counter',
+      );
+
+      debugPrint('✅ Persistent step notification updated: $currentSteps/$goalSteps');
+    } catch (e) {
+      debugPrint('❌ Failed to show persistent step notification: $e');
+    }
+  }
+
+  // Cancel persistent step notification
+  Future<void> cancelPersistentStepNotification() async {
+    if (!_isInitialized) return;
+
+    try {
+      await _flutterLocalNotificationsPlugin.cancel(999);
+      debugPrint('✅ Persistent step notification cancelled');
+    } catch (e) {
+      debugPrint('❌ Failed to cancel persistent step notification: $e');
+    }
+  }
+
+  // Show immediate test notification
+  Future<void> showTestNotification() async {
+    if (!_isInitialized) {
+      debugPrint('⚠️ Notification service not initialized');
+      return;
+    }
+
+    try {
+      const AndroidNotificationDetails androidPlatformChannelSpecifics =
+          AndroidNotificationDetails(
+            'test_channel',
+            'Test Notifications',
+            channelDescription: 'Test notifications to verify setup',
+            importance: Importance.high,
+            priority: Priority.high,
+          );
+
+      const DarwinNotificationDetails iOSPlatformChannelSpecifics =
+          DarwinNotificationDetails();
+
+      const NotificationDetails platformChannelSpecifics = NotificationDetails(
+        android: androidPlatformChannelSpecifics,
+        iOS: iOSPlatformChannelSpecifics,
+      );
+
+      await _flutterLocalNotificationsPlugin.show(
+        888,
+        '✅ Test Notification',
+        'Notifications are working! This is a test notification.',
+        platformChannelSpecifics,
+        payload: 'test',
+      );
+
+      debugPrint('✅ Test notification shown immediately');
+    } catch (e) {
+      debugPrint('❌ Failed to show test notification: $e');
+    }
+  }
+  
+  // Schedule a test notification 1 minute from now
+  Future<void> scheduleTestNotificationIn1Minute() async {
+    if (!_isInitialized) {
+      debugPrint('⚠️ Notification service not initialized');
+      return;
+    }
+
+    try {
+      final now = tz.TZDateTime.now(tz.local);
+      final scheduledDate = now.add(const Duration(minutes: 1));
+      
+      const AndroidNotificationDetails androidPlatformChannelSpecifics =
+          AndroidNotificationDetails(
+            'test_channel',
+            'Test Notifications',
+            channelDescription: 'Test notifications to verify setup',
+            importance: Importance.max,
+            priority: Priority.high,
+            showWhen: true,
+          );
+
+      const DarwinNotificationDetails iOSPlatformChannelSpecifics =
+          DarwinNotificationDetails();
+
+      const NotificationDetails platformChannelSpecifics = NotificationDetails(
+        android: androidPlatformChannelSpecifics,
+        iOS: iOSPlatformChannelSpecifics,
+      );
+
+      await _flutterLocalNotificationsPlugin.zonedSchedule(
+        999,
+        '⏰ Scheduled Test',
+        'This notification was scheduled 1 minute ago!',
+        scheduledDate,
+        platformChannelSpecifics,
+        androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+      );
+
+      debugPrint('✅ Test notification scheduled for: ${scheduledDate.hour}:${scheduledDate.minute.toString().padLeft(2, '0')}');
+      debugPrint('   Current time: ${now.hour}:${now.minute.toString().padLeft(2, '0')}');
+      debugPrint('   Will fire in 1 minute');
+    } catch (e) {
+      debugPrint('❌ Failed to schedule test notification: $e');
+    }
+  }
+  
+  // Get list of all pending notifications
+  Future<List<String>> getPendingNotifications() async {
+    if (!_isInitialized) {
+      return [];
+    }
+
+    try {
+      final pendingNotifications = await _flutterLocalNotificationsPlugin.pendingNotificationRequests();
+      final List<String> notificationList = [];
+      
+      final now = tz.TZDateTime.now(tz.local);
+      final nowFormatted = '${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}';
+      
+      debugPrint('📋 ========== PENDING NOTIFICATIONS (${pendingNotifications.length}) ==========');
+      debugPrint('   🕐 Current time: $nowFormatted (${tz.local.name})');
+      debugPrint('   ─────────────────────────────────────────────────────');
+      
+      for (var i = 0; i < pendingNotifications.length; i++) {
+        final notification = pendingNotifications[i];
+        final info = '${i + 1}. ID: ${notification.id} | ${notification.title}';
+        debugPrint('   $info');
+        if (notification.body != null && notification.body!.isNotEmpty) {
+          debugPrint('      Body: ${notification.body}');
+        }
+        notificationList.add(info);
+      }
+      
+      if (pendingNotifications.isEmpty) {
+        debugPrint('   ⚠️  NO PENDING NOTIFICATIONS FOUND!');
+        debugPrint('   This means scheduled notifications are not being saved.');
+      }
+      
+      debugPrint('📋 ═══════════════════════════════════════════════════════');
+      
+      return notificationList;
+    } catch (e) {
+      debugPrint('❌ Failed to get pending notifications: $e');
+      return [];
     }
   }
 }

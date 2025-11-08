@@ -1162,18 +1162,8 @@ class AchievementProvider with ChangeNotifier {
         
         print('Achievement unlocked: ${achievement.name}');
         
-        // Show notification if context is available
-        if (_context != null) {
-          final notificationService = NotificationService(flutterLocalNotificationsPlugin);
-          await notificationService.showAchievementUnlockedNotification(
-            achievementName: achievement.name,
-            achievementDescription: achievement.description,
-            iconPath: achievement.icon,
-          );
-          print('Achievement notification shown for: ${achievement.name}');
-        } else {
-          // print('Cannot show achievement notification: BuildContext not available');
-        }
+        // Notifications disabled
+        // Achievement unlocked silently
       }
   }
 }

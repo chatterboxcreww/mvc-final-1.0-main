@@ -10,6 +10,7 @@ import '../../../core/providers/experience_provider.dart';
 import '../../../core/providers/achievement_provider.dart';
 import '../../../core/services/step_tracking_service.dart';
 import '../../../core/services/auth_service.dart';
+import '../../../core/services/notification_service.dart';
 import '../../../shared/widgets/gradient_background.dart';
 import '../../../shared/widgets/glass_container.dart';
 import '../../../shared/widgets/glass_background.dart';
@@ -342,6 +343,62 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin, Widg
         },
       ),
       actions: [
+        // Test Notification Button
+        Padding(
+          padding: EdgeInsets.only(
+            top: MediaQuery.of(context).padding.top + 8,
+            right: 8,
+          ),
+          child: Container(
+            decoration: BoxDecoration(
+              color: colorScheme.primaryContainer.withOpacity(0.9),
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: [
+                BoxShadow(
+                  color: colorScheme.shadow.withOpacity(0.1),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            child: IconButton(
+              icon: Icon(
+                Icons.notification_add_rounded,
+                color: colorScheme.onPrimaryContainer,
+              ),
+              tooltip: 'Test Notification',
+              onPressed: () async {
+                HapticFeedback.lightImpact();
+                final notificationService = Provider.of<NotificationService>(context, listen: false);
+                
+                // Show immediate notification
+                await notificationService.showTestNotification();
+                
+                // Schedule one for 1 minute from now
+                await notificationService.scheduleTestNotificationIn1Minute();
+                
+                // Get timezone info
+                final timezone = notificationService.getCurrentTimezone();
+                final currentTime = notificationService.getCurrentLocalTime();
+                
+                // Get pending notifications
+                final pendingNotifications = await notificationService.getPendingNotifications();
+                
+                // Show snackbar confirmation with timezone info
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('✅ Immediate notification sent!\n⏰ Scheduled notification in 1 minute\nTimezone: $timezone\nCurrent time: ${currentTime.hour}:${currentTime.minute.toString().padLeft(2, '0')}\nPending: ${pendingNotifications.length} scheduled'),
+                      backgroundColor: colorScheme.primary,
+                      behavior: SnackBarBehavior.floating,
+                      duration: const Duration(seconds: 5),
+                    ),
+                  );
+                }
+              },
+            ),
+          ),
+        ),
         // Enhanced notification bell
         Padding(
           padding: EdgeInsets.only(

@@ -83,7 +83,8 @@ class _ProgressSectionState extends State<ProgressSection>
         final effectiveRecurrence = _selectedRecurrence == NotificationRecurrence.custom 
             ? NotificationRecurrence.daily 
             : _selectedRecurrence;
-        await notificationService.scheduleNotification(
+        
+        final success = await notificationService.scheduleNotification(
           context,
           'Task Reminder',
           'Time to: ${newActivity.label}',
@@ -91,6 +92,12 @@ class _ProgressSectionState extends State<ProgressSection>
           'custom_activity_${newActivity.id}',
           recurrence: effectiveRecurrence,
         );
+        
+        if (success) {
+          print('✅ Notification scheduled: Task Reminder at ${_selectedTime!.hour}:${_selectedTime!.minute.toString().padLeft(2, '0')}');
+        } else {
+          print('❌ Failed to schedule notification');
+        }
       }
 
       _customActivityController.clear();
@@ -283,6 +290,26 @@ class _ProgressSectionState extends State<ProgressSection>
                           ),
                         ),
                       ],
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  OutlinedButton.icon(
+                    onPressed: () async {
+                      final notificationService = Provider.of<NotificationService>(context, listen: false);
+                      await notificationService.showTestNotification();
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Test notification sent! Check your notification tray.'),
+                            duration: Duration(seconds: 2),
+                          ),
+                        );
+                      }
+                    },
+                    icon: const Icon(Icons.notifications_active, size: 18),
+                    label: const Text('Send Test Notification Now'),
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                     ),
                   ),
                 ],

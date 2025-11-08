@@ -1,6 +1,8 @@
 // lib/features/settings/screens/notification_settings_screen.dart
 import 'package:flutter/material.dart';
 import 'dart:ui';
+import 'package:provider/provider.dart';
+import '../../../core/services/notification_service.dart';
 import '../../../shared/widgets/glass_container.dart';
 import '../../../shared/widgets/glass_background.dart';
 import '../widgets/glass_settings_tile.dart';
@@ -30,6 +32,31 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
       duration: const Duration(seconds: 20),
       vsync: this,
     )..repeat();
+
+    // Load saved notification settings
+    _loadSavedSettings();
+  }
+
+  Future<void> _loadSavedSettings() async {
+    try {
+      final notificationService = Provider.of<NotificationService>(context, listen: false);
+      final settings = await notificationService.loadNotificationSettings();
+
+      if (mounted) {
+        setState(() {
+          _waterReminders = settings['water_reminders_enabled'] ?? true;
+          _stepGoalReminders = settings['step_goal_reminders_enabled'] ?? true;
+          _moodCheckIns = settings['mood_checkins_enabled'] ?? true;
+          _weeklyReports = settings['weekly_reports_enabled'] ?? true;
+          _achievementNotifications = settings['achievement_notifications_enabled'] ?? true;
+          _levelUpNotifications = settings['level_up_notifications_enabled'] ?? true;
+        });
+      }
+
+      debugPrint('✅ Notification settings loaded: $_waterReminders, $_stepGoalReminders, $_moodCheckIns, $_weeklyReports, $_achievementNotifications, $_levelUpNotifications');
+    } catch (e) {
+      debugPrint('❌ Failed to load notification settings: $e');
+    }
   }
 
   @override
@@ -163,9 +190,34 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
     );
   }
 
-  void _saveSettings() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Notification settings saved!')),
-    );
+  void _saveSettings() async {
+    try {
+      // Save settings to notification service
+      final notificationService = Provider.of<NotificationService>(context, listen: false);
+      await notificationService.saveNotificationSettings(
+        waterReminders: _waterReminders,
+        stepGoalReminders: _stepGoalReminders,
+        moodCheckIns: _moodCheckIns,
+        weeklyReports: _weeklyReports,
+        achievementNotifications: _achievementNotifications,
+        levelUpNotifications: _levelUpNotifications,
+      );
+
+      // Show success message
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Notification settings saved!')),
+        );
+      }
+
+      debugPrint('✅ Notification settings saved successfully');
+    } catch (e) {
+      debugPrint('❌ Failed to save notification settings: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Failed to save settings. Please try again.')),
+        );
+      }
+    }
   }
 }

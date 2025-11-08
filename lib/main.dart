@@ -3,10 +3,7 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart' show kIsWeb; // <-- IMPORT kIsWeb
 import 'package:flutter/material.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:provider/provider.dart';
-import 'package:timezone/data/latest.dart' as tz;
-import 'package:timezone/timezone.dart' as tz;
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -44,10 +41,16 @@ import 'core/services/batch_operations_service.dart';
 import 'core/services/offline_manager.dart';
 import 'core/services/atomic_water_service.dart';
 import 'core/services/persistent_step_service.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
-final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-FlutterLocalNotificationsPlugin();
+
+/// Top-level function for handling background notifications
+@pragma('vm:entry-point')
+void notificationTapBackground(NotificationResponse notificationResponse) {
+  debugPrint('Background notification tapped: ${notificationResponse.payload}');
+  // Handle background notification tap here
+}
 
 /// Background entry point for WorkManager tasks
 @pragma('vm:entry-point')
@@ -92,13 +95,6 @@ void callbackDispatcher() {
       return false;
     }
   });
-}
-
-/// Background notification tap handler
-@pragma('vm:entry-point')
-void notificationTapBackgroundHandler(NotificationResponse notificationResponse) {
-  // Handle notification tap in background
-  debugPrint('Notification tapped in background: ${notificationResponse.payload}');
 }
 
 /// Main application entry point
@@ -314,7 +310,7 @@ class MyApp extends StatelessWidget {
         ),
 
         // Service providers
-        Provider<NotificationService>(create: (_) => NotificationService(flutterLocalNotificationsPlugin)),
+        Provider<NotificationService>(create: (_) => NotificationService()),
         ProxyProvider<NotificationService, AdaptiveNotificationService>(
           update: (_, notificationService, __) => AdaptiveNotificationService(notificationService),
         ),
@@ -397,28 +393,23 @@ class _AppInitializerState extends State<AppInitializer> {
           debugPrint('⚠️ Workmanager initialization failed: $e');
         }
 
-        // Initialize timezone with error handling
-        try {
-          tz.initializeTimeZones();
-          tz.setLocalLocation(tz.getLocation('Asia/Kolkata'));
-          debugPrint('✅ Timezone initialized');
-        } catch (e) {
-          debugPrint('⚠️ Timezone initialization failed: $e');
-        }
-
-        // Initialize notification service with better error handling
+        // Initialize notification service
         try {
           final notificationService = Provider.of<NotificationService>(context, listen: false);
           await notificationService.initializeNotifications(
-                (NotificationResponse response) {},
-            notificationTapBackgroundHandler,
-          ).timeout(
-            const Duration(seconds: 3),
-            onTimeout: () {
-              debugPrint('⚠️ Notification initialization timed out - continuing anyway');
+            (NotificationResponse notificationResponse) {
+              // Handle notification tap
+              debugPrint('Notification tapped: ${notificationResponse.payload}');
+              // Add any specific handling for notification taps here
             },
+            notificationTapBackground, // Use the top-level function
           );
           debugPrint('✅ Notification service initialized');
+          
+          // Ensure notification permissions are granted
+          final permissionsGranted = await notificationService.ensureNotificationPermissions();
+          debugPrint('📋 Notification permissions check: $permissionsGranted');
+          
         } catch (e) {
           debugPrint('⚠️ Notification service initialization failed: $e');
         }
@@ -489,6 +480,61 @@ class _AppInitializerState extends State<AppInitializer> {
       }
     }
 
+    // Method to schedule initial notifications after app initialization
+    Future<void> _scheduleInitialNotifications(BuildContext context) async {
+      try {
+        final notificationService = Provider.of<NotificationService>(context, listen: false);
+        final adaptiveNotificationService = Provider.of<AdaptiveNotificationService>(context, listen: false);
+        
+        // Wait a bit to ensure providers are properly initialized
+        await Future.delayed(const Duration(milliseconds: 500));
+        
+        // Load notification settings
+        final settings = await notificationService.loadNotificationSettings();
+        debugPrint('📋 Loaded notification settings: $settings');
+        
+        // Load user data to determine which notifications to schedule
+        final userDataProvider = Provider.of<UserDataProvider>(context, listen: false);
+        final userData = userDataProvider.userData;
+        debugPrint('📋 Loaded user data for notification scheduling');
+        
+        // Get necessary providers for adaptive notifications
+        final activityProvider = Provider.of<ActivityProvider>(context, listen: false);
+        final stepCounterProvider = Provider.of<StepCounterProvider>(context, listen: false);
+        final trendsProvider = Provider.of<TrendsProvider>(context, listen: false);
+        final achievementProvider = Provider.of<AchievementProvider>(context, listen: false);
+        final experienceProvider = Provider.of<ExperienceProvider>(context, listen: false);
+        
+        // Schedule adaptive notifications based on user preferences and behavior
+        await adaptiveNotificationService.scheduleAdaptiveNotifications(
+          context,
+          userData,
+          activityProvider,
+          stepCounterProvider,
+          trendsProvider,
+          achievementProvider: achievementProvider,
+          experienceProvider: experienceProvider,
+        );
+        
+        debugPrint('✅ Initial notifications scheduled based on user preferences');
+      } catch (e) {
+        debugPrint('⚠️ Failed to schedule initial notifications: $e');
+        // Try a simpler approach if the above fails
+        try {
+          final notificationService = Provider.of<NotificationService>(context, listen: false);
+          // Check and ensure notifications are scheduled properly
+          await notificationService.ensureNotificationsScheduled();
+          debugPrint('✅ Checked and ensured notifications are scheduled');
+        } catch (fallbackError) {
+          debugPrint('⚠️ Fallback notification check also failed: $fallbackError');
+        }
+      }
+    }
+
+    // Run initialization services first, then schedule notifications
+    await initializeServices();
+    await _scheduleInitialNotifications(context);
+
     // This future ensures the splash screen is visible for a minimum duration.
     final splashDuration = Future.delayed(const Duration(milliseconds: 2000));
 
@@ -542,7 +588,7 @@ class _AppInitializerState extends State<AppInitializer> {
         try {
           Navigator.of(context).pushReplacement(
             PageRouteBuilder(
-              pageBuilder: (context, animation, secondaryAnimation) => 
+              pageBuilder: (context, animation, secondaryAnimation) =>
                   ageVerified ? const PermissionGateScreen() : const AgeGateScreen(),
               transitionsBuilder: (context, animation, secondaryAnimation, child) {
                 return FadeTransition(opacity: animation, child: child);
