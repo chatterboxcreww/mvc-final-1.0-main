@@ -119,24 +119,28 @@ class _TrendsPageState extends State<TrendsPage>
 
   Widget _buildQuickStatCard(String title, String value, IconData icon, Color color) {
     return Card(
-      elevation: 2,
+      elevation: 1,
+      margin: const EdgeInsets.all(0),
       child: Padding(
-        padding: const EdgeInsets.all(12),
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
         child: Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, color: color, size: 24),
-            const SizedBox(height: 8),
+            Icon(icon, color: color, size: 20),
+            const SizedBox(height: 6),
             Text(
               value,
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+              style: Theme.of(context).textTheme.titleSmall?.copyWith(
                 fontWeight: FontWeight.bold,
                 color: color,
               ),
             ),
             Text(
               title,
-              style: Theme.of(context).textTheme.bodySmall,
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(fontSize: 10),
               textAlign: TextAlign.center,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
             ),
           ],
         ),
@@ -148,19 +152,27 @@ class _TrendsPageState extends State<TrendsPage>
     return Consumer3<TrendsProvider, ExperienceProvider, StepCounterProvider>(
       builder: (context, trendsProvider, expProvider, stepProvider, child) {
         final checkinHistory = trendsProvider.checkinHistory;
+        
+        final screenHeight = MediaQuery.of(context).size.height;
+        final bottomPadding = screenHeight < 700 ? 140.0 : 120.0;
 
         return SingleChildScrollView(
-          padding: const EdgeInsets.all(16),
+          padding: EdgeInsets.only(
+            left: 16,
+            right: 16,
+            top: 16,
+            bottom: bottomPadding, // Dynamic padding to prevent footer overlap
+          ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Experience Overview
               _buildExperienceCard(expProvider, stepProvider),
-              const SizedBox(height: 16),
+              const SizedBox(height: 8),
 
               // Wellness Summary
               _buildWellnessSummaryCard(trendsProvider, checkinHistory),
-              const SizedBox(height: 16),
+              const SizedBox(height: 8),
 
               // Weekly Goals Progress
               _buildWeeklyGoalsCard(stepProvider, trendsProvider),
@@ -178,8 +190,9 @@ class _TrendsPageState extends State<TrendsPage>
         : 0.0;
 
     return Card(
+      margin: const EdgeInsets.symmetric(horizontal: 0),
       child: Padding(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -260,8 +273,9 @@ class _TrendsPageState extends State<TrendsPage>
 
   Widget _buildWellnessSummaryCard(TrendsProvider trendsProvider, List<DailyCheckinData> checkinHistory) {
     return Card(
+      margin: const EdgeInsets.symmetric(horizontal: 0),
       child: Padding(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -290,8 +304,9 @@ class _TrendsPageState extends State<TrendsPage>
     final waterGoalsThisWeek = trendsProvider.weeklyAnalytics['hydrationGoalDays'] ?? 0;
 
     return Card(
+      margin: const EdgeInsets.symmetric(horizontal: 0),
       child: Padding(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -333,7 +348,7 @@ class _TrendsPageState extends State<TrendsPage>
 
   Widget _buildGoalProgressItem(String title, String value, double progress, IconData icon, Color color) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12),
@@ -393,8 +408,16 @@ class _TrendsPageState extends State<TrendsPage>
             ? sortedData.sublist(sortedData.length - 7)
             : sortedData;
 
+        final screenHeight = MediaQuery.of(context).size.height;
+        final bottomPadding = screenHeight < 700 ? 140.0 : 120.0;
+
         return SingleChildScrollView(
-          padding: const EdgeInsets.all(16),
+          padding: EdgeInsets.only(
+            left: 16,
+            right: 16,
+            top: 16,
+            bottom: bottomPadding, // Dynamic padding to prevent footer overlap
+          ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -404,7 +427,7 @@ class _TrendsPageState extends State<TrendsPage>
                 _buildWaterChart(last7Days),
               ),
 
-              const SizedBox(height: 24),
+              const SizedBox(height: 12),
 
               // Mood Chart
               _buildChartCard(
@@ -412,7 +435,7 @@ class _TrendsPageState extends State<TrendsPage>
                 _buildMoodChart(last7Days),
               ),
 
-              const SizedBox(height: 24),
+              const SizedBox(height: 12),
 
               // Sleep Chart
               _buildChartCard(
@@ -449,8 +472,16 @@ class _TrendsPageState extends State<TrendsPage>
         final sortedHistory = List<DailyCheckinData>.from(checkinHistory);
         sortedHistory.sort((a, b) => b.date.compareTo(a.date));
 
+        final screenHeight = MediaQuery.of(context).size.height;
+        final bottomPadding = screenHeight < 700 ? 140.0 : 120.0;
+
         return ListView.builder(
-          padding: const EdgeInsets.all(16),
+          padding: EdgeInsets.only(
+            left: 16,
+            right: 16,
+            top: 16,
+            bottom: bottomPadding, // Dynamic padding to prevent footer overlap
+          ),
           itemCount: sortedHistory.length,
           itemBuilder: (context, index) {
             final data = sortedHistory[index];
@@ -463,8 +494,9 @@ class _TrendsPageState extends State<TrendsPage>
 
   Widget _buildChartCard(String title, Widget chart) {
     return Card(
+      margin: const EdgeInsets.symmetric(horizontal: 0),
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(14),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -693,9 +725,9 @@ class _TrendsPageState extends State<TrendsPage>
 
   Widget _buildHistoryCard(DailyCheckinData data) {
     return Card(
-      margin: const EdgeInsets.only(bottom: 12),
+      margin: const EdgeInsets.only(bottom: 6),
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(12),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

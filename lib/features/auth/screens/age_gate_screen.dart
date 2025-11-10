@@ -2,8 +2,8 @@
 
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../../../shared/widgets/gradient_background.dart';
 import 'permission_gate_screen.dart';
+import 'dart:math' as math;
 
 /// Neutral Age Gate Screen - Required for Google Play Families Policy
 /// This screen collects the user's birthdate to determine age-appropriate content
@@ -14,10 +14,27 @@ class AgeGateScreen extends StatefulWidget {
   State<AgeGateScreen> createState() => _AgeGateScreenState();
 }
 
-class _AgeGateScreenState extends State<AgeGateScreen> {
+class _AgeGateScreenState extends State<AgeGateScreen> with SingleTickerProviderStateMixin {
   DateTime? _selectedDate;
   bool _isLoading = false;
   String? _errorMessage;
+  late AnimationController _animationController;
+
+  @override
+  void initState() {
+    super.initState();
+    _animationController = AnimationController(
+      duration: const Duration(milliseconds: 1500),
+      vsync: this,
+    );
+    _animationController.forward();
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
+  }
 
   Future<void> _selectDate() async {
     final now = DateTime.now();
@@ -145,110 +162,199 @@ class _AgeGateScreenState extends State<AgeGateScreen> {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final size = MediaQuery.of(context).size;
+    final isSmallScreen = size.height < 700;
+    final isVerySmallScreen = size.height < 600;
+    final screenWidth = size.width;
+    
+    // Responsive sizing
+    final logoSize = isVerySmallScreen ? 70.0 : (isSmallScreen ? 85.0 : 100.0);
+    final horizontalPadding = screenWidth < 360 ? 16.0 : (screenWidth < 400 ? 20.0 : 24.0);
+    final cardPadding = isVerySmallScreen ? 16.0 : (isSmallScreen ? 20.0 : 24.0);
+    final verticalSpacing = isVerySmallScreen ? 16.0 : (isSmallScreen ? 24.0 : 32.0);
     
     return Scaffold(
-      body: GradientBackground(
-        colors: isDark ? [
-          colorScheme.surface,
-          colorScheme.surfaceContainer,
-          colorScheme.surfaceContainerHigh,
-        ] : [
-          colorScheme.primaryContainer,
-          colorScheme.secondaryContainer,
-          colorScheme.tertiaryContainer,
-        ],
-        child: SafeArea(
-          child: Center(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(24),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  // App Logo/Icon
-                  Container(
-                    width: 100,
-                    height: 100,
-                    decoration: BoxDecoration(
-                      color: colorScheme.primaryContainer.withOpacity(0.8),
-                      borderRadius: BorderRadius.circular(30),
-                      border: Border.all(
-                        color: colorScheme.outline.withOpacity(0.2),
-                        width: 1,
+      body: Container(
+        width: double.infinity,
+        height: double.infinity,
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              const Color(0xFF833AB4), // Instagram purple
+              const Color(0xFFFD1D1D), // Instagram red
+              const Color(0xFFFCAF45), // Instagram orange/yellow
+            ],
+            stops: const [0.0, 0.5, 1.0],
+          ),
+        ),
+        child: Stack(
+          children: [
+            // Animated medical icons background
+            ...List.generate(6, (index) {
+              final iconTypes = [
+                Icons.favorite_rounded,
+                Icons.local_hospital_rounded,
+                Icons.medical_services_rounded,
+                Icons.health_and_safety_rounded,
+                Icons.monitor_heart_rounded,
+                Icons.medication_rounded,
+              ];
+              return Positioned(
+                left: (index % 3) * size.width / 3,
+                top: (index ~/ 3) * size.height / 2,
+                child: AnimatedBuilder(
+                  animation: _animationController,
+                  builder: (context, child) {
+                    return Transform.translate(
+                      offset: Offset(
+                        math.sin(_animationController.value * 2 * math.pi + index) * 20,
+                        math.cos(_animationController.value * 2 * math.pi + index) * 20,
                       ),
-                    ),
-                    child: Icon(
-                      Icons.favorite_rounded,
-                      size: 50,
-                      color: colorScheme.primary,
-                    ),
-                  ),
-                  
-                  const SizedBox(height: 32),
-                  
-                  // Title
-                  Text(
-                    'Welcome to Health-TRKD',
-                    style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                      color: isDark ? colorScheme.onSurface : colorScheme.onPrimaryContainer,
-                      fontWeight: FontWeight.w800,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                  
-                  const SizedBox(height: 12),
-                  
-                  // Subtitle
-                  Text(
-                    'To provide you with age-appropriate content,\nplease select your date of birth',
-                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                      color: isDark 
-                          ? colorScheme.onSurface.withOpacity(0.8)
-                          : colorScheme.onPrimaryContainer.withOpacity(0.8),
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                  
-                  const SizedBox(height: 48),
-                  
-                  // Birthdate Input Card
-                  Container(
-                    padding: const EdgeInsets.all(24),
-                    decoration: BoxDecoration(
-                      color: colorScheme.surface,
-                      borderRadius: BorderRadius.circular(24),
-                      border: Border.all(
-                        color: colorScheme.outline.withOpacity(0.2),
-                        width: 1,
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: colorScheme.shadow.withOpacity(0.1),
-                          blurRadius: 20,
-                          offset: const Offset(0, 10),
+                      child: Opacity(
+                        opacity: 0.15,
+                        child: Container(
+                          width: 100,
+                          height: 100,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: Colors.white.withOpacity(0.3),
+                          ),
+                          child: Icon(
+                            iconTypes[index],
+                            size: 50,
+                            color: Colors.white,
+                          ),
                         ),
-                      ],
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
+                      ),
+                    );
+                  },
+                ),
+              );
+            }),
+            SafeArea(
+              child: SingleChildScrollView(
+                padding: EdgeInsets.symmetric(
+                  horizontal: horizontalPadding,
+                  vertical: isVerySmallScreen ? 12 : 16,
+                ),
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    minHeight: MediaQuery.of(context).size.height - 
+                      MediaQuery.of(context).padding.top - 
+                      MediaQuery.of(context).padding.bottom - 
+                      (isVerySmallScreen ? 24 : 32),
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      // App Logo/Icon
+                      Container(
+                        width: logoSize,
+                        height: logoSize,
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                            colors: [
+                              const Color(0xFF833AB4),
+                              const Color(0xFFFD1D1D),
+                              const Color(0xFFFCAF45),
+                            ],
+                          ),
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.3),
+                              blurRadius: 30,
+                              offset: const Offset(0, 10),
+                            ),
+                          ],
+                        ),
+                        child: Icon(
+                          Icons.favorite_rounded,
+                          size: logoSize * 0.5,
+                          color: Colors.white,
+                        ),
+                      ),
+                      
+                      SizedBox(height: verticalSpacing),
+                      
+                      // Title
+                      Text(
+                        'Welcome to Health-TRKD',
+                        style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                          fontSize: isVerySmallScreen ? 20 : (isSmallScreen ? 24 : null),
+                          color: Colors.white,
+                          fontWeight: FontWeight.w800,
+                          shadows: [
+                            Shadow(
+                              color: Colors.black.withOpacity(0.2),
+                              offset: const Offset(0, 4),
+                              blurRadius: 10,
+                            ),
+                          ],
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      
+                      SizedBox(height: isVerySmallScreen ? 8 : 12),
+                      
+                      // Subtitle
+                      Text(
+                        'To provide you with age-appropriate content,\nplease select your date of birth',
+                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                          fontSize: isVerySmallScreen ? 13 : (isSmallScreen ? 15 : null),
+                          color: Colors.white.withOpacity(0.9),
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      
+                      SizedBox(height: isVerySmallScreen ? 24 : (isSmallScreen ? 32 : 48)),
+                      
+                      // Birthdate Input Card
+                      Container(
+                        padding: EdgeInsets.all(cardPadding),
+                        decoration: BoxDecoration(
+                          color: colorScheme.surface,
+                          borderRadius: BorderRadius.circular(24),
+                          border: Border.all(
+                            color: colorScheme.outline.withOpacity(0.2),
+                            width: 1,
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: colorScheme.shadow.withOpacity(0.1),
+                              blurRadius: 20,
+                              offset: const Offset(0, 10),
+                            ),
+                          ],
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
                         Text(
                           'Date of Birth',
                           style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                            fontSize: isVerySmallScreen ? 18 : (isSmallScreen ? 20 : null),
                             fontWeight: FontWeight.w700,
                             color: colorScheme.onSurface,
                           ),
                         ),
                         
-                        const SizedBox(height: 8),
+                        SizedBox(height: isVerySmallScreen ? 6 : 8),
                         
                         Text(
                           'Select your birthdate using the calendar',
                           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            fontSize: isVerySmallScreen ? 13 : null,
                             color: colorScheme.onSurfaceVariant,
                           ),
                         ),
                         
-                        const SizedBox(height: 24),
+                        SizedBox(height: isVerySmallScreen ? 16 : 24),
                         
                         // Date Selection Button
                         SizedBox(
@@ -256,7 +362,10 @@ class _AgeGateScreenState extends State<AgeGateScreen> {
                           child: OutlinedButton.icon(
                             onPressed: _isLoading ? null : _selectDate,
                             style: OutlinedButton.styleFrom(
-                              padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
+                              padding: EdgeInsets.symmetric(
+                                vertical: isVerySmallScreen ? 16 : 20,
+                                horizontal: isVerySmallScreen ? 12 : 16,
+                              ),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(16),
                               ),
@@ -282,7 +391,7 @@ class _AgeGateScreenState extends State<AgeGateScreen> {
                                   ? '${_selectedDate!.day}/${_selectedDate!.month}/${_selectedDate!.year}'
                                   : 'Select Date of Birth',
                               style: TextStyle(
-                                fontSize: 16,
+                                fontSize: isVerySmallScreen ? 14 : 16,
                                 fontWeight: FontWeight.w600,
                                 color: _selectedDate != null 
                                     ? colorScheme.primary 
@@ -293,9 +402,9 @@ class _AgeGateScreenState extends State<AgeGateScreen> {
                         ),
                           
                         if (_errorMessage != null) ...[
-                          const SizedBox(height: 16),
+                          SizedBox(height: isVerySmallScreen ? 12 : 16),
                           Container(
-                            padding: const EdgeInsets.all(12),
+                            padding: EdgeInsets.all(isVerySmallScreen ? 10 : 12),
                             decoration: BoxDecoration(
                               color: colorScheme.errorContainer,
                               borderRadius: BorderRadius.circular(12),
@@ -313,7 +422,7 @@ class _AgeGateScreenState extends State<AgeGateScreen> {
                                     _errorMessage!,
                                     style: TextStyle(
                                       color: colorScheme.onErrorContainer,
-                                      fontSize: 14,
+                                      fontSize: isVerySmallScreen ? 12 : 14,
                                       fontWeight: FontWeight.w500,
                                     ),
                                   ),
@@ -323,7 +432,7 @@ class _AgeGateScreenState extends State<AgeGateScreen> {
                           ),
                         ],
                           
-                        const SizedBox(height: 24),
+                        SizedBox(height: isVerySmallScreen ? 16 : 24),
                         
                         // Continue Button
                         SizedBox(
@@ -335,7 +444,7 @@ class _AgeGateScreenState extends State<AgeGateScreen> {
                               foregroundColor: colorScheme.onPrimary,
                               disabledBackgroundColor: colorScheme.surfaceContainerHighest,
                               disabledForegroundColor: colorScheme.onSurfaceVariant,
-                              padding: const EdgeInsets.symmetric(vertical: 16),
+                              padding: EdgeInsets.symmetric(vertical: isVerySmallScreen ? 14 : 16),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(16),
                               ),
@@ -352,21 +461,21 @@ class _AgeGateScreenState extends State<AgeGateScreen> {
                                       ),
                                     ),
                                   )
-                                : const Text(
+                                : Text(
                                     'Continue',
                                     style: TextStyle(
-                                      fontSize: 16,
+                                      fontSize: isVerySmallScreen ? 14 : 16,
                                       fontWeight: FontWeight.w600,
                                     ),
                                   ),
                           ),
                         ),
                         
-                        const SizedBox(height: 16),
+                        SizedBox(height: isVerySmallScreen ? 12 : 16),
                         
                         // Privacy Notice
                         Container(
-                          padding: const EdgeInsets.all(12),
+                          padding: EdgeInsets.all(isVerySmallScreen ? 10 : 12),
                           decoration: BoxDecoration(
                             color: colorScheme.surfaceContainerHighest.withOpacity(0.5),
                             borderRadius: BorderRadius.circular(12),
@@ -385,7 +494,7 @@ class _AgeGateScreenState extends State<AgeGateScreen> {
                                   'We collect your date of birth to ensure age-appropriate content and comply with privacy regulations. Your information is kept private and secure.',
                                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
                                     color: colorScheme.onSurfaceVariant,
-                                    fontSize: 12,
+                                    fontSize: isVerySmallScreen ? 11 : 12,
                                     height: 1.4,
                                   ),
                                 ),
@@ -396,14 +505,14 @@ class _AgeGateScreenState extends State<AgeGateScreen> {
                       ],
                     ),
                   ),
-                ],
+                    ],
+                  ),
+                ),
               ),
             ),
-          ),
+          ],
         ),
       ),
     );
   }
-
-
 }

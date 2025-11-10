@@ -17,7 +17,15 @@ class ExperienceCard extends StatelessWidget {
         final xpProgress = experienceProvider.xp / experienceProvider.xpForNextLevel;
         final colorScheme = Theme.of(context).colorScheme;
         
+        // Minimal margins for compact layout
+        final screenWidth = MediaQuery.of(context).size.width;
+        final isSmallScreen = screenWidth < 360;
+        final cardMargin = isSmallScreen 
+            ? const EdgeInsets.symmetric(horizontal: 4, vertical: 3)
+            : const EdgeInsets.symmetric(horizontal: 8, vertical: 4);
+        
         return GlassCard(
+          margin: cardMargin,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [

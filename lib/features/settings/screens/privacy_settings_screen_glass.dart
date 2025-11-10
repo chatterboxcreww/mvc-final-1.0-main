@@ -61,11 +61,15 @@ class _PrivacySettingsScreenState extends State<PrivacySettingsScreen>
           ),
           SafeArea(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.all(16),
+              padding: EdgeInsets.only(
+                left: 16,
+                right: 16,
+                top: kToolbarHeight + 16, // Add space for app bar
+                bottom: 16,
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const SizedBox(height: 16),
                   
                   _buildSectionTitle(context, 'Data Sharing'),
                   const SizedBox(height: 12),

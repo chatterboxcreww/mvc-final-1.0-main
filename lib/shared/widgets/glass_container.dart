@@ -120,13 +120,32 @@ class GlassCard extends StatelessWidget {
     this.elevation = 8,
   });
 
+  // Compact variant with minimal padding and margin
+  const GlassCard.compact({
+    super.key,
+    required this.child,
+    this.borderRadius = 16,
+    EdgeInsetsGeometry? padding,
+    EdgeInsetsGeometry? margin,
+    this.onTap,
+    this.elevation = 4,
+  }) : padding = padding ?? const EdgeInsets.all(10.0),
+       margin = margin ?? const EdgeInsets.symmetric(horizontal: 8, vertical: 3);
+
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    
+    // Minimal default margin for compact layout
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isSmallScreen = screenWidth < 360;
+    final defaultMargin = isSmallScreen 
+        ? const EdgeInsets.symmetric(horizontal: 4, vertical: 3)
+        : const EdgeInsets.symmetric(horizontal: 8, vertical: 4);
 
     return Container(
-      margin: margin ?? const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      margin: margin ?? defaultMargin,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(borderRadius),
         boxShadow: [
@@ -148,7 +167,7 @@ class GlassCard extends StatelessWidget {
         borderRadius: borderRadius,
         blur: 15,
         opacity: isDark ? 0.15 : 0.08,
-        padding: padding ?? const EdgeInsets.all(20),
+        padding: padding ?? const EdgeInsets.all(16),
         onTap: onTap,
         gradientColors: [
           (isDark ? Colors.white : colorScheme.surface).withOpacity(isDark ? 0.15 : 0.95),

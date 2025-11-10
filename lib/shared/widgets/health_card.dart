@@ -21,6 +21,18 @@ class HealthCard extends StatelessWidget {
     this.iconColor,
   });
 
+  // Compact variant with minimal padding
+  const HealthCard.compact({
+    super.key,
+    required this.child,
+    this.backgroundColor,
+    EdgeInsetsGeometry? padding,
+    this.onTap,
+    this.elevated = false,
+    this.leadingIcon,
+    this.iconColor,
+  }) : padding = padding ?? const EdgeInsets.all(12.0);
+
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
@@ -53,7 +65,7 @@ class HealthCard extends StatelessWidget {
                 end: Alignment.bottomRight,
               ),
             ),
-            padding: padding ?? const EdgeInsets.all(20.0),
+            padding: padding ?? const EdgeInsets.all(16.0),
             child: leadingIcon != null
                 ? Row(
                     children: [

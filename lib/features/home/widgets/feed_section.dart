@@ -2,6 +2,7 @@
 
 // lib/features/home/widgets/feed_section.dart
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
 
@@ -59,8 +60,13 @@ class _FeedSectionState extends State<FeedSection> {
     final List<Widget> healthAdviceWidgets =
     _buildStaticHealthAdvice(context, userData);
 
-    final screenWidth = MediaQuery.of(context).size.width;
+    final screenSize = MediaQuery.of(context).size;
+    final screenWidth = screenSize.width;
+    final screenHeight = screenSize.height;
     final horizontalPadding = screenWidth * 0.04;
+    
+    // Dynamic bottom padding to prevent footer overlap
+    final bottomPadding = screenHeight < 700 ? 140.0 : 120.0;
     
     return RefreshIndicator(
       onRefresh: () async {
@@ -84,7 +90,12 @@ class _FeedSectionState extends State<FeedSection> {
       },
       child: ListView(
         physics: const AlwaysScrollableScrollPhysics(),
-        padding: EdgeInsets.symmetric(horizontal: horizontalPadding, vertical: 16.0),
+        padding: EdgeInsets.only(
+          left: horizontalPadding,
+          right: horizontalPadding,
+          top: MediaQuery.of(context).padding.top + kToolbarHeight + 20, // Account for status bar + app bar + spacing
+          bottom: bottomPadding, // Dynamic padding to prevent footer overlap
+        ),
         children: [
           // Health Advice Section Header
           if (healthAdviceWidgets.isNotEmpty) ...[
@@ -101,23 +112,23 @@ class _FeedSectionState extends State<FeedSection> {
                 ),
               ],
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 6),
             Text(
               'Based on your health profile',
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                 color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 12),
           ],
           
           ...healthAdviceWidgets.asMap().entries.map((entry) {
             return Padding(
-              padding: const EdgeInsets.only(bottom: 16.0),
+              padding: const EdgeInsets.only(bottom: 10.0),
               child: AnimatedListItem(index: entry.key + 2, child: entry.value),
             );
           }),
-          const SizedBox(height: 24),
+          const SizedBox(height: 16),
           _buildCuratedFeedHeader(context),
           const SizedBox(height: 8),
           _buildCuratedFeedBody(
@@ -257,8 +268,9 @@ class _FeedSectionState extends State<FeedSection> {
         IconData leadingIconData;
 
         if (item.category.toLowerCase().contains('food') || 
-            item.category.toLowerCase().contains('coffee') ||
-            item.category.toLowerCase().contains('tea')) {
+            item.category.toLowerCase().contains('breakfast') ||
+            item.category.toLowerCase().contains('lunch') ||
+            item.category.toLowerCase().contains('dinner')) {
           leadingIconData = Icons.restaurant_menu_outlined;
         } else if (item.category.toLowerCase().contains('exercise')) {
           leadingIconData = Icons.fitness_center_outlined;
@@ -269,18 +281,19 @@ class _FeedSectionState extends State<FeedSection> {
         return GlassCard(
           child: ExpansionTile(
             key: PageStorageKey(item.id),
+            tilePadding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 4.0),
             leading: item.imagePlaceholder != null &&
                 item.imagePlaceholder!.startsWith('assets/')
                 ? ClipRRect(
-                borderRadius: BorderRadius.circular(12.0),
+                borderRadius: BorderRadius.circular(8.0),
                 child: Image.asset(item.imagePlaceholder!,
-                    width: 48,
-                    height: 48,
+                    width: 36,
+                    height: 36,
                     fit: BoxFit.cover,
                     errorBuilder: (context, error, stackTrace) =>
                         Icon(leadingIconData,
-                            size: 36, color: colorScheme.tertiary)))
-                : Icon(leadingIconData, size: 36, color: colorScheme.tertiary),
+                            size: 24, color: colorScheme.tertiary)))
+                : Icon(leadingIconData, size: 24, color: colorScheme.tertiary),
             title: Text(item.title,
                 style: Theme.of(context)
                     .textTheme
@@ -293,6 +306,8 @@ class _FeedSectionState extends State<FeedSection> {
               tooltip: isAdded
                   ? "Remove from today's tasks"
                   : "Add to today's tasks",
+              padding: EdgeInsets.zero,
+              constraints: const BoxConstraints(),
               onPressed: () {
                 final activityProvider = context.read<ActivityProvider>();
                 final experienceProvider = context.read<ExperienceProvider>();
@@ -363,52 +378,68 @@ class _FeedSectionState extends State<FeedSection> {
                 }
               },
             ),
-            childrenPadding: const EdgeInsets.all(16.0),
+            childrenPadding: const EdgeInsets.all(12.0),
             children: [
               Text(item.description,
                   style: Theme.of(context).textTheme.bodyMedium),
               if (item.allergens.isNotEmpty &&
                   item.allergens.first.toLowerCase() != "none")
                 Padding(
-                  padding: const EdgeInsets.only(top: 8.0),
+                  padding: const EdgeInsets.only(top: 6.0),
                   child: Text("Potential Allergens: ${item.allergens.join(', ')}",
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
                           color: colorScheme.error,
                           fontStyle: FontStyle.italic)),
                 ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 10),
               // More Details Button
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton.icon(
                   onPressed: () async {
                     try {
+                      // Add haptic feedback
+                      HapticFeedback.lightImpact();
+                      
+                      // Validate recipe data before navigation
+                      if (item.title.isEmpty) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Recipe details are not available'),
+                            backgroundColor: Theme.of(context).colorScheme.error,
+                          ),
+                        );
+                        return;
+                      }
+                      
+                      // Navigate with proper error handling
                       await Navigator.of(context).push(
                         MaterialPageRoute(
                           builder: (context) => RecipeDetailScreen(recipe: item),
+                          settings: RouteSettings(name: '/recipe-detail/${item.id}'),
                         ),
                       );
                     } catch (e) {
-                      print('Error navigating to recipe details: $e');
+                      print('Navigation error: $e');
                       if (mounted) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
-                            content: Text('Unable to load recipe details'),
+                            content: Text('Failed to open recipe details. Please try again.'),
                             backgroundColor: Theme.of(context).colorScheme.error,
                           ),
                         );
                       }
                     }
                   },
-                  icon: Icon(Icons.restaurant_menu, size: 18),
+                  icon: Icon(Icons.restaurant_menu),
                   label: Text('More Details'),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: colorScheme.primaryContainer,
                     foregroundColor: colorScheme.onPrimaryContainer,
                     elevation: 0,
-                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    padding: const EdgeInsets.symmetric(vertical: 8),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(8),
                     ),
                   ),
                 ),
@@ -529,13 +560,14 @@ class _FeedSectionState extends State<FeedSection> {
     return GlassCard(
       child: ExpansionTile(
         key: PageStorageKey(title),
+        tilePadding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 4.0),
         leading: Container(
-          padding: const EdgeInsets.all(8),
+          padding: const EdgeInsets.all(6),
           decoration: BoxDecoration(
             color: Color.fromRGBO(iconColor.red, iconColor.green, iconColor.blue, 0.1),
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: BorderRadius.circular(6),
           ),
-          child: Icon(icon, color: iconColor, size: 24),
+          child: Icon(icon, color: iconColor, size: 20),
         ),
         title: Text(title,
             style: Theme.of(context)
@@ -548,27 +580,27 @@ class _FeedSectionState extends State<FeedSection> {
             color: Theme.of(context).colorScheme.onSurfaceVariant,
           ),
         ),
-        childrenPadding: const EdgeInsets.fromLTRB(16.0, 8.0, 16.0, 16.0),
+        childrenPadding: const EdgeInsets.fromLTRB(12.0, 6.0, 12.0, 12.0),
         children: [
           Container(
             decoration: BoxDecoration(
               color: Color.fromRGBO(Theme.of(context).colorScheme.surfaceVariant.red, Theme.of(context).colorScheme.surfaceVariant.green, Theme.of(context).colorScheme.surfaceVariant.blue, 0.3),
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(8),
             ),
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(12),
             child: Column(
               children: advicePoints.asMap().entries.map((entry) {
                 final index = entry.key;
                 final point = entry.value;
                 return Container(
-                  margin: EdgeInsets.only(bottom: index < advicePoints.length - 1 ? 12.0 : 0),
+                  margin: EdgeInsets.only(bottom: index < advicePoints.length - 1 ? 8.0 : 0),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Container(
-                        margin: const EdgeInsets.only(right: 12.0, top: 2.0),
-                        width: 20,
-                        height: 20,
+                        margin: const EdgeInsets.only(right: 8.0, top: 2.0),
+                        width: 18,
+                        height: 18,
                         decoration: BoxDecoration(
                           color: Color.fromRGBO(iconColor.red, iconColor.green, iconColor.blue, 0.2),
                           shape: BoxShape.circle,
@@ -579,7 +611,7 @@ class _FeedSectionState extends State<FeedSection> {
                             style: Theme.of(context).textTheme.bodySmall?.copyWith(
                               color: iconColor,
                               fontWeight: FontWeight.bold,
-                              fontSize: 10,
+                              fontSize: 9,
                             ),
                           ),
                         ),
@@ -588,7 +620,7 @@ class _FeedSectionState extends State<FeedSection> {
                         child: Text(
                           point, 
                           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            height: 1.4,
+                            height: 1.3,
                           ),
                         ),
                       ),
@@ -647,28 +679,28 @@ class _FeedSectionState extends State<FeedSection> {
 
     return GlassCard(
       child: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(12.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
               children: [
                 Container(
-                  padding: const EdgeInsets.all(8),
+                  padding: const EdgeInsets.all(6),
                   decoration: BoxDecoration(
                     color: Color.fromRGBO(colorScheme.tertiary.red, colorScheme.tertiary.green, colorScheme.tertiary.blue, 0.1),
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(6),
                   ),
-                  child: Icon(Icons.coffee_outlined, color: colorScheme.tertiary, size: 24),
+                  child: Icon(Icons.coffee_outlined, color: colorScheme.tertiary, size: 20),
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(width: 10),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         'Coffee Types & Benefits',
-                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        style: Theme.of(context).textTheme.titleSmall?.copyWith(
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -676,6 +708,7 @@ class _FeedSectionState extends State<FeedSection> {
                         'Select a coffee type to learn about its benefits',
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
                           color: colorScheme.onSurfaceVariant,
+                          fontSize: 11,
                         ),
                       ),
                     ],
@@ -683,7 +716,7 @@ class _FeedSectionState extends State<FeedSection> {
                 ),
               ],
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 12),
             Container(
               decoration: BoxDecoration(
                 border: Border.all(color: colorScheme.outline),
@@ -707,21 +740,23 @@ class _FeedSectionState extends State<FeedSection> {
                     );
                   }).toList(),
                   onChanged: (String? newValue) {
-                    setState(() {
-                      selectedCoffeeType = newValue;
-                    });
+                    if (mounted) {
+                      setState(() {
+                        selectedCoffeeType = newValue;
+                      });
+                    }
                   },
                 ),
               ),
             ),
             if (selectedCoffeeType != null) ...[
-              const SizedBox(height: 16),
+              const SizedBox(height: 12),
               Container(
                 decoration: BoxDecoration(
                   color: Color.fromRGBO(colorScheme.surfaceVariant.red, colorScheme.surfaceVariant.green, colorScheme.surfaceVariant.blue, 0.3),
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(8),
                 ),
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.all(12),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -732,43 +767,43 @@ class _FeedSectionState extends State<FeedSection> {
                         color: colorScheme.tertiary,
                       ),
                     ),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 6),
                     Text(
                       coffeeTypes[selectedCoffeeType!]!['description'],
-                      style: Theme.of(context).textTheme.bodyMedium,
+                      style: Theme.of(context).textTheme.bodySmall,
                     ),
-                    const SizedBox(height: 12),
+                    const SizedBox(height: 10),
                     _buildInfoRow(
                       'Caffeine Content',
                       coffeeTypes[selectedCoffeeType!]!['caffeine'],
                       Icons.energy_savings_leaf,
                       colorScheme,
                     ),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 6),
                     _buildInfoRow(
                       'Best Time',
                       coffeeTypes[selectedCoffeeType!]!['bestTime'],
                       Icons.access_time,
                       colorScheme,
                     ),
-                    const SizedBox(height: 12),
+                    const SizedBox(height: 10),
                     Text(
                       'Health Benefits:',
-                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         fontWeight: FontWeight.w600,
                       ),
                     ),
                     const SizedBox(height: 4),
                     ...coffeeTypes[selectedCoffeeType!]!['benefits'].map<Widget>((benefit) {
                       return Padding(
-                        padding: const EdgeInsets.only(top: 4),
+                        padding: const EdgeInsets.only(top: 3),
                         child: Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Container(
-                              margin: const EdgeInsets.only(right: 8, top: 6),
-                              width: 4,
-                              height: 4,
+                              margin: const EdgeInsets.only(right: 6, top: 5),
+                              width: 3,
+                              height: 3,
                               decoration: BoxDecoration(
                                 color: colorScheme.tertiary,
                                 shape: BoxShape.circle,
@@ -777,7 +812,7 @@ class _FeedSectionState extends State<FeedSection> {
                             Expanded(
                               child: Text(
                                 benefit,
-                                style: Theme.of(context).textTheme.bodySmall,
+                                style: Theme.of(context).textTheme.bodySmall?.copyWith(fontSize: 12),
                               ),
                             ),
                           ],
@@ -850,28 +885,28 @@ class _FeedSectionState extends State<FeedSection> {
 
     return GlassCard(
       child: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(12.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
               children: [
                 Container(
-                  padding: const EdgeInsets.all(8),
+                  padding: const EdgeInsets.all(6),
                   decoration: BoxDecoration(
                     color: Color.fromRGBO(colorScheme.tertiary.red, colorScheme.tertiary.green, colorScheme.tertiary.blue, 0.1),
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(6),
                   ),
-                  child: Icon(Icons.local_cafe_outlined, color: colorScheme.tertiary, size: 24),
+                  child: Icon(Icons.local_cafe_outlined, color: colorScheme.tertiary, size: 20),
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(width: 10),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         'Tea Varieties & Benefits',
-                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        style: Theme.of(context).textTheme.titleSmall?.copyWith(
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -879,6 +914,7 @@ class _FeedSectionState extends State<FeedSection> {
                         'Select a tea type to discover its health benefits',
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
                           color: colorScheme.onSurfaceVariant,
+                          fontSize: 11,
                         ),
                       ),
                     ],
@@ -886,7 +922,7 @@ class _FeedSectionState extends State<FeedSection> {
                 ),
               ],
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 12),
             Container(
               decoration: BoxDecoration(
                 border: Border.all(color: colorScheme.outline),
@@ -910,21 +946,23 @@ class _FeedSectionState extends State<FeedSection> {
                     );
                   }).toList(),
                   onChanged: (String? newValue) {
-                    setState(() {
-                      selectedTeaType = newValue;
-                    });
+                    if (mounted) {
+                      setState(() {
+                        selectedTeaType = newValue;
+                      });
+                    }
                   },
                 ),
               ),
             ),
             if (selectedTeaType != null) ...[
-              const SizedBox(height: 16),
+              const SizedBox(height: 12),
               Container(
                 decoration: BoxDecoration(
                   color: Color.fromRGBO(colorScheme.surfaceVariant.red, colorScheme.surfaceVariant.green, colorScheme.surfaceVariant.blue, 0.3),
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(8),
                 ),
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.all(12),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -935,43 +973,43 @@ class _FeedSectionState extends State<FeedSection> {
                         color: colorScheme.tertiary,
                       ),
                     ),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 6),
                     Text(
                       teaTypes[selectedTeaType!]!['description'],
-                      style: Theme.of(context).textTheme.bodyMedium,
+                      style: Theme.of(context).textTheme.bodySmall,
                     ),
-                    const SizedBox(height: 12),
+                    const SizedBox(height: 10),
                     _buildInfoRow(
                       'Caffeine Content',
                       teaTypes[selectedTeaType!]!['caffeine'],
                       Icons.energy_savings_leaf,
                       colorScheme,
                     ),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 6),
                     _buildInfoRow(
                       'Best Time',
                       teaTypes[selectedTeaType!]!['bestTime'],
                       Icons.access_time,
                       colorScheme,
                     ),
-                    const SizedBox(height: 12),
+                    const SizedBox(height: 10),
                     Text(
                       'Health Benefits:',
-                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         fontWeight: FontWeight.w600,
                       ),
                     ),
                     const SizedBox(height: 4),
                     ...teaTypes[selectedTeaType!]!['benefits'].map<Widget>((benefit) {
                       return Padding(
-                        padding: const EdgeInsets.only(top: 4),
+                        padding: const EdgeInsets.only(top: 3),
                         child: Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Container(
-                              margin: const EdgeInsets.only(right: 8, top: 6),
-                              width: 4,
-                              height: 4,
+                              margin: const EdgeInsets.only(right: 6, top: 5),
+                              width: 3,
+                              height: 3,
                               decoration: BoxDecoration(
                                 color: colorScheme.tertiary,
                                 shape: BoxShape.circle,
@@ -980,7 +1018,7 @@ class _FeedSectionState extends State<FeedSection> {
                             Expanded(
                               child: Text(
                                 benefit,
-                                style: Theme.of(context).textTheme.bodySmall,
+                                style: Theme.of(context).textTheme.bodySmall?.copyWith(fontSize: 12),
                               ),
                             ),
                           ],
@@ -1000,19 +1038,20 @@ class _FeedSectionState extends State<FeedSection> {
   Widget _buildInfoRow(String label, String value, IconData icon, ColorScheme colorScheme) {
     return Row(
       children: [
-        Icon(icon, size: 16, color: colorScheme.onSurfaceVariant),
-        const SizedBox(width: 8),
+        Icon(icon, size: 14, color: colorScheme.onSurfaceVariant),
+        const SizedBox(width: 6),
         Text(
           '$label: ',
           style: TextStyle(
             fontWeight: FontWeight.w600,
             color: colorScheme.onSurfaceVariant,
+            fontSize: 12,
           ),
         ),
         Expanded(
           child: Text(
             value,
-            style: TextStyle(color: colorScheme.onSurface),
+            style: TextStyle(color: colorScheme.onSurface, fontSize: 12),
           ),
         ),
       ],

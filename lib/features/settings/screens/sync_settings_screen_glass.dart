@@ -65,11 +65,15 @@ class _SyncSettingsScreenState extends State<SyncSettingsScreen>
           ),
           SafeArea(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.all(16),
+              padding: EdgeInsets.only(
+                left: 16,
+                right: 16,
+                top: kToolbarHeight + 16, // Add space for app bar
+                bottom: 16,
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const SizedBox(height: 16),
                   
                   // Last Sync Info
                   GlassCard(

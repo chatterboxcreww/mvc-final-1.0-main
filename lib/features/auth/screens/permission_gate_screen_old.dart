@@ -24,8 +24,12 @@ class _PermissionGateScreenState extends State<PermissionGateScreen>
   @override
   void initState() {
     super.initState();
-    _initializeAnimations();
-    _handlePermissions();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        _initializeAnimations();
+        _handlePermissions();
+      }
+    });
   }
 
   void _initializeAnimations() {

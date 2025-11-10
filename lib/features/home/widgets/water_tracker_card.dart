@@ -112,8 +112,16 @@ class _WaterTrackerCardState extends State<WaterTrackerCard> {
         final progressClamped = progress.clamp(0.0, 1.0);
         final colorScheme = Theme.of(context).colorScheme;
         final textTheme = Theme.of(context).textTheme;
+        
+        // Minimal margins for compact layout
+        final screenWidth = MediaQuery.of(context).size.width;
+        final isSmallScreen = screenWidth < 360;
+        final cardMargin = isSmallScreen 
+            ? const EdgeInsets.symmetric(horizontal: 4, vertical: 3)
+            : const EdgeInsets.symmetric(horizontal: 8, vertical: 4);
 
         return GlassCard(
+          margin: cardMargin,
           child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -258,7 +266,7 @@ class _WaterTrackerCardState extends State<WaterTrackerCard> {
                   
                   // Hydration tip
                   GlassContainer(
-                    padding: const EdgeInsets.all(12),
+                    padding: const EdgeInsets.all(10),
                     borderRadius: 12,
                     opacity: 0.05,
                     gradientColors: [

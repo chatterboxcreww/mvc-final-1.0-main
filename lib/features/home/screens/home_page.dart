@@ -343,67 +343,12 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin, Widg
         },
       ),
       actions: [
-        // Test Notification Button
-        Padding(
-          padding: EdgeInsets.only(
-            top: MediaQuery.of(context).padding.top + 8,
-            right: 8,
-          ),
-          child: Container(
-            decoration: BoxDecoration(
-              color: colorScheme.primaryContainer.withOpacity(0.9),
-              borderRadius: BorderRadius.circular(12),
-              boxShadow: [
-                BoxShadow(
-                  color: colorScheme.shadow.withOpacity(0.1),
-                  blurRadius: 8,
-                  offset: const Offset(0, 2),
-                ),
-              ],
-            ),
-            child: IconButton(
-              icon: Icon(
-                Icons.notification_add_rounded,
-                color: colorScheme.onPrimaryContainer,
-              ),
-              tooltip: 'Test Notification',
-              onPressed: () async {
-                HapticFeedback.lightImpact();
-                final notificationService = Provider.of<NotificationService>(context, listen: false);
-                
-                // Show immediate notification
-                await notificationService.showTestNotification();
-                
-                // Schedule one for 1 minute from now
-                await notificationService.scheduleTestNotificationIn1Minute();
-                
-                // Get timezone info
-                final timezone = notificationService.getCurrentTimezone();
-                final currentTime = notificationService.getCurrentLocalTime();
-                
-                // Get pending notifications
-                final pendingNotifications = await notificationService.getPendingNotifications();
-                
-                // Show snackbar confirmation with timezone info
-                if (mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('✅ Immediate notification sent!\n⏰ Scheduled notification in 1 minute\nTimezone: $timezone\nCurrent time: ${currentTime.hour}:${currentTime.minute.toString().padLeft(2, '0')}\nPending: ${pendingNotifications.length} scheduled'),
-                      backgroundColor: colorScheme.primary,
-                      behavior: SnackBarBehavior.floating,
-                      duration: const Duration(seconds: 5),
-                    ),
-                  );
-                }
-              },
-            ),
-          ),
-        ),
+
         // Enhanced notification bell
         Padding(
-          padding: EdgeInsets.only(
-            top: MediaQuery.of(context).padding.top + 8,
-            right: 8,
+          padding: const EdgeInsets.only(
+            top: 0,
+            right: 12,
           ),
           child: AnimatedBuilder(
             animation: _pulseAnimation,
@@ -478,8 +423,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin, Widg
         
         // Enhanced profile avatar
         Padding(
-          padding: EdgeInsets.only(
-            top: MediaQuery.of(context).padding.top + 8,
+          padding: const EdgeInsets.only(
+            top: 0,
             right: 16.0,
           ),
           child: GestureDetector(
@@ -817,19 +762,24 @@ class _HomeTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
+    final screenSize = MediaQuery.of(context).size;
+    final screenWidth = screenSize.width;
+    final screenHeight = screenSize.height;
     final horizontalPadding = screenWidth * 0.04;
     
     final colorScheme = Theme.of(context).colorScheme;
     final isSmallScreen = screenWidth < 360;
+    
+    // Dynamic bottom padding based on screen height to prevent footer overlap
+    final bottomPadding = screenHeight < 700 ? 140.0 : 120.0;
     
     return SingleChildScrollView(
       physics: const BouncingScrollPhysics(),
       padding: EdgeInsets.only(
         left: horizontalPadding,
         right: horizontalPadding,
-        top: 120, // Account for enhanced app bar
-        bottom: 120, // Account for floating bottom nav
+        top: MediaQuery.of(context).padding.top + kToolbarHeight + 20, // Account for status bar + app bar + spacing
+        bottom: bottomPadding, // Dynamic padding to prevent footer overlap
       ),
       child: AnimatedBuilder(
         animation: floatingAnimation,
@@ -921,7 +871,7 @@ class _HomeTab extends StatelessWidget {
                 ),
               ),
               
-              SizedBox(height: isSmallScreen ? 20 : 24),
+              SizedBox(height: isSmallScreen ? 12 : 16),
 
               // Animated Main tracking cards
               AnimatedBuilder(
@@ -933,9 +883,9 @@ class _HomeTab extends StatelessWidget {
                   );
                 },
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 8),
               const WaterTrackerCard(),
-              const SizedBox(height: 32),
+              const SizedBox(height: 16),
 
               // Progress section header
               Transform.translate(
@@ -965,13 +915,13 @@ class _HomeTab extends StatelessWidget {
                   ],
                 ),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 12),
               
               // Progress cards
               const ExperienceCard(),
-              const SizedBox(height: 16),
+              const SizedBox(height: 8),
               const AchievementsCard(),
-              const SizedBox(height: 32),
+              const SizedBox(height: 16),
             ],
           );
         },

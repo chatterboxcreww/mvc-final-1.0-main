@@ -135,8 +135,9 @@ class _AllergiesQuestionState extends State<AllergiesQuestion> {
                 itemCount: _allergies.length,
                 itemBuilder: (context, index) {
                   return Card(
-                    margin: const EdgeInsets.symmetric(vertical: 4),
+                    margin: const EdgeInsets.symmetric(vertical: 2),
                     child: ListTile(
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
                       leading: Icon(
                         Icons.warning_amber_rounded,
                         color: colorScheme.error

@@ -75,7 +75,12 @@ class _SettingsScreenGlassState extends State<SettingsScreenGlass>
           // Content
           SafeArea(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.all(16),
+              padding: EdgeInsets.only(
+                left: 16,
+                right: 16,
+                top: 16,
+                bottom: MediaQuery.of(context).size.height < 700 ? 100.0 : 80.0,
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [

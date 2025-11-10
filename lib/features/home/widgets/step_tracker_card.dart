@@ -73,8 +73,16 @@ class _StepTrackerCardState extends State<StepTrackerCard>
         final progressClamped = progress.clamp(0.0, 1.0);
         final colorScheme = Theme.of(context).colorScheme;
         final textTheme = Theme.of(context).textTheme;
+        
+        // Minimal margins for compact layout
+        final screenWidth = MediaQuery.of(context).size.width;
+        final isSmallScreen = screenWidth < 360;
+        final cardMargin = isSmallScreen 
+            ? const EdgeInsets.symmetric(horizontal: 4, vertical: 3)
+            : const EdgeInsets.symmetric(horizontal: 8, vertical: 4);
 
         return GlassCard(
+          margin: cardMargin,
           onTap: () {
             Navigator.of(context).push(MaterialPageRoute(
               builder: (_) => const StepHistoryScreen(),
@@ -298,7 +306,7 @@ class _StepTrackerCardState extends State<StepTrackerCard>
       IconData icon, Color color) {
     return Expanded(
       child: GlassContainer(
-        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 6),
         borderRadius: 12,
         opacity: 0.05,
         gradientColors: [
@@ -336,7 +344,7 @@ class _StepTrackerCardState extends State<StepTrackerCard>
       ColorScheme colorScheme, TextTheme textTheme) {
     if (progress >= 1.0) {
       return Container(
-        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 14),
         decoration: BoxDecoration(
           color: Colors.green.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(12),
@@ -371,7 +379,7 @@ class _StepTrackerCardState extends State<StepTrackerCard>
       );
     } else if (progress >= 0.8) {
       return Container(
-        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 14),
         decoration: BoxDecoration(
           color: Colors.orange.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(12),
@@ -395,7 +403,7 @@ class _StepTrackerCardState extends State<StepTrackerCard>
       );
     } else {
       return Container(
-        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 14),
         decoration: BoxDecoration(
           color: Color.fromRGBO(colorScheme.primaryContainer.red, colorScheme.primaryContainer.green, colorScheme.primaryContainer.blue, 0.1),
           borderRadius: BorderRadius.circular(12),

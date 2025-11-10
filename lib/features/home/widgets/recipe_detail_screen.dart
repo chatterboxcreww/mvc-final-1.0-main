@@ -1,8 +1,9 @@
 // lib/features/home/widgets/recipe_detail_screen.dart
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../../../core/models/curated_content_item.dart';
 
-class RecipeDetailScreen extends StatelessWidget {
+class RecipeDetailScreen extends StatefulWidget {
   final CuratedContentItem recipe;
 
   const RecipeDetailScreen({
@@ -11,16 +12,44 @@ class RecipeDetailScreen extends StatelessWidget {
   });
 
   @override
+  State<RecipeDetailScreen> createState() => _RecipeDetailScreenState();
+}
+
+class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    // Simulate loading time to ensure smooth transition
+    Future.delayed(const Duration(milliseconds: 300), () {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
+    return PopScope(
+      canPop: true,
+      onPopInvoked: (didPop) {
+        if (didPop) {
+          HapticFeedback.lightImpact();
+        }
+      },
+      child: Scaffold(
+        appBar: AppBar(
         title: Text(
-          recipe.title.isNotEmpty ? recipe.title : 'Recipe Details',
+          widget.recipe.title.isNotEmpty ? widget.recipe.title : 'Recipe Details',
           overflow: TextOverflow.ellipsis,
         ),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
+            HapticFeedback.lightImpact();
             if (Navigator.of(context).canPop()) {
               Navigator.of(context).pop();
             }
@@ -30,7 +59,11 @@ class RecipeDetailScreen extends StatelessWidget {
         backgroundColor: Theme.of(context).colorScheme.surface,
         foregroundColor: Theme.of(context).colorScheme.onSurface,
       ),
-      body: recipe.title.isEmpty ? 
+      body: _isLoading 
+        ? const Center(
+            child: CircularProgressIndicator(),
+          )
+        : widget.recipe.title.isEmpty ? 
         const Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -44,9 +77,11 @@ class RecipeDetailScreen extends StatelessWidget {
             ],
           ),
         ) :
-        ListView(
-          padding: const EdgeInsets.all(16.0),
-          children: [
+        SafeArea(
+          child: ListView(
+            physics: const BouncingScrollPhysics(),
+            padding: const EdgeInsets.all(16.0),
+            children: [
             // Recipe Image
             Container(
               width: double.infinity,
@@ -62,12 +97,14 @@ class RecipeDetailScreen extends StatelessWidget {
                 ),
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: recipe.imageUrl != null && recipe.imageUrl!.isNotEmpty
+              child: widget.recipe.imageUrl != null && widget.recipe.imageUrl!.isNotEmpty
                   ? ClipRRect(
                       borderRadius: BorderRadius.circular(12),
                       child: Image.network(
-                        recipe.imageUrl!,
+                        widget.recipe.imageUrl!,
                         fit: BoxFit.cover,
+                        cacheWidth: 400, // Optimize image loading
+                        cacheHeight: 200,
                         errorBuilder: (context, error, stackTrace) => Icon(
                           Icons.restaurant_menu,
                           size: 64,
@@ -97,7 +134,7 @@ class RecipeDetailScreen extends StatelessWidget {
           
           // Title
           Text(
-            recipe.title,
+            widget.recipe.title,
             style: Theme.of(context).textTheme.headlineSmall?.copyWith(
               fontWeight: FontWeight.bold,
             ),
@@ -106,7 +143,7 @@ class RecipeDetailScreen extends StatelessWidget {
           const SizedBox(height: 16),
           
           // Description
-          if (recipe.description.isNotEmpty)
+          if (widget.recipe.description.isNotEmpty)
             Card(
               elevation: 2,
               child: Padding(
@@ -132,7 +169,7 @@ class RecipeDetailScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 12),
                     Text(
-                      recipe.description,
+                      widget.recipe.description,
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                         height: 1.5,
                       ),
@@ -145,7 +182,7 @@ class RecipeDetailScreen extends StatelessWidget {
           const SizedBox(height: 16),
           
           // Ingredients
-          if (recipe.ingredients.isNotEmpty)
+          if (widget.recipe.ingredients.isNotEmpty)
             Card(
               elevation: 2,
               child: Padding(
@@ -175,7 +212,7 @@ class RecipeDetailScreen extends StatelessWidget {
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Text(
-                            '${recipe.ingredients.length} items',
+                            '${widget.recipe.ingredients.length} items',
                             style: Theme.of(context).textTheme.bodySmall?.copyWith(
                               color: Theme.of(context).colorScheme.onSecondaryContainer,
                             ),
@@ -184,7 +221,7 @@ class RecipeDetailScreen extends StatelessWidget {
                       ],
                     ),
                     const SizedBox(height: 12),
-                    for (int i = 0; i < recipe.ingredients.length; i++)
+                    for (int i = 0; i < widget.recipe.ingredients.length; i++)
                       Padding(
                         padding: const EdgeInsets.only(bottom: 8),
                         child: Row(
@@ -201,7 +238,7 @@ class RecipeDetailScreen extends StatelessWidget {
                             ),
                             Expanded(
                               child: Text(
-                                recipe.ingredients[i],
+                                widget.recipe.ingredients[i],
                                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                                   height: 1.4,
                                 ),
@@ -218,7 +255,7 @@ class RecipeDetailScreen extends StatelessWidget {
           const SizedBox(height: 16),
           
           // Instructions
-          if (recipe.instructions.isNotEmpty)
+          if (widget.recipe.instructions.isNotEmpty)
             Card(
               elevation: 2,
               child: Padding(
@@ -248,7 +285,7 @@ class RecipeDetailScreen extends StatelessWidget {
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Text(
-                            '${recipe.instructions.length} steps',
+                            '${widget.recipe.instructions.length} steps',
                             style: Theme.of(context).textTheme.bodySmall?.copyWith(
                               color: Theme.of(context).colorScheme.onTertiaryContainer,
                             ),
@@ -257,7 +294,7 @@ class RecipeDetailScreen extends StatelessWidget {
                       ],
                     ),
                     const SizedBox(height: 12),
-                    for (int i = 0; i < recipe.instructions.length; i++)
+                    for (int i = 0; i < widget.recipe.instructions.length; i++)
                       Padding(
                         padding: const EdgeInsets.only(bottom: 12),
                         child: Row(
@@ -284,7 +321,7 @@ class RecipeDetailScreen extends StatelessWidget {
                             const SizedBox(width: 12),
                             Expanded(
                               child: Text(
-                                recipe.instructions[i],
+                                widget.recipe.instructions[i],
                                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                                   height: 1.4,
                                 ),
@@ -301,7 +338,7 @@ class RecipeDetailScreen extends StatelessWidget {
           const SizedBox(height: 16),
           
           // Nutrition
-          if (recipe.nutrition.isNotEmpty)
+          if (widget.recipe.nutrition.isNotEmpty)
             Card(
               elevation: 2,
               child: Padding(
@@ -333,7 +370,7 @@ class RecipeDetailScreen extends StatelessWidget {
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Column(
-                        children: recipe.nutrition.entries.map((entry) {
+                        children: widget.recipe.nutrition.entries.map((entry) {
                           return Padding(
                             padding: const EdgeInsets.only(bottom: 8),
                             child: Row(
@@ -364,7 +401,7 @@ class RecipeDetailScreen extends StatelessWidget {
           const SizedBox(height: 16),
           
           // Health Benefits
-          if (recipe.healthBenefit != null && recipe.healthBenefit!.isNotEmpty)
+          if (widget.recipe.healthBenefit != null && widget.recipe.healthBenefit!.isNotEmpty)
             Card(
               elevation: 2,
               child: Padding(
@@ -397,7 +434,7 @@ class RecipeDetailScreen extends StatelessWidget {
                         border: Border.all(color: Colors.green.withOpacity(0.3)),
                       ),
                       child: Text(
-                        recipe.healthBenefit!,
+                        widget.recipe.healthBenefit!,
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                           height: 1.4,
                         ),
@@ -411,7 +448,7 @@ class RecipeDetailScreen extends StatelessWidget {
           const SizedBox(height: 16),
           
           // Keywords
-          if (recipe.keywords.isNotEmpty)
+          if (widget.recipe.keywords.isNotEmpty)
             Card(
               elevation: 2,
               child: Padding(
@@ -439,7 +476,7 @@ class RecipeDetailScreen extends StatelessWidget {
                     Wrap(
                       spacing: 8,
                       runSpacing: 8,
-                      children: recipe.keywords.map((keyword) => Container(
+                      children: widget.recipe.keywords.map((keyword) => Container(
                         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                         decoration: BoxDecoration(
                           color: Theme.of(context).colorScheme.secondaryContainer,
@@ -462,8 +499,8 @@ class RecipeDetailScreen extends StatelessWidget {
           const SizedBox(height: 16),
           
           // Allergens
-          if (recipe.allergens.isNotEmpty && 
-              !recipe.allergens.every((a) => a.toLowerCase() == 'none'))
+          if (widget.recipe.allergens.isNotEmpty && 
+              !widget.recipe.allergens.every((a) => a.toLowerCase() == 'none'))
             Card(
               elevation: 2,
               color: Colors.orange[50],
@@ -499,7 +536,7 @@ class RecipeDetailScreen extends StatelessWidget {
                           const SizedBox(width: 8),
                           Expanded(
                             child: Text(
-                              'Contains: ${recipe.allergens.where((a) => a.toLowerCase() != 'none').join(', ')}',
+                              'Contains: ${widget.recipe.allergens.where((a) => a.toLowerCase() != 'none').join(', ')}',
                               style: TextStyle(
                                 color: Colors.orange[700],
                                 fontWeight: FontWeight.w500,
@@ -517,7 +554,7 @@ class RecipeDetailScreen extends StatelessWidget {
           const SizedBox(height: 16),
           
           // Health Considerations
-          if (recipe.goodForDiseases.isNotEmpty || recipe.badForDiseases.isNotEmpty)
+          if (widget.recipe.goodForDiseases.isNotEmpty || widget.recipe.badForDiseases.isNotEmpty)
             Card(
               elevation: 2,
               child: Padding(
@@ -542,7 +579,7 @@ class RecipeDetailScreen extends StatelessWidget {
                       ],
                     ),
                     const SizedBox(height: 12),
-                    if (recipe.goodForDiseases.isNotEmpty) ...[
+                    if (widget.recipe.goodForDiseases.isNotEmpty) ...[
                       Container(
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
@@ -568,7 +605,7 @@ class RecipeDetailScreen extends StatelessWidget {
                                   ),
                                   const SizedBox(height: 4),
                                   Text(
-                                    recipe.goodForDiseases.join(', ').replaceAll('_', ' '),
+                                    widget.recipe.goodForDiseases.join(', ').replaceAll('_', ' '),
                                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                                       color: Colors.green[600],
                                     ),
@@ -581,7 +618,7 @@ class RecipeDetailScreen extends StatelessWidget {
                       ),
                       const SizedBox(height: 8),
                     ],
-                    if (recipe.badForDiseases.isNotEmpty)
+                    if (widget.recipe.badForDiseases.isNotEmpty)
                       Container(
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
@@ -607,7 +644,7 @@ class RecipeDetailScreen extends StatelessWidget {
                                   ),
                                   const SizedBox(height: 4),
                                   Text(
-                                    recipe.badForDiseases.join(', ').replaceAll('_', ' '),
+                                    widget.recipe.badForDiseases.join(', ').replaceAll('_', ' '),
                                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                                       color: Colors.red[600],
                                     ),
@@ -625,6 +662,8 @@ class RecipeDetailScreen extends StatelessWidget {
           
           const SizedBox(height: 32),
         ],
+          ),
+        ),
       ),
     );
   }

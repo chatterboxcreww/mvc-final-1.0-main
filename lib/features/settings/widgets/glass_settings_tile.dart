@@ -25,8 +25,8 @@ class GlassSettingsTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GlassCard(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(16),
+      margin: const EdgeInsets.only(bottom: 6),
+      padding: const EdgeInsets.all(12),
       onTap: onTap,
       child: Row(
         children: [
@@ -93,8 +93,8 @@ class GlassSwitchTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GlassCard(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(16),
+      margin: const EdgeInsets.only(bottom: 6),
+      padding: const EdgeInsets.all(12),
       child: Row(
         children: [
           Container(

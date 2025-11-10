@@ -346,11 +346,20 @@ class _ProgressSectionState extends State<ProgressSection>
         final totalCount = activities.length;
         final progressPercentage = totalCount > 0 ? completedCount / totalCount : 0.0;
 
+        final screenSize = MediaQuery.of(context).size;
+        final screenWidth = screenSize.width;
+        final screenHeight = screenSize.height;
+        
+        // Dynamic bottom padding to prevent footer overlap
+        final bottomPadding = screenHeight < 700 ? 140.0 : 120.0;
+
         return Center(
           child: SingleChildScrollView(
-            padding: EdgeInsets.symmetric(
-              horizontal: MediaQuery.of(context).size.width * 0.04,
-              vertical: MediaQuery.of(context).size.height * 0.02,
+            padding: EdgeInsets.only(
+              left: screenWidth * 0.04,
+              right: screenWidth * 0.04,
+              top: screenHeight * 0.02,
+              bottom: bottomPadding, // Dynamic padding to prevent footer overlap
             ),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,

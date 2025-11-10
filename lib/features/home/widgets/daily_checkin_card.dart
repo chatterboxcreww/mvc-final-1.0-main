@@ -82,8 +82,16 @@ class _DailyCheckinCardState extends State<DailyCheckinCard> {
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    
+    // Responsive sizing
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isSmallScreen = screenWidth < 360;
+    final cardMargin = isSmallScreen 
+        ? const EdgeInsets.symmetric(horizontal: 8, vertical: 6)
+        : const EdgeInsets.symmetric(horizontal: 16, vertical: 8);
 
     return GlassCard(
+      margin: cardMargin,
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(12),

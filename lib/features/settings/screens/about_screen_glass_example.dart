@@ -61,11 +61,15 @@ class _AboutScreenGlassExampleState extends State<AboutScreenGlassExample>
           // Content
           SafeArea(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.all(16),
+              padding: EdgeInsets.only(
+                left: 16,
+                right: 16,
+                top: kToolbarHeight + 16, // Add space for app bar
+                bottom: 16,
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  const SizedBox(height: 16),
                   
                   // App Logo Card
                   GlassCard(

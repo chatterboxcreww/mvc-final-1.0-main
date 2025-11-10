@@ -61,6 +61,16 @@ class _SignInScreenState extends State<SignInScreen> with SingleTickerProviderSt
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
+    final isSmallScreen = size.height < 700;
+    final isVerySmallScreen = size.height < 600;
+    final screenWidth = size.width;
+    
+    // Responsive sizing
+    final logoSize = isVerySmallScreen ? 80.0 : (isSmallScreen ? 100.0 : 120.0);
+    final titleFontSize = isVerySmallScreen ? 32.0 : (isSmallScreen ? 36.0 : 42.0);
+    final subtitleFontSize = isVerySmallScreen ? 14.0 : (isSmallScreen ? 16.0 : 18.0);
+    final verticalSpacing = isVerySmallScreen ? 20.0 : (isSmallScreen ? 30.0 : 40.0);
+    final horizontalPadding = screenWidth < 360 ? 16.0 : (screenWidth < 400 ? 24.0 : 32.0);
     
     return Scaffold(
       body: Container(
@@ -129,16 +139,18 @@ class _SignInScreenState extends State<SignInScreen> with SingleTickerProviderSt
                 opacity: _fadeAnimation,
                 child: SlideTransition(
                   position: _slideAnimation,
-                  child: Center(
-                    child: SingleChildScrollView(
-                      padding: const EdgeInsets.all(32),
+                  child: SingleChildScrollView(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: horizontalPadding,
+                        vertical: isVerySmallScreen ? 16 : 24,
+                      ),
                       child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
+                        mainAxisSize: MainAxisSize.min,
                         children: [
                           // App logo/icon - Instagram themed
                           Container(
-                            width: 120,
-                            height: 120,
+                            width: logoSize,
+                            height: logoSize,
                             decoration: BoxDecoration(
                               gradient: LinearGradient(
                                 begin: Alignment.topLeft,
@@ -160,18 +172,18 @@ class _SignInScreenState extends State<SignInScreen> with SingleTickerProviderSt
                             ),
                             child: Icon(
                               Icons.health_and_safety_rounded,
-                              size: 60,
+                              size: logoSize * 0.5,
                               color: Colors.white,
                             ),
                           ),
                           
-                          const SizedBox(height: 40),
+                          SizedBox(height: verticalSpacing),
                           
                           // App title
                           Text(
                             'Health-TRKD',
                             style: TextStyle(
-                              fontSize: 42,
+                              fontSize: titleFontSize,
                               fontWeight: FontWeight.w900,
                               color: Colors.white,
                               letterSpacing: 1.5,
@@ -185,25 +197,25 @@ class _SignInScreenState extends State<SignInScreen> with SingleTickerProviderSt
                             ),
                           ),
                           
-                          const SizedBox(height: 16),
+                          SizedBox(height: isVerySmallScreen ? 8 : 16),
                           
                           // Subtitle
                           Text(
                             'Track Your Health Journey',
                             style: TextStyle(
-                              fontSize: 18,
+                              fontSize: subtitleFontSize,
                               fontWeight: FontWeight.w500,
                               color: Colors.white.withOpacity(0.9),
                               letterSpacing: 0.5,
                             ),
                           ),
                           
-                          const SizedBox(height: 60),
+                          SizedBox(height: isVerySmallScreen ? 30 : (isSmallScreen ? 40 : 60)),
                           
                           // Sign in button
                           Container(
                             width: double.infinity,
-                            constraints: const BoxConstraints(maxWidth: 400),
+                            constraints: BoxConstraints(maxWidth: screenWidth > 600 ? 400 : double.infinity),
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(20),
                               boxShadow: [
@@ -221,7 +233,10 @@ class _SignInScreenState extends State<SignInScreen> with SingleTickerProviderSt
                                 onTap: _isLoading ? null : _handleSignIn,
                                 borderRadius: BorderRadius.circular(20),
                                 child: Padding(
-                                  padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 32),
+                                  padding: EdgeInsets.symmetric(
+                                    vertical: isVerySmallScreen ? 14 : 18,
+                                    horizontal: isVerySmallScreen ? 20 : 32,
+                                  ),
                                   child: Row(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
@@ -249,14 +264,16 @@ class _SignInScreenState extends State<SignInScreen> with SingleTickerProviderSt
                                             );
                                           },
                                         ),
-                                        const SizedBox(width: 16),
-                                        Text(
-                                          'Sign in with Google',
-                                          style: TextStyle(
-                                            fontSize: 18,
+                                        SizedBox(width: isVerySmallScreen ? 12 : 16),
+                                        Flexible(
+                                          child: Text(
+                                            'Sign in with Google',
+                                            style: TextStyle(
+                                              fontSize: isVerySmallScreen ? 16 : 18,
                                             fontWeight: FontWeight.w600,
                                             color: const Color(0xFF833AB4),
-                                            letterSpacing: 0.5,
+                                              letterSpacing: 0.5,
+                                            ),
                                           ),
                                         ),
                                       ],
@@ -267,26 +284,29 @@ class _SignInScreenState extends State<SignInScreen> with SingleTickerProviderSt
                             ),
                           ),
                           
-                          const SizedBox(height: 40),
+                          SizedBox(height: isVerySmallScreen ? 24 : (isSmallScreen ? 32 : 40)),
                           
                           // Features list
                           Container(
-                            constraints: const BoxConstraints(maxWidth: 400),
+                            constraints: BoxConstraints(maxWidth: screenWidth > 600 ? 400 : double.infinity),
                             child: Column(
                               children: [
                                 _buildFeatureItem(
                                   Icons.track_changes_rounded,
                                   'Track daily health metrics',
+                                  isVerySmallScreen,
                                 ),
-                                const SizedBox(height: 16),
+                                SizedBox(height: isVerySmallScreen ? 12 : 16),
                                 _buildFeatureItem(
                                   Icons.insights_rounded,
                                   'Get personalized insights',
+                                  isVerySmallScreen,
                                 ),
-                                const SizedBox(height: 16),
+                                SizedBox(height: isVerySmallScreen ? 12 : 16),
                                 _buildFeatureItem(
                                   Icons.emoji_events_rounded,
                                   'Achieve your health goals',
+                                  isVerySmallScreen,
                                 ),
                               ],
                             ),
@@ -297,18 +317,17 @@ class _SignInScreenState extends State<SignInScreen> with SingleTickerProviderSt
                   ),
                 ),
               ),
-            ),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildFeatureItem(IconData icon, String text) {
+  Widget _buildFeatureItem(IconData icon, String text, bool isVerySmallScreen) {
     return Row(
       children: [
         Container(
-          padding: const EdgeInsets.all(8),
+          padding: EdgeInsets.all(isVerySmallScreen ? 6 : 8),
           decoration: BoxDecoration(
             color: Colors.white.withOpacity(0.2),
             borderRadius: BorderRadius.circular(12),
@@ -316,15 +335,15 @@ class _SignInScreenState extends State<SignInScreen> with SingleTickerProviderSt
           child: Icon(
             icon,
             color: Colors.white,
-            size: 20,
+            size: isVerySmallScreen ? 18 : 20,
           ),
         ),
-        const SizedBox(width: 16),
+        SizedBox(width: isVerySmallScreen ? 12 : 16),
         Expanded(
           child: Text(
             text,
             style: TextStyle(
-              fontSize: 16,
+              fontSize: isVerySmallScreen ? 14 : 16,
               fontWeight: FontWeight.w500,
               color: Colors.white.withOpacity(0.95),
             ),

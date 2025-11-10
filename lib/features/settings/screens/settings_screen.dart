@@ -75,7 +75,12 @@ class _SettingsScreenState extends State<SettingsScreen>
           // Content
           SafeArea(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.all(16),
+              padding: EdgeInsets.only(
+                left: 16,
+                right: 16,
+                top: kToolbarHeight + 16, // Add space for app bar
+                bottom: MediaQuery.of(context).size.height < 700 ? 100.0 : 80.0,
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
@@ -85,6 +90,7 @@ class _SettingsScreenState extends State<SettingsScreen>
                   Consumer<UserDataProvider>(
                     builder: (context, userProvider, child) {
                       return GlassCard(
+                        padding: const EdgeInsets.all(14),
                         child: Row(
                           children: [
                             GlassContainer(
@@ -368,7 +374,7 @@ class _SettingsScreenState extends State<SettingsScreen>
   ) {
     return GlassCard(
       margin: EdgeInsets.zero,
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(14),
       onTap: onTap,
       child: Row(
         children: [
@@ -476,7 +482,7 @@ class _SettingsScreenState extends State<SettingsScreen>
     final colorScheme = Theme.of(context).colorScheme;
     
     return GlassContainer(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(14),
       borderRadius: 16,
       onTap: () {
         themeProvider.setThemeMode(mode);
@@ -558,7 +564,7 @@ class _SettingsScreenState extends State<SettingsScreen>
     
     return GlassCard(
       margin: EdgeInsets.zero,
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(14),
       onTap: isLoading ? null : () => _syncToCloud(context, userProvider),
       child: Row(
         children: [

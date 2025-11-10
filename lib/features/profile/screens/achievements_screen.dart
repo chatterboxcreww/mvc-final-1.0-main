@@ -68,7 +68,7 @@ class _AchievementsScreenState extends State<AchievementsScreen> with SingleTick
           // Content
           Column(
             children: [
-              SizedBox(height: kToolbarHeight + MediaQuery.of(context).padding.top),
+              SizedBox(height: kToolbarHeight + MediaQuery.of(context).padding.top + 8), // Add extra spacing
               // Tab bar with glass effect
               GlassContainer(
                 margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -125,8 +125,8 @@ class _AchievementsScreenState extends State<AchievementsScreen> with SingleTick
       children: [
         // Progress indicator with glass effect
         GlassContainer(
-          margin: const EdgeInsets.all(16),
-          padding: const EdgeInsets.all(20),
+          margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          padding: const EdgeInsets.all(14),
           borderRadius: 20,
           child: Column(
             children: [
@@ -173,7 +173,11 @@ class _AchievementsScreenState extends State<AchievementsScreen> with SingleTick
         // Achievements list
         Expanded(
           child: ListView.builder(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
+            padding: EdgeInsets.only(
+              left: 16,
+              right: 16,
+              bottom: MediaQuery.of(context).size.height < 700 ? 100.0 : 80.0,
+            ),
             itemCount: sortedAchievements.length,
             itemBuilder: (context, index) {
               final achievement = sortedAchievements[index];
@@ -186,8 +190,16 @@ class _AchievementsScreenState extends State<AchievementsScreen> with SingleTick
   }
 
   Widget _buildCategoriesTab(Map<AchievementCategory, List<Achievement>> achievementsByCategory) {
+    final screenHeight = MediaQuery.of(context).size.height;
+    final bottomPadding = screenHeight < 700 ? 100.0 : 80.0;
+    
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.only(
+        left: 16,
+        right: 16,
+        top: 16,
+        bottom: bottomPadding,
+      ),
       child: Column(
         children: achievementsByCategory.entries.map((entry) {
           final category = entry.key;
@@ -195,7 +207,7 @@ class _AchievementsScreenState extends State<AchievementsScreen> with SingleTick
           final unlockedCount = achievements.where((a) => a.isUnlocked).length;
           
           return Card(
-            margin: const EdgeInsets.only(bottom: 16),
+            margin: const EdgeInsets.only(bottom: 8),
             child: ExpansionTile(
               leading: Icon(_getCategoryIcon(category)),
               title: Text(_getCategoryDisplayName(category)),
@@ -215,8 +227,8 @@ class _AchievementsScreenState extends State<AchievementsScreen> with SingleTick
     return Opacity(
       opacity: isUnlocked ? 1.0 : 0.6,
       child: GlassCard(
-        margin: const EdgeInsets.only(bottom: 12),
-        padding: const EdgeInsets.all(16),
+        margin: const EdgeInsets.only(bottom: 6),
+        padding: const EdgeInsets.all(12),
         child: Row(
             children: [
               // Achievement icon

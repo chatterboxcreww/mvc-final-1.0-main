@@ -70,7 +70,7 @@ class _StepHistoryScreenState extends State<StepHistoryScreen> with TickerProvid
           SafeArea(
             child: Column(
               children: [
-                const SizedBox(height: 16),
+                SizedBox(height: kToolbarHeight + 8), // Add space for app bar
                 GlassContainer(
                   margin: const EdgeInsets.symmetric(horizontal: 16),
                   padding: EdgeInsets.zero,
@@ -130,14 +130,22 @@ class _StepHistoryScreenState extends State<StepHistoryScreen> with TickerProvid
         ? sortedData.sublist(sortedData.length - 7)
         : sortedData;
 
+    final screenHeight = MediaQuery.of(context).size.height;
+    final bottomPadding = screenHeight < 700 ? 100.0 : 80.0;
+    
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.only(
+        left: 16,
+        right: 16,
+        top: 16,
+        bottom: bottomPadding,
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Summary cards
           _buildSummaryCards(stepData, stepGoal),
-          const SizedBox(height: 24),
+          const SizedBox(height: 12),
           
           // Chart
           Text(
@@ -152,12 +160,13 @@ class _StepHistoryScreenState extends State<StepHistoryScreen> with TickerProvid
             child: _buildBarChart(last7Days, stepGoal),
           ),
           
-          const SizedBox(height: 24),
+          const SizedBox(height: 12),
           
           // Weekly total
           Card(
+            margin: const EdgeInsets.symmetric(horizontal: 0),
             child: Padding(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(14),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -200,8 +209,16 @@ class _StepHistoryScreenState extends State<StepHistoryScreen> with TickerProvid
     final sortedData = List<DailyStepData>.from(stepData);
     sortedData.sort((a, b) => b.date.compareTo(a.date));
 
+    final screenHeight = MediaQuery.of(context).size.height;
+    final bottomPadding = screenHeight < 700 ? 100.0 : 80.0;
+    
     return ListView.builder(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.only(
+        left: 16,
+        right: 16,
+        top: 16,
+        bottom: bottomPadding,
+      ),
       itemCount: sortedData.length,
       itemBuilder: (context, index) {
         final data = sortedData[index];
@@ -249,23 +266,28 @@ class _StepHistoryScreenState extends State<StepHistoryScreen> with TickerProvid
 
   Widget _buildSummaryCard(String title, String value, IconData icon, Color color) {
     return Card(
+      margin: const EdgeInsets.all(0),
+      elevation: 1,
       child: Padding(
-        padding: const EdgeInsets.all(12),
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
         child: Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, color: color, size: 24),
-            const SizedBox(height: 8),
+            Icon(icon, color: color, size: 20),
+            const SizedBox(height: 6),
             Text(
               value,
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.bold,
                 color: color,
               ),
             ),
             Text(
               title,
-              style: Theme.of(context).textTheme.bodySmall,
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(fontSize: 10),
               textAlign: TextAlign.center,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
             ),
           ],
         ),
@@ -377,9 +399,9 @@ class _StepHistoryScreenState extends State<StepHistoryScreen> with TickerProvid
     final progressPercent = (data.steps / data.goal * 100).clamp(0, 100);
     
     return Card(
-      margin: const EdgeInsets.only(bottom: 12),
+      margin: const EdgeInsets.only(bottom: 6),
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(12),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

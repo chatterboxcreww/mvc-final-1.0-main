@@ -117,7 +117,7 @@ class _HelpCenterScreenState extends State<HelpCenterScreen>
           SafeArea(
             child: Column(
               children: [
-                const SizedBox(height: 16),
+                SizedBox(height: kToolbarHeight + 8), // Add space for app bar
                 
                 // Search Bar
                 Padding(
