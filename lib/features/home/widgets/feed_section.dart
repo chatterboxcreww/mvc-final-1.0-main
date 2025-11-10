@@ -473,7 +473,92 @@ class _FeedSectionState extends State<FeedSection> {
       ], Icons.bloodtype_outlined, colorScheme.error));
     }
 
-    // Nutritional deficiencies second
+    if (userData.hasHighBloodPressure == true) {
+      widgets.add(_buildExpansionTile(context, 'Managing High Blood Pressure', [
+        'Monitor your blood pressure regularly as recommended by your healthcare provider.',
+        'Follow the DASH diet (Dietary Approaches to Stop Hypertension) - rich in fruits, vegetables, and low-fat dairy.',
+        'Reduce sodium intake to less than 2,300mg per day (ideally 1,500mg for better control).',
+        'Maintain a healthy weight - even losing 5-10 pounds can help lower blood pressure.',
+        'Exercise regularly - aim for at least 150 minutes of moderate aerobic activity per week.',
+        'Limit alcohol consumption according to medical guidelines.',
+        'Quit smoking and avoid tobacco products completely.',
+        'Manage stress through relaxation techniques like meditation or deep breathing.',
+        'Take prescribed medications exactly as directed by your doctor.',
+        'Get adequate sleep - aim for 7-9 hours per night.',
+        'Limit caffeine intake if it affects your blood pressure.',
+        'Keep regular appointments with your healthcare provider for monitoring.'
+      ], Icons.favorite_outlined, Colors.red));
+    }
+
+    if (userData.hasHighCholesterol == true) {
+      widgets.add(_buildExpansionTile(context, 'Managing High Cholesterol', [
+        'Follow a heart-healthy diet low in saturated and trans fats.',
+        'Increase soluble fiber intake through oats, beans, lentils, and fruits.',
+        'Choose lean proteins like fish, poultry, and plant-based options.',
+        'Include omega-3 fatty acids from fish, walnuts, and flaxseeds.',
+        'Exercise regularly - at least 150 minutes of moderate activity per week.',
+        'Maintain a healthy weight to improve cholesterol levels.',
+        'Quit smoking - it improves HDL (good) cholesterol levels.',
+        'Limit alcohol consumption according to health guidelines.',
+        'Take prescribed cholesterol medications as directed by your doctor.',
+        'Get regular cholesterol screenings as recommended by your healthcare provider.',
+        'Reduce intake of processed foods and baked goods high in trans fats.',
+        'Consider plant sterols and stanols found in fortified foods.'
+      ], Icons.monitor_heart_outlined, Colors.orange));
+    }
+
+    if (userData.isUnderweight == true) {
+      widgets.add(_buildExpansionTile(context, 'Healthy Weight Gain', [
+        'Consult with a healthcare provider or registered dietitian for personalized guidance.',
+        'Eat more frequently - aim for 5-6 smaller meals throughout the day.',
+        'Choose nutrient-dense, calorie-rich foods like nuts, seeds, and avocados.',
+        'Include healthy fats from olive oil, nut butters, and fatty fish.',
+        'Add protein to every meal to support muscle growth.',
+        'Drink smoothies and shakes with fruits, yogurt, and protein powder.',
+        'Strength train to build muscle mass rather than just gaining fat.',
+        'Avoid drinking large amounts of water before meals to preserve appetite.',
+        'Add toppings and extras to meals - cheese, nuts, dried fruits.',
+        'Get adequate sleep to support healthy weight gain and recovery.',
+        'Track your calorie intake to ensure you\'re eating enough.',
+        'Be patient - healthy weight gain takes time and consistency.'
+      ], Icons.trending_up_outlined, Colors.green));
+    }
+
+    if (userData.hasAnxiety == true) {
+      widgets.add(_buildExpansionTile(context, 'Managing Anxiety', [
+        'Practice deep breathing exercises - try the 4-7-8 technique (inhale 4, hold 7, exhale 8).',
+        'Engage in regular physical activity - exercise is a natural anxiety reliever.',
+        'Maintain a consistent sleep schedule - aim for 7-9 hours per night.',
+        'Limit caffeine and alcohol as they can worsen anxiety symptoms.',
+        'Try mindfulness meditation or progressive muscle relaxation.',
+        'Connect with supportive friends and family members.',
+        'Consider professional help - therapy (especially CBT) is highly effective.',
+        'Keep a journal to identify anxiety triggers and patterns.',
+        'Practice grounding techniques like the 5-4-3-2-1 sensory method.',
+        'Establish a calming bedtime routine to improve sleep quality.',
+        'Limit exposure to news and social media if they increase anxiety.',
+        'Take prescribed medications as directed by your healthcare provider.'
+      ], Icons.psychology_outlined, Colors.purple));
+    }
+
+    if (userData.hasLowEnergyLevels == true) {
+      widgets.add(_buildExpansionTile(context, 'Boosting Energy Levels', [
+        'Maintain a consistent sleep schedule - go to bed and wake up at the same time daily.',
+        'Stay hydrated - dehydration is a common cause of fatigue.',
+        'Eat balanced meals with complex carbohydrates, protein, and healthy fats.',
+        'Avoid skipping meals, especially breakfast.',
+        'Exercise regularly - even light activity can boost energy levels.',
+        'Limit sugar and refined carbs that cause energy crashes.',
+        'Take short breaks during the day to rest and recharge.',
+        'Get sunlight exposure, especially in the morning.',
+        'Manage stress through relaxation techniques.',
+        'Consider checking for underlying conditions like anemia or thyroid issues.',
+        'Limit caffeine intake, especially in the afternoon and evening.',
+        'Practice good sleep hygiene - dark, cool, quiet bedroom.'
+      ], Icons.battery_charging_full_outlined, Colors.amber));
+    }
+
+    // Nutritional deficiencies
     if (userData.hasProteinDeficiency == true) {
       List<String> proteinAdvice = [
         'Aim for the recommended 0.8g protein per kg body weight daily (minimum for adults).',
@@ -504,7 +589,7 @@ class _FeedSectionState extends State<FeedSection> {
       widgets.add(_buildExpansionTile(context, 'Boosting Protein Intake', proteinAdvice, Icons.food_bank_outlined, colorScheme.primary));
     }
 
-    // Body composition and fitness third
+    // Body composition and fitness
     if (userData.isSkinnyFat == true) {
       widgets.add(_buildExpansionTile(context, 'Body Composition & Fitness', [
         'Consult a fitness professional for a personalized exercise program.',

@@ -170,8 +170,8 @@ class GlassCard extends StatelessWidget {
         padding: padding ?? const EdgeInsets.all(16),
         onTap: onTap,
         gradientColors: [
-          (isDark ? Colors.white : colorScheme.surface).withOpacity(isDark ? 0.15 : 0.95),
-          (isDark ? Colors.white : colorScheme.surfaceContainer).withOpacity(isDark ? 0.1 : 0.85),
+          (isDark ? Colors.white : colorScheme.surface).withOpacity(isDark ? 0.15 : 0.75),
+          (isDark ? Colors.white : colorScheme.surfaceContainer).withOpacity(isDark ? 0.1 : 0.65),
         ],
         border: Border.all(
           color: (isDark ? Colors.white : colorScheme.outline).withOpacity(isDark ? 0.2 : 0.1),

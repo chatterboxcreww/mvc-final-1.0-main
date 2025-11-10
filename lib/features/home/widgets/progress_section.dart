@@ -365,6 +365,30 @@ class _ProgressSectionState extends State<ProgressSection>
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
+              // Add top padding for Daily Check-in Card
+              SizedBox(height: MediaQuery.of(context).padding.top + kToolbarHeight + 20),
+              
+              // Today's Progress Heading
+              Padding(
+                padding: const EdgeInsets.only(bottom: 16),
+                child: Row(
+                  children: [
+                    Text(
+                      '📊',
+                      style: TextStyle(fontSize: 28),
+                    ),
+                    const SizedBox(width: 12),
+                    Text(
+                      "Today's Progress",
+                      style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: Theme.of(context).colorScheme.onSurface,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              
               // Daily Check-in Card
               const AnimatedListItem(
                 index: 0,

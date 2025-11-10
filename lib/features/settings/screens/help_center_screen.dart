@@ -1,5 +1,6 @@
 // lib/features/settings/screens/help_center_screen.dart
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../../shared/widgets/gradient_background.dart';
 import '../widgets/settings_section.dart';
 import '../widgets/settings_tile.dart';
@@ -177,33 +178,23 @@ class _HelpCenterScreenState extends State<HelpCenterScreen> {
                       SettingsSection(
                         title: "Quick Actions",
                         children: [
-                          SettingsTile(
-                            title: "Contact Support",
-                            subtitle: "Get personalized help from our team",
-                            icon: Icons.headset_mic_outlined,
-                            color: Colors.blue,
-                            onTap: () => _showContactSupportDialog(),
+                          _buildQuickActionTile(
+                            "Contact Support",
+                            "Get personalized help from our team. Reach out to us for any questions or assistance you need with the app.",
+                            Icons.headset_mic_outlined,
+                            Colors.blue,
                           ),
-                          SettingsTile(
-                            title: "Feature Request",
-                            subtitle: "Suggest new features for the app",
-                            icon: Icons.lightbulb_outline,
-                            color: Colors.amber,
-                            onTap: () => _showFeatureRequestDialog(),
+                          _buildQuickActionTile(
+                            "Feature Request",
+                            "Have an idea to improve Health-TRKD? We'd love to hear your suggestions for new features and improvements.",
+                            Icons.lightbulb_outline,
+                            Colors.amber,
                           ),
-                          SettingsTile(
-                            title: "Report a Bug",
-                            subtitle: "Help us fix issues you've encountered",
-                            icon: Icons.bug_report_outlined,
-                            color: Colors.red,
-                            onTap: () => _showBugReportDialog(),
-                          ),
-                          SettingsTile(
-                            title: "User Guide",
-                            subtitle: "Complete guide to using Health-TRKD",
-                            icon: Icons.menu_book_outlined,
-                            color: Colors.green,
-                            onTap: () => _showUserGuideDialog(),
+                          _buildQuickActionTile(
+                            "Report a Bug",
+                            "Found something not working right? Help us improve by reporting any bugs or issues you encounter.",
+                            Icons.bug_report_outlined,
+                            Colors.red,
                           ),
                         ],
                       ),
@@ -363,172 +354,103 @@ class _HelpCenterScreenState extends State<HelpCenterScreen> {
     });
   }
 
-  void _showContactSupportDialog() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Row(
+  Widget _buildQuickActionTile(String title, String description, IconData icon, Color color) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
+        ),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Icon(Icons.schedule_rounded, color: Colors.orange),
-            SizedBox(width: 12),
-            Text("Contact Support"),
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: color.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Icon(icon, color: color, size: 24),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    title,
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Text(
+              description,
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+            ),
+            const SizedBox(height: 12),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                onPressed: () => _openEmailClient(title),
+                icon: const Icon(Icons.email_outlined, size: 18),
+                label: Text(title),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: color.withValues(alpha: 0.15),
+                  foregroundColor: color,
+                  elevation: 0,
+                  padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+              ),
+            ),
           ],
         ),
-        content: const Text(
-          "Our support team is here to help! 🎯\n\n"
-          "📧 Email: support@health-trkd.com\n"
-          "⏰ Response time: 24-48 hours\n"
-          "🌍 Available: Monday-Friday, 9 AM - 6 PM EST\n\n"
-          "Live chat and phone support coming soon!",
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text("Close"),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-              // TODO: Open email client or contact form
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Opening email client...'),
-                  backgroundColor: Colors.blue,
-                ),
-              );
-            },
-            child: const Text("Send Email"),
-          ),
-        ],
       ),
     );
   }
 
-  void _showFeatureRequestDialog() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Row(
-          children: [
-            Icon(Icons.lightbulb_outline, color: Colors.amber),
-            SizedBox(width: 12),
-            Text("Feature Request"),
-          ],
-        ),
-        content: const Text(
-          "Have an awesome idea? We'd love to hear it! 💡\n\n"
-          "Feature request portal coming soon where you can:\n"
-          "• Submit new feature ideas\n"
-          "• Vote on community suggestions\n"
-          "• Track development progress\n"
-          "• Get updates on releases\n\n"
-          "For now, send your ideas to: features@health-trkd.com",
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text("Close"),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Feature request portal coming soon!'),
-                  backgroundColor: Colors.amber,
-                ),
-              );
-            },
-            child: const Text("Coming Soon"),
-          ),
-        ],
-      ),
+  Future<void> _openEmailClient(String subject) async {
+    final Uri emailUri = Uri(
+      scheme: 'mailto',
+      path: 'chatterboxcreww@gmail.com',
+      query: 'subject=${Uri.encodeComponent(subject)}',
     );
-  }
-
-  void _showBugReportDialog() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Row(
-          children: [
-            Icon(Icons.bug_report_outlined, color: Colors.red),
-            SizedBox(width: 12),
-            Text("Report a Bug"),
-          ],
-        ),
-        content: const Text(
-          "Found a bug? Help us squash it! 🐛\n\n"
-          "Automated bug reporting system coming soon:\n"
-          "• One-tap bug reports with logs\n"
-          "• Screenshot capture\n"
-          "• Device info auto-collection\n"
-          "• Real-time status updates\n\n"
-          "Current bugs can be reported at: bugs@health-trkd.com",
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text("Close"),
+    
+    try {
+      if (await canLaunchUrl(emailUri)) {
+        await launchUrl(emailUri);
+      } else {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Could not open email client. Please email us at chatterboxcreww@gmail.com'),
+              duration: Duration(seconds: 4),
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Error opening email client. Please email us at chatterboxcreww@gmail.com'),
+            duration: Duration(seconds: 4),
           ),
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Advanced bug reporting coming soon!'),
-                  backgroundColor: Colors.red,
-                ),
-              );
-            },
-            child: const Text("Coming Soon"),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _showUserGuideDialog() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Row(
-          children: [
-            Icon(Icons.menu_book_outlined, color: Colors.green),
-            SizedBox(width: 12),
-            Text("User Guide"),
-          ],
-        ),
-        content: const Text(
-          "Interactive user guide coming soon! 📚\n\n"
-          "Will include:\n"
-          "• Step-by-step tutorials\n"
-          "• Video walkthroughs\n"
-          "• Interactive demos\n"
-          "• Best practices\n"
-          "• Pro tips and tricks\n\n"
-          "For now, explore the app and check out the FAQ section above!",
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text("Close"),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Interactive guide coming soon!'),
-                  backgroundColor: Colors.green,
-                ),
-              );
-            },
-            child: const Text("Coming Soon"),
-          ),
-        ],
-      ),
-    );
+        );
+      }
+    }
   }
 
   void _showSystemStatusDialog() {

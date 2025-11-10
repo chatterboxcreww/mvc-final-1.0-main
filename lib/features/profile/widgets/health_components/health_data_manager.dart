@@ -12,12 +12,22 @@ class HealthData {
   bool? hasDiabetes;
   bool? isSkinnyFat;
   bool? hasProteinDeficiency;
+  bool? hasHighBloodPressure;
+  bool? hasHighCholesterol;
+  bool? isUnderweight;
+  bool? hasAnxiety;
+  bool? hasLowEnergyLevels;
   List<String> allergies;
 
   HealthData({
     this.hasDiabetes,
     this.isSkinnyFat,
     this.hasProteinDeficiency,
+    this.hasHighBloodPressure,
+    this.hasHighCholesterol,
+    this.isUnderweight,
+    this.hasAnxiety,
+    this.hasLowEnergyLevels,
     required this.allergies,
   });
 }
@@ -32,6 +42,11 @@ class HealthDataManager {
       hasDiabetes: userData.hasDiabetes,
       isSkinnyFat: userData.isSkinnyFat,
       hasProteinDeficiency: userData.hasProteinDeficiency,
+      hasHighBloodPressure: userData.hasHighBloodPressure,
+      hasHighCholesterol: userData.hasHighCholesterol,
+      isUnderweight: userData.isUnderweight,
+      hasAnxiety: userData.hasAnxiety,
+      hasLowEnergyLevels: userData.hasLowEnergyLevels,
       allergies: List.from(userData.allergies ?? []),
     );
   }
@@ -42,6 +57,11 @@ class HealthDataManager {
     required bool? hasDiabetes,
     required bool? isSkinnyFat,
     required bool? hasProteinDeficiency,
+    required bool? hasHighBloodPressure,
+    required bool? hasHighCholesterol,
+    required bool? isUnderweight,
+    required bool? hasAnxiety,
+    required bool? hasLowEnergyLevels,
     required List<String> allergies,
   }) async {
     final userDataProvider = Provider.of<UserDataProvider>(context, listen: false);
@@ -51,6 +71,11 @@ class HealthDataManager {
       ..hasDiabetes = hasDiabetes
       ..isSkinnyFat = isSkinnyFat
       ..hasProteinDeficiency = hasProteinDeficiency
+      ..hasHighBloodPressure = hasHighBloodPressure
+      ..hasHighCholesterol = hasHighCholesterol
+      ..isUnderweight = isUnderweight
+      ..hasAnxiety = hasAnxiety
+      ..hasLowEnergyLevels = hasLowEnergyLevels
       ..allergies = allergies;
 
     await userDataProvider.updateUserData(updatedData);

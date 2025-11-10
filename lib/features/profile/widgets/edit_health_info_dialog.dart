@@ -19,14 +19,21 @@ class EditHealthInfoDialog extends StatefulWidget {
 }
 
 class _EditHealthInfoDialogState extends State<EditHealthInfoDialog> {
-  late HealthData _healthData;
+  HealthData? _healthData;
   int _currentQuestionIndex = 0;
   final List<String> _questionTitles = HealthQuestionsProvider.getQuestionTitles();
 
   @override
   void initState() {
     super.initState();
-    _healthData = HealthDataManager.loadHealthData(context);
+    // Load health data after the first frame
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        setState(() {
+          _healthData = HealthDataManager.loadHealthData(context);
+        });
+      }
+    });
   }
 
   void _goToNextQuestion() {
@@ -50,12 +57,19 @@ class _EditHealthInfoDialogState extends State<EditHealthInfoDialog> {
   }
 
   void _saveChanges() async {
+    if (_healthData == null) return;
+    
     await HealthDataManager.saveHealthData(
       context: context,
-      hasDiabetes: _healthData.hasDiabetes,
-      isSkinnyFat: _healthData.isSkinnyFat,
-      hasProteinDeficiency: _healthData.hasProteinDeficiency,
-      allergies: _healthData.allergies,
+      hasDiabetes: _healthData!.hasDiabetes,
+      isSkinnyFat: _healthData!.isSkinnyFat,
+      hasProteinDeficiency: _healthData!.hasProteinDeficiency,
+      hasHighBloodPressure: _healthData!.hasHighBloodPressure,
+      hasHighCholesterol: _healthData!.hasHighCholesterol,
+      isUnderweight: _healthData!.isUnderweight,
+      hasAnxiety: _healthData!.hasAnxiety,
+      hasLowEnergyLevels: _healthData!.hasLowEnergyLevels,
+      allergies: _healthData!.allergies,
     );
 
     if (mounted) {
@@ -66,6 +80,19 @@ class _EditHealthInfoDialogState extends State<EditHealthInfoDialog> {
 
   @override
   Widget build(BuildContext context) {
+    // Show loading indicator while health data is being loaded
+    if (_healthData == null) {
+      return AlertDialog(
+        title: const Text('Health Information'),
+        content: SizedBox(
+          height: 200,
+          child: Center(
+            child: CircularProgressIndicator(),
+          ),
+        ),
+      );
+    }
+
     final navigator = QuestionNavigator(
       currentIndex: _currentQuestionIndex,
       totalQuestions: _questionTitles.length,
@@ -90,6 +117,10 @@ class _EditHealthInfoDialogState extends State<EditHealthInfoDialog> {
   }
 
   Widget _buildQuestionContent(BuildContext context) {
+    if (_healthData == null) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
     final questions = HealthQuestionsProvider.getQuestions();
     final userData = Provider.of<UserDataProvider>(context, listen: false).userData;
     
@@ -101,41 +132,91 @@ class _EditHealthInfoDialogState extends State<EditHealthInfoDialog> {
     }
 
     switch (_currentQuestionIndex) {
-      case 0:
+      case 0: // Diabetes
         return BooleanQuestion(
           question: questions[0].question,
           description: questions[0].description,
-          currentValue: _healthData.hasDiabetes,
+          currentValue: _healthData!.hasDiabetes,
           onChanged: (value) {
-            if (mounted) setState(() => _healthData.hasDiabetes = value);
+            if (mounted) setState(() => _healthData!.hasDiabetes = value);
           },
           questionIcon: questions[0].icon,
         );
-      case 1:
+      case 1: // High Blood Pressure
         return BooleanQuestion(
           question: questions[1].question,
           description: questions[1].description,
-          currentValue: _healthData.isSkinnyFat,
+          currentValue: _healthData!.hasHighBloodPressure,
           onChanged: (value) {
-            if (mounted) setState(() => _healthData.isSkinnyFat = value);
+            if (mounted) setState(() => _healthData!.hasHighBloodPressure = value);
           },
           questionIcon: questions[1].icon,
         );
-      case 2:
+      case 2: // High Cholesterol
         return BooleanQuestion(
           question: questions[2].question,
           description: questions[2].description,
-          currentValue: _healthData.hasProteinDeficiency,
+          currentValue: _healthData!.hasHighCholesterol,
           onChanged: (value) {
-            if (mounted) setState(() => _healthData.hasProteinDeficiency = value);
+            if (mounted) setState(() => _healthData!.hasHighCholesterol = value);
           },
           questionIcon: questions[2].icon,
         );
-      case 3:
+      case 3: // Underweight
+        return BooleanQuestion(
+          question: questions[3].question,
+          description: questions[3].description,
+          currentValue: _healthData!.isUnderweight,
+          onChanged: (value) {
+            if (mounted) setState(() => _healthData!.isUnderweight = value);
+          },
+          questionIcon: questions[3].icon,
+        );
+      case 4: // Anxiety
+        return BooleanQuestion(
+          question: questions[4].question,
+          description: questions[4].description,
+          currentValue: _healthData!.hasAnxiety,
+          onChanged: (value) {
+            if (mounted) setState(() => _healthData!.hasAnxiety = value);
+          },
+          questionIcon: questions[4].icon,
+        );
+      case 5: // Low Energy Levels
+        return BooleanQuestion(
+          question: questions[5].question,
+          description: questions[5].description,
+          currentValue: _healthData!.hasLowEnergyLevels,
+          onChanged: (value) {
+            if (mounted) setState(() => _healthData!.hasLowEnergyLevels = value);
+          },
+          questionIcon: questions[5].icon,
+        );
+      case 6: // Skinny Fat
+        return BooleanQuestion(
+          question: questions[6].question,
+          description: questions[6].description,
+          currentValue: _healthData!.isSkinnyFat,
+          onChanged: (value) {
+            if (mounted) setState(() => _healthData!.isSkinnyFat = value);
+          },
+          questionIcon: questions[6].icon,
+        );
+      case 7: // Protein Deficiency
+        return BooleanQuestion(
+          question: questions[7].question,
+          description: questions[7].description,
+          currentValue: _healthData!.hasProteinDeficiency,
+          onChanged: (value) {
+            if (mounted) setState(() => _healthData!.hasProteinDeficiency = value);
+          },
+          questionIcon: questions[7].icon,
+        );
+      case 8: // Allergies
         return AllergiesQuestion(
-          allergies: _healthData.allergies,
+          allergies: _healthData!.allergies,
           onAllergiesChanged: (allergies) {
-            if (mounted) setState(() => _healthData.allergies = allergies);
+            if (mounted) setState(() => _healthData!.allergies = allergies);
           },
         );
       default:

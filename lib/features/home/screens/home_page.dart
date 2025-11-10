@@ -430,7 +430,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin, Widg
           child: GestureDetector(
             onTap: () {
               HapticFeedback.lightImpact();
-              _showEnhancedProfileMenu(context);
+              Navigator.of(context).pushFluid(const SettingsScreen());
             },
             child: AnimatedBuilder(
               animation: _pulseAnimation,
